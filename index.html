@@ -66,6 +66,7 @@
         .g-topbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 0.5px solid rgba(255,255,255,0.1); flex-shrink: 0; }
         .g-title { color: white; font-size: 1.1rem; font-weight: 700; }
         .g-add-btn { background: none; border: none; color: #007AFF; font-size: 1.8rem; font-weight: 300; cursor: pointer; line-height: 1; padding: 0 5px; }
+        .g-back { background: none; border: none; color: #007AFF; font-size: 0.95rem; cursor: pointer; padding: 0 5px; white-space: nowrap; }
         .g-content { flex: 1; overflow-y: auto; background: #000; padding: 15px; }
         .g-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
         .g-photo { position: relative; aspect-ratio: 1; cursor: pointer; overflow: hidden; }
@@ -124,15 +125,16 @@
             <div class="message">Ich liebe dich!</div>
             <div class="counter" id="timer">Berechne unsere Zeit...</div>
             <button class="love-btn btn-3d" id="surprise-btn">Drück mich! 💖</button>
-            <button class="gallery-btn btn-3d" id="open-gallery">📷 Unsere Fotos</button>
+            <button class="gallery-btn btn-3d" id="open-gallery">📷 Unsere Galerie</button>
             <div class="secret-msg" id="secret-text"></div>
         </div>
     </div>
 
     <div id="gallery-view">
         <div class="g-topbar">
+            <button class="g-back" id="g-back">← Zurück</button>
             <div class="g-title">📷 Unsere Galerie</div>
-            <button class="g-add-btn" id="g-add-btn" title="Foto hochladen">+</button>
+            <button class="g-add-btn" id="g-add-btn" title="Foto/Video hochladen">+</button>
         </div>
         <div class="g-content" id="g-content">
             <div class="g-loading">Lade Fotos...</div>
@@ -141,11 +143,12 @@
 
     <div id="lightbox">
         <button class="lightbox-close">✕</button>
-        <img src="" alt="" id="lightbox-img">
+        <img src="" alt="" id="lightbox-img" style="display:none;">
+        <video src="" controls id="lightbox-video" style="display:none; max-width:92vw; max-height:88vh; border-radius:4px;"></video>
         <div class="lightbox-info" id="lightbox-info"></div>
     </div>
 
-    <input type="file" id="file-input" accept="image/*">
+    <input type="file" id="file-input" accept="image/*,video/*">
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -289,44 +292,69 @@
             const fileInput = document.getElementById('file-input');
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxVideo = document.getElementById('lightbox-video');
             const lightboxInfo = document.getElementById('lightbox-info');
+            const gBack = document.getElementById('g-back');
+
+            gBack.addEventListener('click', () => {
+                galleryView.classList.remove('visible');
+                renderGallery();
+            });
+
+            function isVideo(data) {
+                return data && data.startsWith('data:video/');
+            }
 
             function renderGallery() {
-                gContent.innerHTML = '<div class="g-loading">Lade Fotos...</div>';
+                gContent.innerHTML = '<div class="g-loading">Lade Inhalte...</div>';
                 photosRef.get().then(snapshot => {
-                    const photos = [];
+                    const items = [];
                     if (snapshot.exists()) {
                         snapshot.forEach(child => {
                             const val = child.val();
                             if (val && val.data) {
-                                photos.push({ id: child.key, data: val.data, author: val.author || 'Unbekannt', date: val.date || '' });
+                                items.push({ id: child.key, data: val.data, author: val.author || 'Unbekannt', date: val.date || '', type: isVideo(val.data) ? 'video' : 'photo' });
                             }
                         });
                     }
-                    photos.reverse();
+                    items.reverse();
                     gContent.innerHTML = '';
-                    if (photos.length === 0) {
-                        gContent.innerHTML = '<div class="g-empty"><div class="g-empty-icon">📷</div>Noch keine Fotos.<br>Drück auf + um ein Foto hochzuladen.</div>';
+                    if (items.length === 0) {
+                        gContent.innerHTML = '<div class="g-empty"><div class="g-empty-icon">📷</div>Noch keine Inhalte.<br>Drück auf + um ein Foto oder Video hochzuladen.</div>';
                         return;
                     }
                     const grid = document.createElement('div');
                     grid.className = 'g-grid';
-                    photos.forEach(photo => {
-                        const item = document.createElement('div');
-                        item.className = 'g-photo';
-                        item.innerHTML = `<img src="${photo.data}" alt=""><div class="g-photo-author">📷 ${photo.author.charAt(0).toUpperCase()+photo.author.slice(1)}</div><button class="g-photo-delete" data-id="${photo.id}">✕</button>`;
-                        item.querySelector('img').addEventListener('click', () => {
-                            lightboxImg.src = photo.data;
-                            lightboxInfo.textContent = `📷 ${photo.author.charAt(0).toUpperCase()+photo.author.slice(1)} · ${photo.date}`;
+                    items.forEach(item => {
+                        const el = document.createElement('div');
+                        el.className = 'g-photo';
+                        if (item.type === 'video') {
+                            el.innerHTML = `<img src="${item.data}" alt="" style="object-fit:cover;"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2.5rem;opacity:0.9;pointer-events:none;">▶</div><div class="g-photo-author">🎥 ${item.author.charAt(0).toUpperCase()+item.author.slice(1)}</div><button class="g-photo-delete" data-id="${item.id}">✕</button>`;
+                        } else {
+                            el.innerHTML = `<img src="${item.data}" alt=""><div class="g-photo-author">📷 ${item.author.charAt(0).toUpperCase()+item.author.slice(1)}</div><button class="g-photo-delete" data-id="${item.id}">✕</button>`;
+                        }
+                        el.addEventListener('click', (e) => {
+                            if (e.target.closest('.g-photo-delete')) return;
+                            lightboxImg.style.display = 'none';
+                            lightboxVideo.style.display = 'none';
+                            if (item.type === 'video') {
+                                lightboxVideo.src = item.data;
+                                lightboxVideo.style.display = 'block';
+                            } else {
+                                lightboxImg.src = item.data;
+                                lightboxImg.style.display = 'block';
+                            }
+                            const icon = item.type === 'video' ? '🎥' : '📷';
+                            lightboxInfo.textContent = `${icon} ${item.author.charAt(0).toUpperCase()+item.author.slice(1)} · ${item.date}`;
                             lightbox.classList.add('visible');
                         });
-                        grid.appendChild(item);
+                        grid.appendChild(el);
                     });
                     gContent.appendChild(grid);
                     gContent.querySelectorAll('.g-photo-delete').forEach(btn => {
                         btn.addEventListener('click', (e) => {
                             e.stopPropagation();
-                            if (confirm('Foto löschen?')) {
+                            if (confirm('Inhalt löschen?')) {
                                 photosRef.child(btn.dataset.id).remove().then(() => renderGallery());
                             }
                         });
@@ -342,11 +370,16 @@
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                if (file.size > 5*1024*1024) { alert('Max. 5MB!'); return; }
+                const maxSize = file.type.startsWith('video/') ? 15*1024*1024 : 5*1024*1024;
+                if (file.size > maxSize) {
+                    alert(file.type.startsWith('video/') ? 'Max. 15MB für Videos!' : 'Max. 5MB für Fotos!');
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const photoData = ev.target.result;
-                    console.log('Upload starte, Datenlänge:', photoData.length);
+                    const type = file.type.startsWith('video/') ? '🎥' : '📷';
+                    console.log('Upload starte:', type, 'Datenlänge:', photoData.length);
                     photosRef.push({
                         data: photoData,
                         author: currentUser,
@@ -363,8 +396,18 @@
                 fileInput.value = '';
             });
 
-            document.querySelector('.lightbox-close').addEventListener('click', () => lightbox.classList.remove('visible'));
-            lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('visible'); });
+            document.querySelector('.lightbox-close').addEventListener('click', () => {
+                lightbox.classList.remove('visible');
+                lightboxVideo.pause();
+                lightboxVideo.src = '';
+            });
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    lightbox.classList.remove('visible');
+                    lightboxVideo.pause();
+                    lightboxVideo.src = '';
+                }
+            });
 
             document.getElementById('open-gallery').addEventListener('click', () => {
                 renderGallery();
