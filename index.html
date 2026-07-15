@@ -179,6 +179,102 @@
             .c-topbar { padding: 8px 15px; }
             .c-input-bar { padding: 6px 10px; }
         }
+
+        /* SPIELE-MENÜ */
+        #game-menu-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; }
+        #game-menu-view.visible { opacity: 1; visibility: visible; }
+        .gm-title { color: white; font-size: 1.8rem; font-weight: 800; margin-bottom: 30px; }
+        .gm-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 90%; max-width: 350px; }
+        .gm-card { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 25px 15px; text-align: center; cursor: pointer; transition: all 0.2s; color: white; }
+        .gm-card:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
+        .gm-card-icon { font-size: 2.5rem; margin-bottom: 8px; }
+        .gm-card-name { font-size: 0.95rem; font-weight: 700; }
+        .gm-card-desc { font-size: 0.75rem; opacity: 0.5; margin-top: 4px; }
+        .gm-back { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.15); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; }
+
+        /* LOBBY */
+        #game-lobby-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
+        #game-lobby-view.visible { opacity: 1; visibility: visible; }
+        .gl-title { color: white; font-size: 1.5rem; font-weight: 800; margin: 20px 0; }
+        .gl-section { width: 90%; max-width: 350px; margin-bottom: 20px; }
+        .gl-label { color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 8px; font-weight: 600; }
+        .gl-colors { display: flex; gap: 10px; flex-wrap: wrap; }
+        .gl-color { width: 50px; height: 50px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: white; font-weight: bold; }
+        .gl-color:hover { transform: scale(1.1); }
+        .gl-color.selected { border-color: white; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        .gl-color.taken { opacity: 0.3; pointer-events: none; }
+        .gl-bots { display: flex; gap: 10px; align-items: center; }
+        .gl-bots button { background: rgba(255,255,255,0.15); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; }
+        .gl-bots button:hover { background: rgba(255,255,255,0.3); }
+        .gl-bots span { color: white; font-size: 1.3rem; font-weight: 700; min-width: 20px; text-align: center; }
+        .gl-start { width: 90%; max-width: 350px; padding: 14px; background: linear-gradient(45deg, #ff4081, #d11a5b); color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.2s; }
+        .gl-start:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(209,26,91,0.5); }
+        .gl-back { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.15); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; }
+
+        /* SPIELBRETT */
+        #game-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #1a1a2e; z-index: 99999999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; padding: 10px; }
+        #game-view.visible { opacity: 1; visibility: visible; }
+        .board-container { position: relative; width: min(85vw, 85vh, 450px); height: min(85vw, 85vh, 450px); }
+        .board { width: 100%; height: 100%; display: grid; grid-template-columns: repeat(11, 1fr); grid-template-rows: repeat(11, 1fr); gap: 1px; background: #2c2c3a; border-radius: 8px; overflow: hidden; border: 2px solid #444; }
+        .cell { position: relative; display: flex; align-items: center; justify-content: center; }
+        .cell-empty { background: #1a1a2e; }
+        .cell-track { background: #e8e0d0; border-radius: 4px; }
+        .cell-home-red { background: #e74c3c; }
+        .cell-home-blue { background: #3498db; }
+        .cell-home-green { background: #2ecc71; }
+        .cell-home-yellow { background: #f1c40f; }
+        .cell-start-red { background: #e74c3c; }
+        .cell-start-blue { background: #3498db; }
+        .cell-start-green { background: #2ecc71; }
+        .cell-start-yellow { background: #f1c40f; }
+        .cell-center { background: #f4e4bc; border-radius: 50%; }
+        .cell-home-stretch-red { background: #f4c2c2; }
+        .cell-home-stretch-blue { background: #c2dff4; }
+        .cell-home-stretch-green { background: #c2f4d4; }
+        .cell-home-stretch-yellow { background: #f4f0c2; }
+        .cell-base-red { background: #e74c3c; opacity: 0.3; border-radius: 8px; }
+        .cell-base-blue { background: #3498db; opacity: 0.3; border-radius: 8px; }
+        .cell-base-green { background: #2ecc71; opacity: 0.3; border-radius: 8px; }
+        .cell-base-yellow { background: #f1c40f; opacity: 0.3; border-radius: 8px; }
+
+        .piece { position: absolute; width: 75%; height: 75%; border-radius: 50%; z-index: 5; cursor: pointer; transition: left 0.3s ease, top 0.3s ease; display: flex; align-items: center; justify-content: center; font-size: min(2vw, 0.7rem); font-weight: 800; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); box-shadow: 0 2px 6px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.4); }
+        .piece.red { background: #e74c3c; }
+        .piece.blue { background: #3498db; }
+        .piece.green { background: #2ecc71; }
+        .piece.yellow { background: #f1c40f; color: #333; text-shadow: none; }
+        .piece.clickable { cursor: pointer; animation: pieceGlow 0.8s infinite alternate; }
+        .piece.clickable:hover { transform: scale(1.15); }
+        @keyframes pieceGlow { 0% { box-shadow: 0 2px 6px rgba(0,0,0,0.4); } 100% { box-shadow: 0 2px 15px rgba(255,255,255,0.6); } }
+        .piece.captured { animation: capturedAnim 0.5s ease; }
+        @keyframes capturedAnim { 0% { transform: scale(1); } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+
+        .game-topbar { display: flex; justify-content: space-between; align-items: center; width: min(90vw, 450px); margin-bottom: 10px; }
+        .game-back { background: rgba(255,255,255,0.15); color: white; border: none; padding: 6px 14px; border-radius: 16px; font-size: 0.85rem; cursor: pointer; }
+        .game-msg { color: white; font-size: 0.9rem; font-weight: 600; text-align: center; }
+
+        .game-bottom { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; width: min(90vw, 450px); }
+        .game-players { display: flex; gap: 10px; width: 100%; justify-content: center; }
+        .game-player { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; background: rgba(255,255,255,0.1); color: white; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
+        .game-player.active { background: rgba(255,255,255,0.25); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .game-player-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); }
+        .game-controls { display: flex; gap: 10px; align-items: center; }
+
+        .dice-btn { width: 70px; height: 70px; background: white; border: none; border-radius: 12px; cursor: pointer; font-size: 2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.2s; position: relative; }
+        .dice-btn:hover:not(:disabled) { transform: scale(1.05); }
+        .dice-btn:disabled { opacity: 0.4; cursor: default; }
+        .dice-btn.rolling { animation: diceRoll 0.1s infinite; }
+        @keyframes diceRoll { 0% { transform: rotate(0deg); } 25% { transform: rotate(10deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-10deg); } 100% { transform: rotate(0deg); } }
+        .dice-face { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); width: 50px; height: 50px; gap: 3px; }
+        .dice-dot { width: 100%; height: 100%; border-radius: 50%; }
+        .dice-dot.red { background: #e74c3c; }
+        .dice-dot.empty { background: transparent; }
+
+        .win-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 999999999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.5s, visibility 0.5s; }
+        .win-overlay.visible { opacity: 1; visibility: visible; }
+        .win-text { font-size: 2.5rem; font-weight: 900; color: white; text-align: center; animation: winPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes winPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .win-sub { color: rgba(255,255,255,0.6); font-size: 1rem; margin-top: 10px; }
+        .win-btn { margin-top: 25px; padding: 12px 30px; background: linear-gradient(45deg, #ff4081, #d11a5b); color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -220,6 +316,7 @@
             <button class="love-btn btn-3d" id="surprise-btn">Drück mich! 💖</button>
             <button class="gallery-btn btn-3d" id="open-gallery">📷 Unsere Galerie</button>
             <button class="gallery-btn btn-3d" id="open-chat" style="margin-top:10px;">💬 Unser Chat</button>
+            <button class="gallery-btn btn-3d" id="open-games" style="margin-top:10px;">🎲 Spiele</button>
             <div class="secret-msg" id="secret-text"></div>
         </div>
     </div>
@@ -257,6 +354,70 @@
         <div class="once-badge">👁️ 1x ansehen</div>
         <div class="once-content" id="once-content"></div>
         <div class="once-hinweis">Dieses Bild kann nur 1x angesehen werden.</div>
+    </div>
+
+    <div id="game-menu-view">
+        <button class="gm-back" id="gm-back">← Zurück</button>
+        <div class="gm-title">Spiele</div>
+        <div class="gm-grid">
+            <div class="gm-card" id="gm-ludo">
+                <div class="gm-card-icon">🎲</div>
+                <div class="gm-card-name">Mensch ärgere dich nicht</div>
+                <div class="gm-card-desc">2-4 Spieler</div>
+            </div>
+            <div class="gm-card" style="opacity:0.3;pointer-events:none;">
+                <div class="gm-card-icon">🚧</div>
+                <div class="gm-card-name">Bald mehr...</div>
+                <div class="gm-card-desc">Coming soon</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-lobby-view">
+        <button class="gl-back" id="gl-back">← Zurück</button>
+        <div class="gl-title">🎲 Spiel einrichten</div>
+        <div class="gl-section">
+            <div class="gl-label">Deine Farbe:</div>
+            <div class="gl-colors" id="gl-my-colors">
+                <div class="gl-color" data-color="red" style="background:#e74c3c;">R</div>
+                <div class="gl-color" data-color="blue" style="background:#3498db;">B</div>
+                <div class="gl-color" data-color="green" style="background:#2ecc71;">G</div>
+                <div class="gl-color" data-color="yellow" style="background:#f1c40f;">Y</div>
+            </div>
+        </div>
+        <div class="gl-section">
+            <div class="gl-label">Bots (KI-Gegner):</div>
+            <div class="gl-bots">
+                <button id="gl-bot-minus">−</button>
+                <span id="gl-bot-count">0</span>
+                <button id="gl-bot-plus">+</button>
+            </div>
+        </div>
+        <button class="gl-start" id="gl-start">Spiel starten!</button>
+    </div>
+
+    <div id="game-view">
+        <div class="game-topbar">
+            <button class="game-back" id="game-back">← Abbrechen</button>
+            <div class="game-msg" id="game-msg">Wird geladen...</div>
+        </div>
+        <div class="board-container">
+            <div class="board" id="board"></div>
+        </div>
+        <div class="game-bottom">
+            <div class="game-players" id="game-players"></div>
+            <div class="game-controls">
+                <button class="dice-btn" id="dice-btn" disabled>
+                    <div class="dice-face" id="dice-face"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="win-overlay" id="win-overlay">
+        <div class="win-text" id="win-text"></div>
+        <div class="win-sub">Herzlichen Glückwunsch!</div>
+        <button class="win-btn" id="win-btn">Zurück zum Menü</button>
     </div>
 
     <input type="file" id="chat-file-input" accept="image/*,video/*">
@@ -797,6 +958,410 @@
                 }
             }
             handleIOSKeyboard();
+
+            // === MENSCH ÄRGERE DICH NICHT ===
+            const GAME_COLORS = {
+                red:    { hex: '#e74c3c', name: 'Rot', startIdx: 0, baseCoords: [[0,0],[1,0],[0,1],[1,1]] },
+                blue:   { hex: '#3498db', name: 'Blau', startIdx: 10, baseCoords: [[9,0],[10,0],[9,1],[10,1]] },
+                green:  { hex: '#2ecc71', name: 'Grün', startIdx: 20, baseCoords: [[9,9],[10,9],[9,10],[10,10]] },
+                yellow: { hex: '#f1c40f', name: 'Gelb', startIdx: 30, baseCoords: [[0,9],[1,9],[0,10],[1,10]] }
+            };
+            const TRACK = [
+                [0,4],[1,4],[2,4],[3,4],[4,4],[4,3],[4,2],[4,1],[4,0],[5,0],[6,0],
+                [6,1],[6,2],[6,3],[6,4],[7,4],[8,4],[9,4],[10,4],[10,5],[10,6],
+                [9,6],[8,6],[7,6],[6,6],[6,7],[6,8],[6,9],[6,10],[5,10],[4,10],
+                [4,9],[4,8],[4,7],[4,6],[3,6],[2,6],[1,6],[0,6],[0,5]
+            ];
+            const HOME_STRETCH = {
+                red:    [[1,5],[2,5],[3,5],[4,5]],
+                blue:   [[5,1],[5,2],[5,3],[5,4]],
+                green:  [[9,5],[8,5],[7,5],[6,5]],
+                yellow: [[5,9],[5,8],[5,7],[5,6]]
+            };
+            const BOT_NAMES = ['Anton','Berta','Carlo','Dana'];
+
+            let gameState = null;
+            let gameRef = null;
+            let gameListener = null;
+            let selectedColor = null;
+            let botCount = 0;
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            function playSound(type) {
+                const o = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                o.connect(g); g.connect(audioCtx.destination);
+                g.gain.value = 0.15;
+                if (type === 'dice') { o.frequency.value = 200; o.type = 'square'; g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15); o.start(); o.stop(audioCtx.currentTime + 0.15); }
+                else if (type === 'move') { o.frequency.value = 400; o.type = 'sine'; o.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15); o.start(); o.stop(audioCtx.currentTime + 0.15); }
+                else if (type === 'capture') { o.frequency.value = 600; o.type = 'sawtooth'; o.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); o.start(); o.stop(audioCtx.currentTime + 0.3); }
+                else if (type === 'win') { o.frequency.value = 523; o.type = 'sine'; g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8); o.start(); o.frequency.setValueAtTime(659, audioCtx.currentTime + 0.2); o.frequency.setValueAtTime(784, audioCtx.currentTime + 0.4); o.frequency.setValueAtTime(1047, audioCtx.currentTime + 0.6); o.stop(audioCtx.currentTime + 0.8); }
+                else if (type === 'six') { o.frequency.value = 800; o.type = 'sine'; g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2); o.start(); o.stop(audioCtx.currentTime + 0.2); }
+            }
+
+            function getCellPx(gx, gy) {
+                const board = document.getElementById('board');
+                const cellW = board.clientWidth / 11;
+                const cellH = board.clientHeight / 11;
+                return { x: gx * cellW + cellW / 2, y: gy * cellH + cellH / 2 };
+            }
+
+            function buildBoard() {
+                const board = document.getElementById('board');
+                board.innerHTML = '';
+                const types = [];
+                for (let r = 0; r < 11; r++) {
+                    types[r] = [];
+                    for (let c = 0; c < 11; c++) types[r][c] = 'empty';
+                }
+                TRACK.forEach(([x,y]) => { if (types[y]) types[y][x] = 'track'; });
+                Object.entries(HOME_STRETCH).forEach(([color, coords]) => {
+                    coords.forEach(([x,y]) => { if (types[y]) types[y][x] = 'home-stretch-' + color; });
+                });
+                Object.entries(GAME_COLORS).forEach(([color, data]) => {
+                    data.baseCoords.forEach(([x,y]) => { if (types[y]) types[y][x] = 'base-' + color; });
+                    const startCoord = TRACK[data.startIdx];
+                    if (types[startCoord[1]]) types[startCoord[1]][startCoord[0]] = 'start-' + color;
+                });
+                types[5][5] = 'center';
+                for (let r = 0; r < 11; r++) {
+                    for (let c = 0; c < 11; c++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell cell-' + (types[r][c] || 'empty');
+                        cell.dataset.gx = c;
+                        cell.dataset.gy = r;
+                        board.appendChild(cell);
+                    }
+                }
+            }
+
+            function getPosCoords(color, pos, pieceIdx) {
+                if (pos === -1) {
+                    const myPieces = gameState.pieces[color];
+                    let baseSlot = 0;
+                    for (let i = 0; i < pieceIdx; i++) { if (myPieces[i] === -1) baseSlot++; }
+                    return GAME_COLORS[color].baseCoords[Math.min(baseSlot, 3)];
+                }
+                if (pos >= 40) {
+                    const hi = pos - 40;
+                    return HOME_STRETCH[color][Math.min(hi, 3)];
+                }
+                const absPos = (pos + GAME_COLORS[color].startIdx) % 40;
+                return TRACK[absPos];
+            }
+
+            function renderPieces() {
+                document.querySelectorAll('.piece').forEach(p => p.remove());
+                if (!gameState) return;
+                const occupied = {};
+                Object.entries(gameState.pieces).forEach(([color, pieces]) => {
+                    pieces.forEach((pos, i) => {
+                        const [gx, gy] = getPosCoords(color, pos, i);
+                        const key = gx + ',' + gy;
+                        if (!occupied[key]) occupied[key] = [];
+                        occupied[key].push({ color, idx: i, pos });
+                    });
+                });
+                Object.entries(occupied).forEach(([key, stack]) => {
+                    const [gx, gy] = key.split(',').map(Number);
+                    const base = getCellPx(gx, gy);
+                    stack.forEach((item, si) => {
+                        const el = document.createElement('div');
+                        el.className = 'piece ' + item.color;
+                        el.style.left = (base.x - 15) + 'px';
+                        el.style.top = (base.y - 15) + 'px';
+                        el.style.width = '30px';
+                        el.style.height = '30px';
+                        if (stack.length > 1) {
+                            el.style.left = (base.x - 12 + si * 6) + 'px';
+                            el.style.top = (base.y - 12) + 'px';
+                            el.style.width = '24px';
+                            el.style.height = '24px';
+                            el.style.fontSize = '0.5rem';
+                        }
+                        el.textContent = item.idx + 1;
+                        el.dataset.color = item.color;
+                        el.dataset.idx = item.idx;
+                        if (gameState.state === 'MOVE' && gameState.turn === item.color && isLegalMove(item.color, item.idx, gameState.dice)) {
+                            el.classList.add('clickable');
+                            el.addEventListener('click', () => doMove(item.color, item.idx));
+                        }
+                        document.querySelector('.board-container').appendChild(el);
+                    });
+                });
+            }
+
+            function renderDice(value) {
+                const face = document.getElementById('dice-face');
+                const patterns = {
+                    1: [0,0,0, 0,1,0, 0,0,0],
+                    2: [0,0,1, 0,0,0, 1,0,0],
+                    3: [0,0,1, 0,1,0, 1,0,0],
+                    4: [1,0,1, 0,0,0, 1,0,1],
+                    5: [1,0,1, 0,1,0, 1,0,1],
+                    6: [1,0,1, 1,0,1, 1,0,1]
+                };
+                const p = patterns[value || 1];
+                face.innerHTML = '';
+                p.forEach(v => {
+                    const dot = document.createElement('div');
+                    dot.className = 'dice-dot ' + (v ? 'red' : 'empty');
+                    face.appendChild(dot);
+                });
+            }
+
+            function renderPlayers() {
+                const el = document.getElementById('game-players');
+                el.innerHTML = '';
+                gameState.order.forEach(color => {
+                    const isBot = gameState.bots && gameState.bots.includes(color);
+                    const p = document.createElement('div');
+                    p.className = 'game-player' + (gameState.turn === color ? ' active' : '');
+                    p.innerHTML = `<div class="game-player-dot" style="background:${GAME_COLORS[color].hex}"></div>${GAME_COLORS[color].name}${isBot ? ' 🤖' : ''}`;
+                    el.appendChild(p);
+                });
+            }
+
+            function renderGame() {
+                if (!gameState) return;
+                document.getElementById('game-msg').textContent = gameState.msg || '';
+                renderPieces();
+                renderPlayers();
+                const diceBtn = document.getElementById('dice-btn');
+                const isMyTurn = gameState.turn === currentUser || (gameState.bots && gameState.bots.includes(gameState.turn));
+                diceBtn.disabled = gameState.state !== 'ROLL' || !isMyTurn || gameState.finished;
+                renderDice(gameState.dice);
+                if (gameState.state === 'ROLL' && isMyTurn && !gameState.finished) {
+                    diceBtn.classList.remove('rolling');
+                }
+            }
+
+            function isLegalMove(color, idx, dice) {
+                const pos = gameState.pieces[color][idx];
+                if (pos === -1) return dice === 6 && !gameState.pieces[color].includes(0);
+                if (pos >= 40) return pos + dice <= 43 && !gameState.pieces[color].includes(pos + dice);
+                const target = pos + dice;
+                if (target > 43) return false;
+                return !gameState.pieces[color].includes(target);
+            }
+
+            function getMovablePieces(color, dice) {
+                const movable = [];
+                for (let i = 0; i < 4; i++) {
+                    if (isLegalMove(color, i, dice)) movable.push(i);
+                }
+                const piecesInBase = gameState.pieces[color].map((p, i) => p === -1 ? i : -1).filter(i => i >= 0);
+                const ownAtStart = gameState.pieces[color].includes(0);
+                if (ownAtStart && piecesInBase.length > 0) {
+                    const startPiece = gameState.pieces[color].indexOf(0);
+                    return movable.includes(startPiece) ? [startPiece] : [];
+                }
+                if (dice === 6 && piecesInBase.length > 0 && !ownAtStart) return piecesInBase.filter(i => movable.includes(i));
+                return movable;
+            }
+
+            function performMove(color, idx) {
+                const pos = gameState.pieces[color][idx];
+                let msg = '';
+                if (pos === -1) {
+                    gameState.pieces[color][idx] = 0;
+                    msg = GAME_COLORS[color].name + ' kommt raus!';
+                    playSound('move');
+                } else {
+                    gameState.pieces[color][idx] += gameState.dice;
+                    msg = GAME_COLORS[color].name + ' zieht ' + gameState.dice + '.';
+                    playSound('move');
+                }
+                if (gameState.pieces[color][idx] >= 0 && gameState.pieces[color][idx] <= 39) {
+                    const myAbs = (gameState.pieces[color][idx] + GAME_COLORS[color].startIdx) % 40;
+                    gameState.order.forEach(otherColor => {
+                        if (otherColor === color) return;
+                        const eStart = GAME_COLORS[otherColor].startIdx;
+                        for (let ei = 0; ei < 4; ei++) {
+                            const epos = gameState.pieces[otherColor][ei];
+                            if (epos >= 0 && epos <= 39 && (epos + eStart) % 40 === myAbs) {
+                                gameState.pieces[otherColor][ei] = -1;
+                                msg += ' ' + GAME_COLORS[otherColor].name + ' geschlagen!';
+                                playSound('capture');
+                            }
+                        }
+                    });
+                }
+                gameState.msg = msg;
+                const won = gameState.pieces[color].every(p => p >= 40);
+                if (won) {
+                    gameState.finished = true;
+                    gameState.winner = color;
+                    gameState.msg = GAME_COLORS[color].name + ' GEWINNT! 🏆';
+                    playSound('win');
+                }
+            }
+
+            function doMove(color, idx) {
+                if (!gameState || gameState.state !== 'MOVE' || gameState.turn !== color) return;
+                performMove(color, idx);
+                if (gameState.finished) {
+                    renderGame();
+                    showWinOverlay(color);
+                    syncGameState();
+                    return;
+                }
+                if (gameState.dice === 6) {
+                    gameState.state = 'ROLL';
+                } else {
+                    nextTurn();
+                }
+                renderGame();
+                syncGameState();
+                if (isBotTurn()) setTimeout(botTurn, 1200);
+            }
+
+            function nextTurn() {
+                const idx = gameState.order.indexOf(gameState.turn);
+                gameState.turn = gameState.order[(idx + 1) % gameState.order.length];
+                gameState.state = 'ROLL';
+                gameState.dice = null;
+            }
+
+            function rollDice() {
+                if (!gameState || gameState.state !== 'ROLL') return;
+                gameState.dice = Math.floor(Math.random() * 6) + 1;
+                if (gameState.dice === 6) playSound('six'); else playSound('dice');
+                const movable = getMovablePieces(gameState.turn, gameState.dice);
+                if (movable.length === 0) {
+                    gameState.msg = GAME_COLORS[gameState.turn].name + ' würfelt ' + gameState.dice + '.';
+                    renderGame();
+                    setTimeout(() => {
+                        if (gameState.dice === 6) {
+                            gameState.state = 'ROLL';
+                        } else {
+                            nextTurn();
+                        }
+                        renderGame();
+                        syncGameState();
+                        if (isBotTurn()) setTimeout(botTurn, 1200);
+                    }, 1000);
+                } else {
+                    gameState.state = 'MOVE';
+                    gameState.msg = GAME_COLORS[gameState.turn].name + ' würfelt ' + gameState.dice + '!';
+                    renderGame();
+                    syncGameState();
+                }
+            }
+
+            function isBotTurn() {
+                return gameState && gameState.bots && gameState.bots.includes(gameState.turn);
+            }
+
+            function botTurn() {
+                if (!gameState || gameState.finished || !isBotTurn()) return;
+                if (gameState.state === 'ROLL') {
+                    rollDice();
+                } else if (gameState.state === 'MOVE') {
+                    const movable = getMovablePieces(gameState.turn, gameState.dice);
+                    if (movable.length > 0) {
+                        let best = movable[0];
+                        for (const idx of movable) {
+                            const pos = gameState.pieces[gameState.turn][idx];
+                            if (pos === -1) { best = idx; break; }
+                            const myAbs = (pos + gameState.dice + GAME_COLORS[gameState.turn].startIdx) % 40;
+                            let canCapture = false;
+                            gameState.order.forEach(oc => {
+                                if (oc === gameState.turn) return;
+                                for (let ei = 0; ei < 4; ei++) {
+                                    const ep = gameState.pieces[oc][ei];
+                                    if (ep >= 0 && ep <= 39 && (ep + GAME_COLORS[oc].startIdx) % 40 === myAbs) canCapture = true;
+                                }
+                            });
+                            if (canCapture) { best = idx; break; }
+                            if (gameState.pieces[gameState.turn][idx] > gameState.pieces[gameState.turn][best] || gameState.pieces[gameState.turn][best] === -1) best = idx;
+                        }
+                        doMove(gameState.turn, best);
+                    }
+                }
+            }
+
+            function syncGameState() {
+                if (gameRef && gameState) {
+                    gameRef.set(gameState).catch(e => console.error('Game sync error:', e));
+                }
+            }
+
+            function showWinOverlay(color) {
+                const overlay = document.getElementById('win-overlay');
+                document.getElementById('win-text').textContent = '🏆 ' + GAME_COLORS[color].name + ' gewinnt!';
+                overlay.classList.add('visible');
+            }
+
+            // === GAME VIEWS ===
+            document.getElementById('open-games').addEventListener('click', () => {
+                document.getElementById('game-menu-view').classList.add('visible');
+            });
+            document.getElementById('gm-back').addEventListener('click', () => {
+                document.getElementById('game-menu-view').classList.remove('visible');
+            });
+            document.getElementById('gm-ludo').addEventListener('click', () => {
+                document.getElementById('game-menu-view').classList.remove('visible');
+                document.getElementById('game-lobby-view').classList.add('visible');
+                selectedColor = null;
+                botCount = 0;
+                document.getElementById('gl-bot-count').textContent = '0';
+                document.querySelectorAll('#gl-my-colors .gl-color').forEach(c => c.classList.remove('selected'));
+            });
+            document.getElementById('gl-back').addEventListener('click', () => {
+                document.getElementById('game-lobby-view').classList.remove('visible');
+            });
+            document.querySelectorAll('#gl-my-colors .gl-color').forEach(el => {
+                el.addEventListener('click', () => {
+                    document.querySelectorAll('#gl-my-colors .gl-color').forEach(c => c.classList.remove('selected'));
+                    el.classList.add('selected');
+                    selectedColor = el.dataset.color;
+                });
+            });
+            document.getElementById('gl-bot-minus').addEventListener('click', () => {
+                if (botCount > 0) { botCount--; document.getElementById('gl-bot-count').textContent = botCount; }
+            });
+            document.getElementById('gl-bot-plus').addEventListener('click', () => {
+                if (botCount < 3) { botCount++; document.getElementById('gl-bot-count').textContent = botCount; }
+            });
+            document.getElementById('gl-start').addEventListener('click', () => {
+                if (!selectedColor) { alert('Wähle zuerst eine Farbe!'); return; }
+                const allColors = ['red','blue','green','yellow'];
+                const botColors = allColors.filter(c => c !== selectedColor);
+                const bots = botColors.slice(0, botCount);
+                const order = [selectedColor, ...bots];
+                const pieces = {};
+                order.forEach(c => { pieces[c] = [-1,-1,-1,-1]; });
+                gameState = {
+                    state: 'ROLL', turn: order[0], dice: null,
+                    msg: 'Spiel gestartet! ' + GAME_COLORS[order[0]].name + ' fängt an.',
+                    pieces, order, bots,
+                    winner: null, finished: false
+                };
+                document.getElementById('game-lobby-view').classList.remove('visible');
+                document.getElementById('game-view').classList.add('visible');
+                buildBoard();
+                renderGame();
+                playSound('dice');
+            });
+            document.getElementById('game-back').addEventListener('click', () => {
+                document.getElementById('game-view').classList.remove('visible');
+                gameState = null;
+            });
+            document.getElementById('dice-btn').addEventListener('click', () => {
+                if (gameState && gameState.state === 'ROLL' && !gameState.finished) {
+                    const diceBtn = document.getElementById('dice-btn');
+                    diceBtn.classList.add('rolling');
+                    renderDice(Math.floor(Math.random() * 6) + 1);
+                    setTimeout(() => { diceBtn.classList.remove('rolling'); rollDice(); }, 400);
+                }
+            });
+            document.getElementById('win-btn').addEventListener('click', () => {
+                document.getElementById('win-overlay').classList.remove('visible');
+                document.getElementById('game-view').classList.remove('visible');
+                document.getElementById('game-menu-view').classList.add('visible');
+                gameState = null;
+            });
         }
     });
     </script>
