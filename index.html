@@ -155,8 +155,9 @@
                 loginError.textContent = loginAttempts >= 3
                     ? 'Zu viele Fehlversuche! Versuch's später nochmal.'
                     : 'Benutzername oder Passwort ist falsch.';
-                loginInput.classList.add('error');
-                setTimeout(() => loginInput.classList.remove('error'), 500);
+                usernameInput.classList.add('error');
+                passwordInput.classList.add('error');
+                setTimeout(() => { usernameInput.classList.remove('error'); passwordInput.classList.remove('error'); }, 500);
                 passwordInput.value = '';
                 if (loginAttempts >= 3) {
                     loginBtn.disabled = true;
