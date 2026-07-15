@@ -8,7 +8,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000; min-height: 100vh; overflow: hidden; }
 
-        /* LOGIN */
         #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); display: flex; justify-content: center; align-items: center; z-index: 99999; transition: opacity 0.6s ease, visibility 0.6s ease; }
         #login-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         .login-container { background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 40px 30px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -28,7 +27,6 @@
         .stay-logged input[type="checkbox"] { width: 18px; height: 18px; accent-color: #d11a5b; cursor: pointer; }
         .stay-logged label { cursor: pointer; user-select: none; }
 
-        /* SPLASH */
         #welcome-splash { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); display: flex; justify-content: center; align-items: center; z-index: 999999; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.6s ease, visibility 0.6s ease; }
         #welcome-splash.visible { opacity: 1; visibility: visible; }
         #welcome-splash.fade-out { opacity: 0; }
@@ -38,7 +36,6 @@
         .splash-text { font-size: 2rem; font-weight: 800; color: white; text-shadow: 0 0 30px rgba(255, 255, 255, 0.5); }
         .splash-name { color: #ff6b9d; }
 
-        /* LOVE CARD */
         #love-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #ffeef8 0%, #ffd1dc 50%, #fbc2eb 100%); display: flex; justify-content: center; align-items: center; z-index: 9999999; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity 0.8s ease, visibility 0.8s ease; }
         #love-overlay.visible { opacity: 1; visibility: visible; }
         .love-card { background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 40px 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(253, 114, 148, 0.3); border: 1px solid rgba(255, 255, 255, 0.8); position: relative; z-index: 10; animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; user-select: none; -webkit-user-select: none; }
@@ -60,11 +57,9 @@
         @keyframes fall { 0% { transform: translateY(-10%) rotate(0deg); opacity: 0.9; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
         @keyframes burstUp { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-50vh) translateX(var(--bx)) rotate(var(--br)); opacity: 0; } }
 
-        /* ========== GALERIE - iPHONE STYLE ========== */
+        /* GALERIE - iPHONE STYLE */
         #gallery-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999999; display: flex; flex-direction: column; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; }
         #gallery-view.visible { opacity: 1; visibility: visible; }
-
-        /* Top Bar */
         .g-topbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 0.5px solid rgba(255,255,255,0.1); flex-shrink: 0; }
         .g-topbar-left { display: flex; align-items: center; gap: 12px; }
         .g-back { background: none; border: none; color: #007AFF; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 5px 0; }
@@ -72,11 +67,9 @@
         .g-title { color: white; font-size: 1.1rem; font-weight: 700; }
         .g-topbar-right { display: flex; align-items: center; gap: 15px; }
         .g-add-btn { background: none; border: none; color: #007AFF; font-size: 1.8rem; font-weight: 300; cursor: pointer; line-height: 1; padding: 0 5px; }
-
-        /* Content */
         .g-content { flex: 1; overflow-y: auto; background: #000; -webkit-overflow-scrolling: touch; }
 
-        /* ALBUMS LISTE */
+        /* ALBEN LISTE */
         .g-albums-section { padding: 20px; }
         .g-section-title { color: rgba(255,255,255,0.5); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
         .g-albums-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
@@ -89,21 +82,21 @@
         .g-album-name { color: white; font-size: 0.95rem; font-weight: 600; }
         .g-album-count { color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-top: 2px; }
 
-        /* ALBUM DETAIL */
-        .g-album-header { padding: 20px; text-align: center; }
-        .g-album-header h2 { color: white; font-size: 1.8rem; font-weight: 800; margin-bottom: 5px; }
-        .g-album-header p { color: rgba(255,255,255,0.5); font-size: 0.9rem; }
+        /* FOTOS GRID */
         .g-photos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0 2px 20px; }
         .g-photo { position: relative; aspect-ratio: 1; cursor: pointer; overflow: hidden; }
         .g-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
         .g-photo:hover img { transform: scale(1.05); }
         .g-photo-delete { position: absolute; top: 5px; right: 5px; background: rgba(255,50,50,0.8); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; font-size: 0.75rem; cursor: pointer; opacity: 0; transition: opacity 0.2s; display: flex; justify-content: center; align-items: center; }
         .g-photo:hover .g-photo-delete { opacity: 1; }
-        .g-empty-album { grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: rgba(255,255,255,0.3); }
-        .g-empty-album-icon { font-size: 4rem; margin-bottom: 10px; }
+        .g-empty { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
+        .g-empty-icon { font-size: 4rem; margin-bottom: 10px; }
         .g-loading { grid-column: 1 / -1; text-align: center; padding: 60px; color: rgba(255,255,255,0.5); }
+        .g-album-header { padding: 20px; text-align: center; }
+        .g-album-header h2 { color: white; font-size: 1.8rem; font-weight: 800; margin-bottom: 5px; }
+        .g-album-header p { color: rgba(255,255,255,0.5); font-size: 0.9rem; }
 
-        /* POPUP: Neues Album */
+        /* POPUPS */
         #new-album-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999999999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         #new-album-popup.visible { opacity: 1; visibility: visible; }
         .popup-box { background: #2c2c2e; border-radius: 14px; padding: 25px; width: 90%; max-width: 320px; animation: popIn 0.3s ease; }
@@ -115,28 +108,12 @@
         .popup-btn-cancel { background: #3a3a3c; color: white; }
         .popup-btn-create { background: #007AFF; color: white; }
 
-        /* POPUP: Foto zu Album */
-        #upload-popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 999999999; display: flex; justify-content: center; align-items: flex-end; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
-        #upload-popup.visible { opacity: 1; visibility: visible; }
-        .upload-sheet { background: #2c2c2e; border-radius: 14px 14px 0 0; padding: 20px; width: 100%; max-width: 500px; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { 0% { transform: translateY(100%); } 100% { transform: translateY(0); } }
-        .upload-sheet-title { color: white; font-size: 1rem; font-weight: 700; text-align: center; margin-bottom: 15px; }
-        .upload-album-list { max-height: 300px; overflow-y: auto; }
-        .upload-album-option { display: flex; align-items: center; gap: 12px; padding: 12px 15px; cursor: pointer; border-radius: 10px; transition: background 0.2s; }
-        .upload-album-option:hover { background: #3a3a3c; }
-        .upload-album-thumb { width: 50px; height: 50px; border-radius: 8px; overflow: hidden; background: #3a3a3c; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
-        .upload-album-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .upload-album-thumb span { font-size: 1.5rem; opacity: 0.4; }
-        .upload-album-name { color: white; font-size: 0.95rem; font-weight: 500; }
-        .upload-cancel { width: 100%; padding: 15px; background: #3a3a3c; color: #007AFF; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        #file-input { display: none; }
-
-        /* LIGHTBOX */
         #photo-lightbox { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.97); z-index: 999999999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; cursor: pointer; }
         #photo-lightbox.visible { opacity: 1; visibility: visible; }
         #photo-lightbox img { max-width: 95vw; max-height: 90vh; object-fit: contain; border-radius: 4px; }
         .lightbox-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.3rem; cursor: pointer; }
         .lightbox-author { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 0.9rem; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 20px; }
+        #file-input { display: none; }
     </style>
 </head>
 <body>
@@ -181,13 +158,12 @@
         </div>
     </div>
 
-    <!-- GALERIE -->
     <div id="gallery-view">
         <div class="g-topbar">
             <div class="g-topbar-left">
                 <button class="g-back" id="g-back-btn" style="visibility:hidden;">
                     <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-                    <span id="g-back-text">Alben</span>
+                    <span id="g-back-text">Zurück</span>
                 </button>
             </div>
             <div class="g-title" id="g-main-title">📷 Galerie</div>
@@ -209,14 +185,6 @@
         </div>
     </div>
 
-    <div id="upload-popup">
-        <div class="upload-sheet">
-            <div class="upload-sheet-title">Foto hochladen zu...</div>
-            <div class="upload-album-list" id="upload-album-list"></div>
-            <button class="upload-cancel" id="upload-cancel">Abbrechen</button>
-        </div>
-    </div>
-
     <div id="photo-lightbox">
         <button class="lightbox-close">✕</button>
         <img src="" alt="" id="lightbox-img">
@@ -227,7 +195,7 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // FIREBASE
+        // FIREBASE - einfache photos-Struktur (wie vorher)
         firebase.initializeApp({
             apiKey: "AIzaSyDer6-69o8uYbyYQmL6xeBz7_B3j_oTMVI",
             authDomain: "lxk-love.firebaseapp.com",
@@ -237,6 +205,7 @@
             appId: "1:996365536008:web:7c2d7803bbaaf2d3953abd"
         });
         const db = firebase.database();
+        const photosRef = db.ref('photos');
         const albumsRef = db.ref('albums');
 
         // LOGIN
@@ -369,91 +338,36 @@
             const lightboxImg = document.getElementById('lightbox-img');
             const lightboxAuthor = document.getElementById('lightbox-author');
             const newAlbumPopup = document.getElementById('new-album-popup');
-            const uploadPopup = document.getElementById('upload-popup');
-            const uploadAlbumList = document.getElementById('upload-album-list');
 
             let currentView = 'albums';
             let currentAlbumId = null;
-            let pendingPhotoData = null;
 
-            function showAlbumsView() {
-                currentView = 'albums';
+            // Zeige ALLE Fotos (kein Album)
+            function showAllPhotos() {
+                currentView = 'all';
                 currentAlbumId = null;
                 gBackBtn.style.visibility = 'hidden';
                 gMainTitle.textContent = '📷 Galerie';
                 gAddBtn.textContent = '+';
-                gContent.innerHTML = '<div class="g-loading">Lade Alben...</div>';
-
-                albumsRef.once('value').then(snap => {
-                    const albums = [];
-                    snap.forEach(child => albums.push({ id: child.key, ...child.val() }));
-                    gContent.innerHTML = '';
-
-                    const section = document.createElement('div');
-                    section.className = 'g-albums-section';
-                    section.innerHTML = `<div class="g-section-title">Meine Alben</div>`;
-                    const grid = document.createElement('div');
-                    grid.className = 'g-albums-grid';
-
-                    if (albums.length === 0) {
-                        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.3);padding:60px 20px;"><div style="font-size:3rem;margin-bottom:10px;">📁</div>Noch keine Alben.<br>Drück auf + um ein Album zu erstellen.</div>';
-                    }
-
-                    albums.forEach(album => {
-                        const card = document.createElement('div');
-                        card.className = 'g-album-card';
-                        const photos = album.photos ? Object.values(album.photos) : [];
-                        const cover = photos.length > 0 ? `<img src="${photos[0].data}" alt="">` : '<span class="g-album-cover-icon">📁</span>';
-                        card.innerHTML = `
-                            <div class="g-album-cover">${cover}</div>
-                            <div class="g-album-info">
-                                <div class="g-album-name">${album.name}</div>
-                                <div class="g-album-count">${photos.length} Foto${photos.length !== 1 ? 's' : ''}</div>
-                            </div>
-                        `;
-                        card.addEventListener('click', () => showAlbumDetail(album.id, album.name));
-                        grid.appendChild(card);
-                    });
-
-                    section.appendChild(grid);
-                    gContent.appendChild(section);
-                });
-            }
-
-            function showAlbumDetail(albumId, albumName) {
-                currentView = 'detail';
-                currentAlbumId = albumId;
-                gBackBtn.style.visibility = 'visible';
-                gBackText.textContent = 'Alben';
-                gMainTitle.textContent = albumName;
-                gAddBtn.textContent = '+';
                 gContent.innerHTML = '<div class="g-loading">Lade Fotos...</div>';
 
-                albumsRef.child(albumId).once('value').then(snap => {
-                    const album = snap.val();
-                    const photos = album && album.photos ? Object.entries(album.photos).map(([k,v])=>({key:k,...v})) : [];
+                photosRef.once('value').then(snap => {
+                    const photos = [];
+                    snap.forEach(child => photos.push({ id: child.key, ...child.val() }));
                     photos.reverse();
-
                     gContent.innerHTML = '';
-                    const header = document.createElement('div');
-                    header.className = 'g-album-header';
-                    header.innerHTML = `<h2>${albumName}</h2><p>${photos.length} Foto${photos.length !== 1 ? 's' : ''}</p>`;
-                    gContent.appendChild(header);
+
+                    if (photos.length === 0) {
+                        gContent.innerHTML = '<div class="g-empty" style="padding:80px 20px;"><div class="g-empty-icon">📷</div>Noch keine Fotos.<br>Drück auf + um ein Foto hochzuladen.</div>';
+                        return;
+                    }
 
                     const grid = document.createElement('div');
                     grid.className = 'g-photos-grid';
-
-                    if (photos.length === 0) {
-                        grid.innerHTML = '<div class="g-empty-album"><div class="g-empty-album-icon">📷</div>Noch keine Fotos in diesem Album.</div>';
-                    }
-
                     photos.forEach(photo => {
                         const item = document.createElement('div');
                         item.className = 'g-photo';
-                        item.innerHTML = `
-                            <img src="${photo.data}" alt="">
-                            <button class="g-photo-delete" data-key="${photo.key}">✕</button>
-                        `;
+                        item.innerHTML = `<img src="${photo.data}" alt=""><button class="g-photo-delete" data-id="${photo.id}">✕</button>`;
                         item.querySelector('img').addEventListener('click', () => {
                             lightboxImg.src = photo.data;
                             lightboxAuthor.textContent = `📷 ${photo.author.charAt(0).toUpperCase()+photo.author.slice(1)} · ${photo.date}`;
@@ -462,100 +376,43 @@
                         item.querySelector('.g-photo-delete').addEventListener('click', (e) => {
                             e.stopPropagation();
                             if (confirm('Foto löschen?')) {
-                                albumsRef.child(albumId+'/photos/'+photo.key).remove().then(()=>showAlbumDetail(albumId, albumName));
+                                photosRef.child(photo.id).remove().then(() => showAllPhotos());
                             }
                         });
                         grid.appendChild(item);
                     });
-
                     gContent.appendChild(grid);
+                }).catch(err => {
+                    console.error('Firebase Fehler:', err);
+                    gContent.innerHTML = '<div class="g-empty" style="padding:80px 20px;"><div class="g-empty-icon">⚠️</div><b>Verbindungsfehler</b><br>Prüfe deine Internetverbindung.</div>';
                 });
             }
 
-            gBackBtn.addEventListener('click', showAlbumsView);
+            gBackBtn.addEventListener('click', showAllPhotos);
 
             // + Button
             gAddBtn.addEventListener('click', () => {
-                if (currentView === 'albums') {
-                    newAlbumPopup.classList.add('visible');
-                    document.getElementById('album-name-input').value = '';
-                    document.getElementById('album-name-input').focus();
-                } else {
-                    fileInput.click();
-                }
+                fileInput.click();
             });
 
-            // Neues Album
-            document.getElementById('popup-cancel').addEventListener('click', () => newAlbumPopup.classList.remove('visible'));
-            document.getElementById('popup-create').addEventListener('click', () => {
-                const name = document.getElementById('album-name-input').value.trim();
-                if (!name) return;
-                albumsRef.push({ name: name, photos: {} }).then(() => {
-                    newAlbumPopup.classList.remove('visible');
-                    showAlbumsView();
-                });
-            });
-            document.getElementById('album-name-input').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') document.getElementById('popup-create').click();
-            });
-            newAlbumPopup.addEventListener('click', (e) => { if (e.target === newAlbumPopup) newAlbumPopup.classList.remove('visible'); });
-
-            // Foto upload - Album wählen
+            // Foto upload
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
                 if (file.size > 5 * 1024 * 1024) { alert('Max. 5MB!'); return; }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    pendingPhotoData = ev.target.result;
-                    if (currentView === 'detail' && currentAlbumId) {
-                        uploadToAlbum(currentAlbumId);
-                    } else {
-                        showUploadPopup();
-                    }
+                    photosRef.push({
+                        data: ev.target.result,
+                        author: currentUser,
+                        date: new Date().toLocaleDateString('de-DE')
+                    }).then(() => {
+                        showAllPhotos();
+                    });
                 };
                 reader.readAsDataURL(file);
                 fileInput.value = '';
             });
-
-            function showUploadPopup() {
-                albumsRef.once('value').then(snap => {
-                    uploadAlbumList.innerHTML = '';
-                    snap.forEach(child => {
-                        const album = child.val();
-                        const photos = album.photos ? Object.values(album.photos) : [];
-                        const opt = document.createElement('div');
-                        opt.className = 'upload-album-option';
-                        const thumb = photos.length > 0 ? `<img src="${photos[0].data}" alt="">` : '<span>📁</span>';
-                        opt.innerHTML = `<div class="upload-album-thumb">${thumb}</div><div class="upload-album-name">${album.name}</div>`;
-                        opt.addEventListener('click', () => {
-                            uploadPopup.classList.remove('visible');
-                            uploadToAlbum(child.key);
-                        });
-                        uploadAlbumList.appendChild(opt);
-                    });
-                    uploadPopup.classList.add('visible');
-                });
-            }
-
-            function uploadToAlbum(albumId) {
-                if (!pendingPhotoData) return;
-                albumsRef.child(albumId+'/photos').push({
-                    data: pendingPhotoData,
-                    author: currentUser,
-                    date: new Date().toLocaleDateString('de-DE')
-                }).then(() => {
-                    pendingPhotoData = null;
-                    if (currentView === 'detail' && currentAlbumId === albumId) {
-                        showAlbumDetail(albumId, gMainTitle.textContent);
-                    } else {
-                        showAlbumsView();
-                    }
-                });
-            }
-
-            document.getElementById('upload-cancel').addEventListener('click', () => { uploadPopup.classList.remove('visible'); pendingPhotoData = null; });
-            uploadPopup.addEventListener('click', (e) => { if (e.target === uploadPopup) { uploadPopup.classList.remove('visible'); pendingPhotoData = null; } });
 
             // Lightbox
             document.querySelector('.lightbox-close').addEventListener('click', () => lightbox.classList.remove('visible'));
@@ -563,14 +420,12 @@
 
             // Gallery öffnen
             document.getElementById('open-gallery').addEventListener('click', () => {
-                showAlbumsView();
+                showAllPhotos();
                 galleryView.classList.add('visible');
             });
-            document.getElementById('close-gallery')?.addEventListener('click', () => {
-                galleryView.classList.remove('visible');
-            });
 
-            showAlbumsView();
+            // Initial
+            showAllPhotos();
         }
     });
     </script>
