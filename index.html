@@ -298,6 +298,7 @@
 
             gBack.addEventListener('click', () => {
                 galleryView.classList.remove('visible');
+                history.back();
                 renderGallery();
             });
 
@@ -412,6 +413,18 @@
             document.getElementById('open-gallery').addEventListener('click', () => {
                 renderGallery();
                 galleryView.classList.add('visible');
+                history.pushState({ gallery: true }, '');
+            });
+
+            window.addEventListener('popstate', (e) => {
+                if (lightbox.classList.contains('visible')) {
+                    lightbox.classList.remove('visible');
+                    lightboxVideo.pause();
+                    lightboxVideo.src = '';
+                } else if (galleryView.classList.contains('visible')) {
+                    galleryView.classList.remove('visible');
+                    renderGallery();
+                }
             });
         }
     });
