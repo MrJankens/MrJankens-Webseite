@@ -122,8 +122,7 @@
         .once-content { max-width: 92vw; max-height: 75vh; display: flex; justify-content: center; align-items: center; position: relative; }
         .once-content canvas { max-width: 100%; max-height: 75vh; border-radius: 4px; }
         .once-content img { max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 4px; }
-        .once-timer { color: #ff9500; font-size: 1rem; font-weight: 700; margin-top: 10px; }
-        .once-hinweis { color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 8px; }
+        .once-hinweis { color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 15px; }
         .once-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px); }
 
         /* LIGHTBOX */
@@ -162,7 +161,6 @@
             .once-badge { top: 15px; left: 15px; padding: 5px 12px; font-size: 0.8rem; }
             .once-close { top: 15px; right: 15px; width: 38px; height: 38px; font-size: 1.2rem; }
             .once-content { max-width: 96vw; max-height: 70vh; }
-            .once-timer { font-size: 0.9rem; }
             .once-hinweis { font-size: 0.7rem; }
             .c-msg-delete { width: 18px; height: 18px; font-size: 0.55rem; }
             .c-msg-once-btn { padding: 6px 12px; font-size: 0.8rem; }
@@ -258,7 +256,6 @@
         <button class="once-close" id="once-close">✕</button>
         <div class="once-badge">👁️ 1x ansehen</div>
         <div class="once-content" id="once-content"></div>
-        <div class="once-timer" id="once-timer"></div>
         <div class="once-hinweis">Dieses Bild kann nur 1x angesehen werden.</div>
     </div>
 
@@ -494,11 +491,6 @@
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                const maxSize = file.type.startsWith('video/') ? 15*1024*1024 : 5*1024*1024;
-                if (file.size > maxSize) {
-                    alert(file.type.startsWith('video/') ? 'Max. 15MB für Videos!' : 'Max. 5MB für Fotos!');
-                    return;
-                }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const photoData = ev.target.result;
@@ -551,6 +543,7 @@
             const onceContent = document.getElementById('once-content');
             let chatListener = null;
             let onceMode = false;
+            const onceMediaCache = {};
 
             function renderChat() {
                 cMessages.innerHTML = '';
@@ -567,7 +560,12 @@
                     const msgs = [];
                     snapshot.forEach(child => {
                         const val = child.val();
-                        if (val) msgs.push({ id: child.key, text: val.text || '', media: val.media || '', mediaType: val.mediaType || '', author: val.author || 'Unbekannt', timestamp: val.timestamp || 0, date: val.date || '', once: val.once || false });
+                        if (val) {
+                            msgs.push({ id: child.key, text: val.text || '', media: val.media || '', mediaType: val.mediaType || '', author: val.author || 'Unbekannt', timestamp: val.timestamp || 0, date: val.date || '', once: val.once || false });
+                            if (val.once && val.media) {
+                                onceMediaCache[child.key] = val.media;
+                            }
+                        }
                     });
                     msgs.forEach(msg => {
                         const isMine = msg.author === currentUser;
@@ -577,7 +575,7 @@
                         let mediaHtml = '';
                         if (msg.once) {
                             if (!isMine) {
-                                mediaHtml = `<div class="c-msg-once-badge">🔒 1x ansehen</div><div><button class="c-msg-once-btn" data-id="${msg.id}" data-media="${encodeURIComponent(msg.media)}" data-media-type="${msg.mediaType}" data-author="${authorName}" data-date="${msg.date}">👁️ Einmal ansehen</button></div>`;
+                                mediaHtml = `<div class="c-msg-once-badge">🔒 1x ansehen</div><div><button class="c-msg-once-btn" data-id="${msg.id}" data-media-type="${msg.mediaType}">👁️ Einmal ansehen</button></div>`;
                             } else {
                                 mediaHtml = `<div class="c-msg-once-badge">🔒 1x gesendet</div>`;
                             }
@@ -596,6 +594,7 @@
                         btn.addEventListener('click', (e) => {
                             e.stopPropagation();
                             if (confirm('Nachricht löschen?')) {
+                                delete onceMediaCache[btn.dataset.id];
                                 messagesRef.child(btn.dataset.id).remove();
                             }
                         });
@@ -603,12 +602,12 @@
                     cMessages.querySelectorAll('.c-msg-once-btn').forEach(btn => {
                         btn.addEventListener('click', (e) => {
                             e.stopPropagation();
-                            const media = decodeURIComponent(btn.dataset.media);
-                            const mediaType = btn.dataset.mediaType;
-                            const author = btn.dataset.author;
-                            const date = btn.dataset.date;
                             const msgId = btn.dataset.id;
-                            openOnceViewer(media, mediaType, author, date, msgId);
+                            const media = onceMediaCache[msgId];
+                            const mediaType = btn.dataset.mediaType;
+                            if (media) {
+                                openOnceViewer(media, mediaType, msgId);
+                            }
                         });
                     });
                 }, (err) => {
@@ -617,9 +616,8 @@
                 });
             }
 
-            function openOnceViewer(media, mediaType, author, date, msgId) {
+            function openOnceViewer(media, mediaType, msgId) {
                 onceContent.innerHTML = '';
-                if (onceViewer._timer) clearInterval(onceViewer._timer);
                 if (mediaType === 'video') {
                     const vid = document.createElement('video');
                     vid.src = media;
@@ -649,19 +647,7 @@
                     img.src = media;
                 }
                 onceViewer.classList.add('visible');
-                history.pushState({ once: true }, '');
                 onceViewer._msgId = msgId;
-                let seconds = 15;
-                const timerEl = document.getElementById('once-timer');
-                timerEl.textContent = 'Läuft in ' + seconds + ' Sekunden...';
-                onceViewer._timer = setInterval(() => {
-                    seconds--;
-                    timerEl.textContent = 'Läuft in ' + seconds + ' Sekunden...';
-                    if (seconds <= 0) {
-                        clearInterval(onceViewer._timer);
-                        closeOnceViewer();
-                    }
-                }, 1000);
             }
 
             document.getElementById('once-close').addEventListener('click', () => {
@@ -670,12 +656,10 @@
 
             function closeOnceViewer() {
                 const msgId = onceViewer._msgId;
-                if (onceViewer._timer) clearInterval(onceViewer._timer);
                 onceViewer.classList.remove('visible');
                 onceContent.innerHTML = '';
-                document.getElementById('once-timer').textContent = '';
-                history.back();
                 if (msgId) {
+                    delete onceMediaCache[msgId];
                     messagesRef.child(msgId).remove().then(() => {
                         console.log('1x Nachricht gelöscht');
                     });
@@ -714,6 +698,7 @@
                     lightboxVideo.src = '';
                 } else if (chatView.classList.contains('visible')) {
                     chatView.classList.remove('visible');
+                    disableProtection();
                     if (chatListener) { messagesRef.off('value', chatListener); chatListener = null; }
                 } else if (galleryView.classList.contains('visible')) {
                     galleryView.classList.remove('visible');
@@ -770,11 +755,6 @@
             chatFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                const maxSize = file.type.startsWith('video/') ? 15*1024*1024 : 5*1024*1024;
-                if (file.size > maxSize) {
-                    alert(file.type.startsWith('video/') ? 'Max. 15MB für Videos!' : 'Max. 5MB für Fotos!');
-                    return;
-                }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const mediaData = ev.target.result;
