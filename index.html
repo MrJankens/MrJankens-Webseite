@@ -210,6 +210,10 @@
         .gl-start { width: 90%; max-width: 350px; padding: 14px; background: linear-gradient(45deg, #ff4081, #d11a5b); color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.2s; }
         .gl-start:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(209,26,91,0.5); }
         .gl-back { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.15); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; }
+        .gl-open-game { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; }
+        .gl-open-game-info { color: white; font-size: 0.85rem; }
+        .gl-open-game-info strong { color: #007AFF; }
+        .gl-open-game-join { background: #007AFF; color: white; border: none; padding: 6px 14px; border-radius: 16px; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
 
         /* SPIELBRETT */
         #game-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #1a1a2e; z-index: 99999999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; padding: 10px; }
@@ -393,18 +397,10 @@
                 <button id="gl-bot-plus">+</button>
             </div>
         </div>
-        <div class="gl-section">
-            <div class="gl-label" style="margin-bottom:12px;">oder beitretten:</div>
-            <div style="display:flex;gap:8px;">
-                <input type="text" id="gl-game-code" placeholder="Spiel-ID" style="flex:1;padding:10px 14px;border:2px solid #555;border-radius:12px;background:#1c1c1e;color:white;font-size:0.9rem;outline:none;">
-                <button class="gl-start" id="gl-join" style="margin:0;padding:10px 20px;font-size:0.9rem;">Beitreten</button>
-            </div>
-        </div>
-        <button class="gl-start" id="gl-start">Spiel erstellen</button>
-        <div id="gl-waiting" style="display:none;color:white;text-align:center;margin-top:20px;">
-            <div style="font-size:1.2rem;font-weight:700;">Warte auf Gegner...</div>
-            <div id="gl-game-id-display" style="background:#1c1c1e;padding:12px 20px;border-radius:12px;margin-top:10px;font-size:1.1rem;font-weight:700;color:#007AFF;cursor:pointer;" title="Klicken zum Kopieren"></div>
-            <div style="font-size:0.8rem;opacity:0.5;margin-top:8px;">Teile diese ID mit deinem Partner</div>
+        <button class="gl-start" id="gl-start">Spiel starten</button>
+        <div class="gl-section" style="margin-top:20px;">
+            <div class="gl-label">Offene Spiele:</div>
+            <div id="gl-open-games" style="color:rgba(255,255,255,0.4);font-size:0.85rem;">Wird geladen...</div>
         </div>
     </div>
 
@@ -1321,9 +1317,15 @@
                 botCount = 0;
                 document.getElementById('gl-bot-count').textContent = '0';
                 document.querySelectorAll('#gl-my-colors .gl-color').forEach(c => c.classList.remove('selected'));
+                listenOpenGames();
             });
             document.getElementById('gl-back').addEventListener('click', () => {
                 document.getElementById('game-lobby-view').classList.remove('visible');
+                if (openGamesListener) { db.ref('lobbies').off('value', openGamesListener); openGamesListener = null; }
+                if (lobbyRef) { lobbyRef.off(); lobbyRef = null; }
+                document.getElementById('gl-start').textContent = 'Spiel starten';
+                document.getElementById('gl-start').disabled = false;
+                document.getElementById('gl-open-games').style.display = 'block';
             });
             document.querySelectorAll('#gl-my-colors .gl-color').forEach(el => {
                 el.addEventListener('click', () => {
@@ -1341,6 +1343,61 @@
 
             let lobbyRef = null;
             let lobbyListener = null;
+            let openGamesListener = null;
+
+            function listenOpenGames() {
+                const list = document.getElementById('gl-open-games');
+                if (openGamesListener) db.ref('lobbies').off('value', openGamesListener);
+                openGamesListener = db.ref('lobbies').on('value', (snap) => {
+                    list.innerHTML = '';
+                    if (!snap.exists()) {
+                        list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine offenen Spiele</div>';
+                        return;
+                    }
+                    let count = 0;
+                    snap.forEach(child => {
+                        const g = child.val();
+                        if (g && g.status === 'waiting' && g.host !== currentUser) {
+                            count++;
+                            const el = document.createElement('div');
+                            el.className = 'gl-open-game';
+                            const colors = Object.values(g.players || {}).map(c => GAME_COLORS[c].name).join(', ');
+                            const botInfo = g.bots && g.bots.length > 0 ? ` + ${g.bots.length} Bot${g.bots.length > 1 ? 's' : ''}` : '';
+                            el.innerHTML = `<div class="gl-open-game-info"><strong>${g.host}</strong> spielt als ${colors}${botInfo}</div><button class="gl-open-game-join" data-key="${child.key}">Beitreten</button>`;
+                            list.appendChild(el);
+                        }
+                    });
+                    if (count === 0) {
+                        list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine offenen Spiele</div>';
+                    }
+                    list.querySelectorAll('.gl-open-game-join').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            if (!selectedColor) { alert('Wähle zuerst eine Farbe!'); return; }
+                            joinGame(btn.dataset.key);
+                        });
+                    });
+                });
+            }
+
+            function joinGame(key) {
+                myColor = selectedColor;
+                const joinRef = db.ref('lobbies/' + key);
+                joinRef.once('value', (snap) => {
+                    const data = snap.val();
+                    if (!data || data.status !== 'waiting') {
+                        alert('Spiel nicht mehr verfügbar!');
+                        return;
+                    }
+                    const takenColors = Object.values(data.players || {});
+                    if (takenColors.includes(myColor)) {
+                        alert('Farbe bereits vergeben!');
+                        return;
+                    }
+                    data.players[currentUser] = myColor;
+                    joinRef.child('players').set(data.players);
+                    joinRef.child('status').set('ready');
+                });
+            }
 
             document.getElementById('gl-start').addEventListener('click', () => {
                 if (!selectedColor) { alert('Wähle zuerst eine Farbe!'); return; }
@@ -1353,47 +1410,29 @@
                 order.forEach(c => { pieces[c] = [-1,-1,-1,-1]; });
 
                 lobbyRef = db.ref('lobbies').push();
-                const lobbyData = {
+                lobbyRef.set({
                     host: currentUser,
                     hostColor: myColor,
                     bots: bots,
                     status: 'waiting',
-                    players: {}
-                };
-                lobbyData.players[currentUser] = myColor;
-
-                lobbyRef.set(lobbyData);
-
-                document.getElementById('gl-waiting').style.display = 'block';
-                document.getElementById('gl-game-id-display').textContent = lobbyRef.key;
-                document.getElementById('gl-start').style.display = 'none';
-                document.getElementById('gl-join').style.display = 'none';
-                document.getElementById('gl-game-code').style.display = 'none';
-
-                document.getElementById('gl-game-id-display').addEventListener('click', () => {
-                    navigator.clipboard.writeText(lobbyRef.key).then(() => {
-                        document.getElementById('gl-game-id-display').style.background = '#0a5';
-                        setTimeout(() => { document.getElementById('gl-game-id-display').style.background = '#1c1c1e'; }, 500);
-                    });
+                    players: { [currentUser]: myColor }
                 });
 
                 lobbyRef.on('value', (snap) => {
                     const data = snap.val();
                     if (!data) return;
-                    if (data.status === 'ready') {
-                        const allColors = ['red','blue','green','yellow'];
-                        const usedColors = Object.values(data.players);
-                        const botColorsLeft = allColors.filter(c => !usedColors.includes(c));
-                        const botsFinal = botColorsLeft.slice(0, data.bots.length);
-                        const order = [...usedColors, ...botsFinal];
-                        const pieces = {};
-                        order.forEach(c => { pieces[c] = [-1,-1,-1,-1]; });
+                    if (data.status === 'ready' || data.status === 'start') {
+                        const usedColors = Object.values(data.players || {});
+                        const botsFinal = allColors.filter(c => !usedColors.includes(c)).slice(0, data.bots.length);
+                        const orderFinal = [...usedColors, ...botsFinal];
+                        const piecesFinal = {};
+                        orderFinal.forEach(c => { piecesFinal[c] = [-1,-1,-1,-1]; });
 
                         gameState = {
-                            state: 'ROLL', turn: order[0], dice: null,
-                            msg: GAME_COLORS[order[0]].name + ' fängt an!',
-                            pieces, order, bots: botsFinal,
-                            winner: null, finished: false, gameKey: lobbyRef.key
+                            state: 'ROLL', turn: orderFinal[0], dice: null,
+                            msg: GAME_COLORS[orderFinal[0]].name + ' fängt an!',
+                            pieces: piecesFinal, order: orderFinal, bots: botsFinal,
+                            winner: null, finished: false
                         };
                         db.ref('games/' + lobbyRef.key).set(gameState);
                         gameRef = db.ref('games/' + lobbyRef.key);
@@ -1403,30 +1442,10 @@
                         lobbyRef.remove();
                     }
                 });
-            });
 
-            document.getElementById('gl-join').addEventListener('click', () => {
-                if (!selectedColor) { alert('Wähle zuerst eine Farbe!'); return; }
-                const code = document.getElementById('gl-game-code').value.trim();
-                if (!code) { alert('Gib eine Spiel-ID ein!'); return; }
-                myColor = selectedColor;
-
-                const joinRef = db.ref('lobbies/' + code);
-                joinRef.once('value', (snap) => {
-                    const data = snap.val();
-                    if (!data || data.status !== 'waiting') {
-                        alert('Spiel nicht gefunden oder bereits gestartet!');
-                        return;
-                    }
-                    const takenColors = Object.values(data.players);
-                    if (takenColors.includes(myColor)) {
-                        alert('Farbe bereits vergeben! Wähl eine andere.');
-                        return;
-                    }
-                    data.players[currentUser] = myColor;
-                    joinRef.child('players').set(data.players);
-                    joinRef.child('status').set('ready');
-                });
+                document.getElementById('gl-start').textContent = 'Warte auf Gegner...';
+                document.getElementById('gl-start').disabled = true;
+                document.getElementById('gl-open-games').style.display = 'none';
             });
 
             function setupGameListener() {
@@ -1450,6 +1469,9 @@
             function startGameView() {
                 document.getElementById('game-lobby-view').classList.remove('visible');
                 document.getElementById('game-view').classList.add('visible');
+                document.getElementById('gl-start').textContent = 'Spiel starten';
+                document.getElementById('gl-start').disabled = false;
+                document.getElementById('gl-open-games').style.display = 'block';
                 buildBoard();
                 renderGame();
                 playSound('dice');
