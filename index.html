@@ -53,6 +53,59 @@
         .stay-logged { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px; font-size: 0.9rem; color: #555; }
         .stay-logged input[type="checkbox"] { width: 18px; height: 18px; accent-color: #d11a5b; cursor: pointer; }
         .stay-logged label { cursor: pointer; user-select: none; }
+
+        /* WELCOME SPLASH */
+        #welcome-splash {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 999999; opacity: 0; visibility: hidden; pointer-events: none;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        #welcome-splash.visible { opacity: 1; visibility: visible; }
+        #welcome-splash.fade-out { opacity: 0; }
+        .splash-content { text-align: center; animation: splashPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes splashPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .splash-heart { font-size: 6rem; margin-bottom: 20px; display: inline-block; animation: heartbeat 1.4s infinite ease-in-out; }
+        .splash-text { font-size: 2rem; font-weight: 800; color: white; text-shadow: 0 0 30px rgba(255, 255, 255, 0.5); }
+        .splash-name { color: #ff6b9d; }
+
+        /* LOVE CARD */
+        #love-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffd1dc 50%, #fbc2eb 100%);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999999; overflow: hidden;
+            opacity: 0; visibility: hidden; transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        #love-overlay.visible { opacity: 1; visibility: visible; }
+        .love-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px; padding: 40px 25px; width: 90%; max-width: 400px;
+            text-align: center; box-shadow: 0 15px 35px rgba(253, 114, 148, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative; z-index: 10;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .main-heart { font-size: 5rem; margin-bottom: 10px; display: inline-block; animation: heartbeat 1.4s infinite ease-in-out; cursor: pointer; }
+        .initials { font-size: 2.5rem; font-weight: 800; color: #d11a5b; letter-spacing: 2px; margin-bottom: 5px; text-align: center; }
+        .date-badge { display: inline-block; background: #d11a5b; color: white; padding: 5px 15px; border-radius: 20px; font-size: 1rem; font-weight: 600; margin-bottom: 15px; user-select: none; }
+        .message { font-size: 1.5rem; font-weight: 700; color: #4a154b; margin-bottom: 15px; }
+        .counter { font-size: 0.95rem; color: #615061; background: rgba(255, 255, 255, 0.8); padding: 12px; border-radius: 12px; margin-bottom: 20px; }
+        .counter strong { color: #d11a5b; font-size: 1.05rem; display: block; margin-top: 4px; }
+        .love-btn { background: linear-gradient(45deg, #ff4081, #d11a5b); color: white; border: none; padding: 12px 28px; font-size: 1rem; font-weight: 600; border-radius: 50px; cursor: pointer; box-shadow: 0 5px 15px rgba(209, 26, 91, 0.3); transition: all 0.2s ease; }
+        .love-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(209, 26, 91, 0.4); }
+        .secret-msg { margin-top: 15px; font-size: 1rem; font-weight: 600; color: #d11a5b; min-height: 25px; transition: opacity 0.3s ease; opacity: 0; }
+        .logout-btn {
+            position: absolute; top: 15px; right: 15px; background: rgba(209, 26, 91, 0.1);
+            color: #d11a5b; border: none; width: 36px; height: 36px; border-radius: 50%;
+            font-size: 1.2rem; cursor: pointer; transition: all 0.2s ease; z-index: 20;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .logout-btn:hover { background: #d11a5b; color: white; transform: scale(1.1); }
+        .falling-heart { position: absolute; top: -5%; user-select: none; pointer-events: none; animation: fall linear forwards; z-index: 1; }
+        @keyframes fall { 0% { transform: translateY(-10%) rotate(0deg); opacity: 0.9; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+        @keyframes burstUp { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-50vh) translateX(var(--bx)) rotate(var(--br)); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -73,6 +126,29 @@
         </div>
     </div>
 
+    <!-- WELCOME SPLASH -->
+    <div id="welcome-splash">
+        <div class="splash-content">
+            <div class="splash-heart">❤️</div>
+            <div class="splash-text">Willkommen, <span class="splash-name" id="splash-name"></span>! 💕</div>
+        </div>
+    </div>
+
+    <!-- LOVE CARD -->
+    <div id="love-overlay">
+        <div class="falling-hearts-container" id="hearts-bg"></div>
+        <div class="love-card">
+            <button class="logout-btn" id="logout-btn" title="Abmelden">⏻</button>
+            <div class="main-heart" id="pulsing-heart">❤️</div>
+            <div class="initials">L ♥ K</div>
+            <div class="date-badge">19.02.2026</div>
+            <div class="message">Ich liebe dich!</div>
+            <div class="counter" id="timer">Berechne unsere Zeit...</div>
+            <button class="love-btn" id="surprise-btn">Drück mich! 💖</button>
+            <div class="secret-msg" id="secret-text"></div>
+        </div>
+    </div>
+
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         // ==================== LOGIN LOGIK ====================
@@ -83,12 +159,15 @@
         const loginError = document.getElementById('login-error');
         const loginScreen = document.getElementById('login-screen');
         const stayLoggedCheck = document.getElementById('stay-logged');
+        const welcomeSplash = document.getElementById('welcome-splash');
+        const splashName = document.getElementById('splash-name');
+        const loveOverlay = document.getElementById('love-overlay');
 
         // Bereits eingeloggt?
         const savedUser = localStorage.getItem('lk_user');
         if (savedUser && accounts[savedUser]) {
             loginScreen.classList.add('hidden');
-            initLoveCard(savedUser);
+            showSplash(savedUser);
             return;
         }
 
@@ -100,7 +179,7 @@
                     localStorage.setItem('lk_user', user);
                 }
                 loginScreen.classList.add('hidden');
-                initLoveCard(user);
+                showSplash(user);
             } else {
                 loginError.textContent = 'Benutzername oder Passwort ist falsch.';
                 usernameInput.classList.add('error');
@@ -113,63 +192,22 @@
         passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); });
         usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') passwordInput.focus(); });
 
+        // ==================== WELCOME SPLASH ====================
+        function showSplash(user) {
+            splashName.textContent = user.charAt(0).toUpperCase() + user.slice(1);
+            welcomeSplash.classList.add('visible');
+            setTimeout(() => {
+                welcomeSplash.classList.add('fade-out');
+                setTimeout(() => {
+                    welcomeSplash.classList.remove('visible', 'fade-out');
+                    loveOverlay.classList.add('visible');
+                    initLoveCard(user);
+                }, 600);
+            }, 2000);
+        }
+
         // ==================== LOVE CARD ====================
         function initLoveCard(user) {
-            // CSS
-            const style = document.createElement('style');
-            style.textContent = `
-                #love-overlay {
-                    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                    background: linear-gradient(135deg, #ffeef8 0%, #ffd1dc 50%, #fbc2eb 100%);
-                    font-family: 'Segoe UI', Roboto, sans-serif;
-                    display: flex; justify-content: center; align-items: center;
-                    z-index: 9999999; overflow: hidden;
-                    animation: fadeInOverlay 0.8s ease forwards;
-                }
-                @keyframes fadeInOverlay { 0% { opacity: 0; } 100% { opacity: 1; } }
-                .love-card {
-                    background: rgba(255, 255, 255, 0.95);
-                    border-radius: 24px; padding: 40px 25px; width: 90%; max-width: 400px;
-                    text-align: center; box-shadow: 0 15px 35px rgba(253, 114, 148, 0.3);
-                    border: 1px solid rgba(255, 255, 255, 0.8);
-                    position: relative; z-index: 10;
-                    animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-                }
-                @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-                .main-heart { font-size: 5rem; margin-bottom: 10px; display: inline-block; animation: heartbeat 1.4s infinite ease-in-out; cursor: pointer; }
-                @keyframes heartbeat { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.15); } 40% { transform: scale(1.05); } 60% { transform: scale(1.15); } }
-                .initials { font-size: 2.5rem; font-weight: 800; color: #d11a5b; letter-spacing: 2px; margin-bottom: 5px; }
-                .date-badge { display: inline-block; background: #d11a5b; color: white; padding: 5px 15px; border-radius: 20px; font-size: 1rem; font-weight: 600; margin-bottom: 15px; user-select: none; }
-                .welcome-msg { font-size: 1rem; color: #888; margin-bottom: 10px; }
-                .message { font-size: 1.5rem; font-weight: 700; color: #4a154b; margin-bottom: 15px; }
-                .counter { font-size: 0.95rem; color: #615061; background: rgba(255, 255, 255, 0.8); padding: 12px; border-radius: 12px; margin-bottom: 20px; }
-                .counter strong { color: #d11a5b; font-size: 1.05rem; display: block; margin-top: 4px; }
-                .love-btn { background: linear-gradient(45deg, #ff4081, #d11a5b); color: white; border: none; padding: 12px 28px; font-size: 1rem; font-weight: 600; border-radius: 50px; cursor: pointer; box-shadow: 0 5px 15px rgba(209, 26, 91, 0.3); transition: all 0.2s ease; }
-                .love-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(209, 26, 91, 0.4); }
-                .secret-msg { margin-top: 15px; font-size: 1rem; font-weight: 600; color: #d11a5b; min-height: 25px; transition: opacity 0.3s ease; opacity: 0; }
-                .falling-heart { position: absolute; top: -5%; user-select: none; pointer-events: none; animation: fall linear forwards; z-index: 1; }
-                @keyframes fall { 0% { transform: translateY(-10%) rotate(0deg); opacity: 0.9; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
-            `;
-            document.head.appendChild(style);
-
-            // HTML
-            const overlay = document.createElement('div');
-            overlay.id = 'love-overlay';
-            overlay.innerHTML = `
-                <div class="falling-hearts-container" id="hearts-bg"></div>
-                <div class="love-card">
-                    <div class="main-heart" id="pulsing-heart">❤️</div>
-                    <div class="initials">L &hearts; K</div>
-                    <div class="date-badge" id="secret-close">19.02.2026</div>
-                    <div class="welcome-msg">Willkommen, ${user.charAt(0).toUpperCase() + user.slice(1)}! 💕</div>
-                    <div class="message">Ich liebe dich!</div>
-                    <div class="counter" id="timer">Berechne unsere Zeit...</div>
-                    <button class="love-btn" id="surprise-btn">Drück mich! 💖</button>
-                    <div class="secret-msg" id="secret-text"></div>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-
             // Live-Zähler
             const startDate = new Date('2026-02-19T00:00:00');
             function updateCounter() {
@@ -237,26 +275,24 @@
                 heart.style.top = '75%';
                 const duration = Math.random() * 1.5 + 1.5;
                 heart.style.animationDuration = duration + 's';
-                heart.style.animationName = 'none';
+                heart.style.setProperty('--bx', (Math.random() - 0.5) * 100 + 'px');
+                heart.style.setProperty('--br', (Math.random() - 0.5) * 360 + 'deg');
+                heart.style.animation = 'none';
                 setTimeout(() => { heart.style.animation = `burstUp ${duration}s ease-out forwards`; }, 10);
-                style.textContent += `@keyframes burstUp { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-50vh) translateX(${(Math.random() - 0.5) * 100}px) rotate(${(Math.random() - 0.5) * 360}deg); opacity: 0; } }`;
                 heartsBg.appendChild(heart);
                 setTimeout(() => { heart.remove(); }, duration * 1000);
             }
 
-            // Geheimer Close (3 Klicks auf Datum)
-            let clickCount = 0;
-            document.getElementById('secret-close').addEventListener('click', function() {
-                clickCount++;
-                if (clickCount >= 3) {
-                    overlay.style.display = 'none';
-                    localStorage.removeItem('lk_user');
+            // Logout Button
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                loveOverlay.classList.remove('visible');
+                localStorage.removeItem('lk_user');
+                setTimeout(() => {
                     loginScreen.classList.remove('hidden');
                     usernameInput.value = '';
                     passwordInput.value = '';
                     loginError.textContent = '';
-                }
-                setTimeout(() => { clickCount = 0; }, 1500);
+                }, 800);
             });
         }
     });
