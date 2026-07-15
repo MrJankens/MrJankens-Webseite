@@ -50,6 +50,9 @@
         .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(209, 26, 91, 0.5); }
         .login-btn:active { transform: translateY(0); }
         .login-error { color: #ff4444; font-size: 0.85rem; margin-top: 10px; min-height: 20px; font-weight: 600; }
+        .stay-logged { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px; font-size: 0.9rem; color: #555; }
+        .stay-logged input[type="checkbox"] { width: 18px; height: 18px; accent-color: #d11a5b; cursor: pointer; }
+        .stay-logged label { cursor: pointer; user-select: none; }
     </style>
 </head>
 <body>
@@ -61,6 +64,10 @@
             <div class="login-subtitle">Melde dich an um fortzufahren</div>
             <input type="text" class="login-input" id="username" placeholder="Benutzername" autocomplete="off">
             <input type="password" class="login-input" id="password" placeholder="Passwort">
+            <div class="stay-logged">
+                <input type="checkbox" id="stay-logged">
+                <label for="stay-logged">Auf diesem Gerät angemeldet bleiben</label>
+            </div>
             <button class="login-btn" id="login-btn">Anmelden 💖</button>
             <div class="login-error" id="login-error"></div>
         </div>
@@ -75,11 +82,23 @@
         const loginBtn = document.getElementById('login-btn');
         const loginError = document.getElementById('login-error');
         const loginScreen = document.getElementById('login-screen');
+        const stayLoggedCheck = document.getElementById('stay-logged');
+
+        // Bereits eingeloggt?
+        const savedUser = localStorage.getItem('lk_user');
+        if (savedUser && accounts[savedUser]) {
+            loginScreen.classList.add('hidden');
+            initLoveCard(savedUser);
+            return;
+        }
 
         function attemptLogin() {
             const user = usernameInput.value.trim().toLowerCase();
             const pass = passwordInput.value;
             if (accounts[user] && accounts[user] === pass) {
+                if (stayLoggedCheck.checked) {
+                    localStorage.setItem('lk_user', user);
+                }
                 loginScreen.classList.add('hidden');
                 initLoveCard(user);
             } else {
@@ -231,6 +250,7 @@
                 clickCount++;
                 if (clickCount >= 3) {
                     overlay.style.display = 'none';
+                    localStorage.removeItem('lk_user');
                     loginScreen.classList.remove('hidden');
                     usernameInput.value = '';
                     passwordInput.value = '';
