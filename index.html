@@ -109,6 +109,20 @@
         .c-send:disabled { background: #333; cursor: default; }
         #chat-file-input { display: none; }
 
+        /* 1X ANSEHEN */
+        .c-once-btn { background: none; border: none; color: #ff9500; font-size: 0.75rem; cursor: pointer; padding: 2px 6px; border-radius: 10px; white-space: nowrap; transition: all 0.2s; }
+        .c-once-btn.active { background: #ff9500; color: white; }
+        .c-msg-once-badge { display: inline-block; background: #ff9500; color: white; font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; margin-bottom: 4px; }
+        .c-msg-once-btn { background: #ff9500; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-top: 6px; transition: all 0.2s; }
+        .c-msg-once-btn:hover { transform: scale(1.05); }
+        #once-viewer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.97); z-index: 999999999; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; user-select: none; -webkit-user-select: none; }
+        #once-viewer.visible { opacity: 1; visibility: visible; }
+        .once-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; z-index: 10; }
+        .once-badge { position: absolute; top: 20px; left: 20px; background: #ff9500; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; z-index: 10; }
+        .once-content { max-width: 92vw; max-height: 75vh; display: flex; justify-content: center; align-items: center; }
+        .once-content img { max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 4px; }
+        .once-hinweis { color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 15px; }
+
         /* LIGHTBOX */
         #lightbox { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.97); z-index: 999999999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; cursor: pointer; }
         #lightbox.visible { opacity: 1; visibility: visible; }
@@ -177,15 +191,22 @@
             <div class="c-topbar-title">💬 Unser Chat</div>
             <div style="width:60px;"></div>
         </div>
-        <div id="c-debug" style="background:#ff4444;color:white;padding:10px 15px;font-size:0.8rem;display:none;word-wrap:break-word;max-height:120px;overflow-y:auto;"></div>
         <div class="c-messages" id="c-messages">
             <div class="c-empty"><div class="c-empty-icon">💬</div>Noch keine Nachrichten.<br>Starte das Gespräch!</div>
         </div>
         <div class="c-input-bar">
             <button class="c-attach" id="c-attach" title="Foto/Video senden">+</button>
+            <button class="c-once-btn" id="c-once" title="1x ansehen">👁️</button>
             <input type="text" class="c-text" id="c-text" placeholder="Nachricht..." autocomplete="off">
             <button class="c-send" id="c-send">➤</button>
         </div>
+    </div>
+
+    <div id="once-viewer">
+        <button class="once-close" id="once-close">✕</button>
+        <div class="once-badge">👁️ 1x ansehen</div>
+        <div class="once-content" id="once-content"></div>
+        <div class="once-hinweis">Dieses Bild kann nur 1x angesehen werden.</div>
     </div>
 
     <input type="file" id="chat-file-input" accept="image/*,video/*">
@@ -472,39 +493,19 @@
             const cSend = document.getElementById('c-send');
             const cAttach = document.getElementById('c-attach');
             const chatFileInput = document.getElementById('chat-file-input');
-            const cDebug = document.getElementById('c-debug');
             const messagesRef = db.ref('messages');
+            const onceViewer = document.getElementById('once-viewer');
+            const onceContent = document.getElementById('once-content');
             let chatListener = null;
-
-            function chatLog(msg) {
-                console.log('[CHAT]', msg);
-                cDebug.style.display = 'block';
-                cDebug.innerHTML += '<div>' + new Date().toLocaleTimeString('de-DE') + ' - ' + msg + '</div>';
-                cDebug.scrollTop = cDebug.scrollHeight;
-            }
-
-            function chatError(msg) {
-                console.error('[CHAT]', msg);
-                cDebug.style.display = 'block';
-                cDebug.style.background = '#cc0000';
-                cDebug.innerHTML += '<div style="font-weight:bold;">❌ ' + msg + '</div>';
-                cDebug.scrollTop = cDebug.scrollHeight;
-            }
+            let onceMode = false;
 
             function renderChat() {
-                chatLog('renderChat gestartet');
-                cDebug.innerHTML = '';
-                cDebug.style.display = 'none';
-                cDebug.style.background = '#ff4444';
                 cMessages.innerHTML = '';
                 if (chatListener) {
                     messagesRef.off('value', chatListener);
                     chatListener = null;
-                    chatLog('Alter Listener entfernt');
                 }
-                chatLog('Starte Firebase-Listener für messages...');
                 chatListener = messagesRef.orderByChild('timestamp').on('value', (snapshot) => {
-                    chatLog('Firebase-Snapshot erhalten, exists=' + snapshot.exists() + ', size=' + snapshot.numChildren());
                     cMessages.innerHTML = '';
                     if (!snapshot.exists()) {
                         cMessages.innerHTML = '<div class="c-empty"><div class="c-empty-icon">💬</div>Noch keine Nachrichten.<br>Starte das Gespräch!</div>';
@@ -513,7 +514,7 @@
                     const msgs = [];
                     snapshot.forEach(child => {
                         const val = child.val();
-                        if (val) msgs.push({ id: child.key, text: val.text || '', media: val.media || '', mediaType: val.mediaType || '', author: val.author || 'Unbekannt', timestamp: val.timestamp || 0, date: val.date || '' });
+                        if (val) msgs.push({ id: child.key, text: val.text || '', media: val.media || '', mediaType: val.mediaType || '', author: val.author || 'Unbekannt', timestamp: val.timestamp || 0, date: val.date || '', once: val.once || false });
                     });
                     msgs.forEach(msg => {
                         const isMine = msg.author === currentUser;
@@ -521,7 +522,13 @@
                         el.className = 'c-msg ' + (isMine ? 'mine' : 'theirs');
                         const authorName = msg.author.charAt(0).toUpperCase() + msg.author.slice(1);
                         let mediaHtml = '';
-                        if (msg.media) {
+                        if (msg.once) {
+                            if (!isMine) {
+                                mediaHtml = `<div class="c-msg-once-badge">🔒 1x ansehen</div><div><button class="c-msg-once-btn" data-id="${msg.id}" data-media="${encodeURIComponent(msg.media)}" data-media-type="${msg.mediaType}" data-author="${authorName}" data-date="${msg.date}">👁️ Einmal ansehen</button></div>`;
+                            } else {
+                                mediaHtml = `<div class="c-msg-once-badge">🔒 1x gesendet</div>`;
+                            }
+                        } else if (msg.media) {
                             if (msg.mediaType === 'video') {
                                 mediaHtml = `<div class="c-msg-media"><video src="${msg.media}" controls></video></div>`;
                             } else {
@@ -540,12 +547,95 @@
                             }
                         });
                     });
+                    cMessages.querySelectorAll('.c-msg-once-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const media = decodeURIComponent(btn.dataset.media);
+                            const mediaType = btn.dataset.mediaType;
+                            const author = btn.dataset.author;
+                            const date = btn.dataset.date;
+                            const msgId = btn.dataset.id;
+                            openOnceViewer(media, mediaType, author, date, msgId);
+                        });
+                    });
                 }, (err) => {
-                    chatError('Firebase-Listener Fehler: ' + err.message + ' (Code: ' + err.code + ')');
-                    cMessages.innerHTML = '<div class="c-empty"><div class="c-empty-icon">⚠️</div>Fehler: ' + err.message + '<br>Prüfe Firebase-Regeln für "messages".</div>';
+                    console.error('CHAT ERROR:', err);
+                    cMessages.innerHTML = '<div class="c-empty"><div class="c-empty-icon">⚠️</div>Fehler: ' + err.message + '</div>';
                 });
-                chatLog('Firebase-Listener aktiv');
             }
+
+            function openOnceViewer(media, mediaType, author, date, msgId) {
+                onceContent.innerHTML = '';
+                if (mediaType === 'video') {
+                    const vid = document.createElement('video');
+                    vid.src = media;
+                    vid.controls = true;
+                    vid.autoplay = true;
+                    onceContent.appendChild(vid);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = media;
+                    onceContent.appendChild(img);
+                }
+                onceViewer.classList.add('visible');
+                history.pushState({ once: true }, '');
+                onceViewer._msgId = msgId;
+            }
+
+            document.getElementById('once-close').addEventListener('click', () => {
+                closeOnceViewer();
+            });
+
+            function closeOnceViewer() {
+                const msgId = onceViewer._msgId;
+                onceViewer.classList.remove('visible');
+                onceContent.innerHTML = '';
+                history.back();
+                if (msgId) {
+                    messagesRef.child(msgId).remove().then(() => {
+                        console.log('1x Nachricht gelöscht');
+                    });
+                }
+            }
+
+            // Screenshot-Schutz
+            function enableProtection() {
+                document.addEventListener('contextmenu', blockAction);
+                document.addEventListener('keydown', blockKeys);
+                document.addEventListener('dragstart', blockAction);
+                document.addEventListener('selectstart', blockAction);
+            }
+            function disableProtection() {
+                document.removeEventListener('contextmenu', blockAction);
+                document.removeEventListener('keydown', blockKeys);
+                document.removeEventListener('dragstart', blockAction);
+                document.removeEventListener('selectstart', blockAction);
+            }
+            function blockAction(e) { e.preventDefault(); return false; }
+            function blockKeys(e) {
+                if (onceViewer.classList.contains('visible')) {
+                    if (e.key === 'PrintScreen' || (e.metaKey && (e.key === 's' || e.key === 'p' || e.key === 'u'))) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            }
+
+            window.addEventListener('popstate', (e) => {
+                if (onceViewer.classList.contains('visible')) {
+                    closeOnceViewer();
+                } else if (lightbox.classList.contains('visible')) {
+                    lightbox.classList.remove('visible');
+                    lightboxVideo.pause();
+                    lightboxVideo.src = '';
+                } else if (chatView.classList.contains('visible')) {
+                    chatView.classList.remove('visible');
+                    if (chatListener) { messagesRef.off('value', chatListener); chatListener = null; }
+                } else if (galleryView.classList.contains('visible')) {
+                    galleryView.classList.remove('visible');
+                    renderGallery();
+                }
+            });
 
             function escapeHtml(str) {
                 const div = document.createElement('div');
@@ -555,18 +645,20 @@
 
             function sendMessage(text, media, mediaType) {
                 if (!text && !media) return;
-                chatLog('Sende Nachricht: ' + (text || '(Medien)') + '...');
                 messagesRef.push({
                     text: text || '',
                     media: media || '',
                     mediaType: mediaType || '',
                     author: currentUser,
                     timestamp: Date.now(),
-                    date: new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+                    date: new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                    once: onceMode
                 }).then(() => {
-                    chatLog('Nachricht gesendet!');
+                    onceMode = false;
+                    document.querySelector('.c-once-btn').classList.remove('active');
                 }).catch(err => {
-                    chatError('Senden fehlgeschlagen: ' + err.message);
+                    console.error('CHAT SEND ERROR:', err);
+                    alert('Fehler beim Senden: ' + err.message);
                 });
             }
 
@@ -585,6 +677,11 @@
             });
 
             cAttach.addEventListener('click', () => chatFileInput.click());
+
+            document.getElementById('c-once').addEventListener('click', () => {
+                onceMode = !onceMode;
+                document.querySelector('.c-once-btn').classList.toggle('active', onceMode);
+            });
 
             chatFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -605,30 +702,17 @@
             });
 
             document.getElementById('open-chat').addEventListener('click', () => {
-                chatLog('Chat-Button geklickt, currentUser=' + currentUser);
                 renderChat();
                 chatView.classList.add('visible');
+                enableProtection();
                 history.pushState({ chat: true }, '');
             });
 
             document.getElementById('c-back').addEventListener('click', () => {
                 chatView.classList.remove('visible');
+                disableProtection();
                 history.back();
                 if (chatListener) { messagesRef.off('value', chatListener); chatListener = null; }
-            });
-
-            window.addEventListener('popstate', (e) => {
-                if (lightbox.classList.contains('visible')) {
-                    lightbox.classList.remove('visible');
-                    lightboxVideo.pause();
-                    lightboxVideo.src = '';
-                } else if (chatView.classList.contains('visible')) {
-                    chatView.classList.remove('visible');
-                    if (chatListener) { messagesRef.off('value', chatListener); chatListener = null; }
-                } else if (galleryView.classList.contains('visible')) {
-                    galleryView.classList.remove('visible');
-                    renderGallery();
-                }
             });
         }
     });
