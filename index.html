@@ -293,9 +293,16 @@
 
             function renderGallery() {
                 gContent.innerHTML = '<div class="g-loading">Lade Fotos...</div>';
-                photosRef.once('value').then(snap => {
+                photosRef.get().then(snapshot => {
                     const photos = [];
-                    snap.forEach(child => photos.push({ id: child.key, ...child.val() }));
+                    if (snapshot.exists()) {
+                        snapshot.forEach(child => {
+                            const val = child.val();
+                            if (val && val.data) {
+                                photos.push({ id: child.key, data: val.data, author: val.author || 'Unbekannt', date: val.date || '' });
+                            }
+                        });
+                    }
                     photos.reverse();
                     gContent.innerHTML = '';
                     if (photos.length === 0) {
@@ -325,8 +332,8 @@
                         });
                     });
                 }).catch(err => {
-                    console.error(err);
-                    gContent.innerHTML = '<div class="g-empty"><div class="g-empty-icon">⚠️</div>Verbindungsfehler.<br>Prüfe deine Internetverbindung.</div>';
+                    console.error('GALLERY ERROR:', err);
+                    gContent.innerHTML = `<div class="g-empty"><div class="g-empty-icon">⚠️</div>Fehler: ${err.message}</div>`;
                 });
             }
 
@@ -338,11 +345,19 @@
                 if (file.size > 5*1024*1024) { alert('Max. 5MB!'); return; }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
+                    const photoData = ev.target.result;
+                    console.log('Upload starte, Datenlänge:', photoData.length);
                     photosRef.push({
-                        data: ev.target.result,
+                        data: photoData,
                         author: currentUser,
                         date: new Date().toLocaleDateString('de-DE')
-                    }).then(() => renderGallery());
+                    }).then(() => {
+                        console.log('Upload erfolgreich!');
+                        renderGallery();
+                    }).catch(err => {
+                        console.error('Upload Fehler:', err);
+                        alert('Fehler beim Hochladen: ' + err.message);
+                    });
                 };
                 reader.readAsDataURL(file);
                 fileInput.value = '';
