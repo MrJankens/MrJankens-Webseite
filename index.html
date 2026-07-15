@@ -1,11 +1,136 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>MrJankens.de</title>
-</head>
-<body>
-    <h1>Willkommen auf meiner Website!</h1>
-    <p>Hier entsteht gerade mein neues Projekt. Es ist live via GitHub Pages!</p>
-</body>
-</html>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. CSS-Styling (Jetzt mit blickdichtem Hintergrund!)
+    const style = document.createElement('style');
+    style.textContent = `
+        #love-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            /* Hier ist der Zauber: Ein blickdichter, wunderschöner Verlauf statt durchsichtig! */
+            background: linear-gradient(135deg, #ffeef8 0%, #ffd1dc 50%, #fbc2eb 100%);
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            z-index: 9999999; overflow: hidden;
+        }
+        .love-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px; padding: 40px 25px; width: 90%; max-width: 400px; 
+            text-align: center; box-shadow: 0 15px 35px rgba(253, 114, 148, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative; z-index: 10; 
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .main-heart { font-size: 5rem; margin-bottom: 10px; display: inline-block; animation: heartbeat 1.4s infinite ease-in-out; cursor: pointer; }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.15); } 40% { transform: scale(1.05); } 60% { transform: scale(1.15); } }
+        .initials { font-size: 2.5rem; font-weight: 800; color: #d11a5b; letter-spacing: 2px; margin-bottom: 5px; }
+        .date-badge { display: inline-block; background: #d11a5b; color: white; padding: 5px 15px; border-radius: 20px; font-size: 1rem; font-weight: 600; margin-bottom: 15px; user-select: none; }
+        .message { font-size: 1.5rem; font-weight: 700; color: #4a154b; margin-bottom: 15px; }
+        .counter { font-size: 0.95rem; color: #615061; background: rgba(255, 255, 255, 0.8); padding: 12px; border-radius: 12px; margin-bottom: 20px; }
+        .counter strong { color: #d11a5b; font-size: 1.05rem; display: block; margin-top: 4px; }
+        .love-btn { background: linear-gradient(45deg, #ff4081, #d11a5b); color: white; border: none; padding: 12px 28px; font-size: 1rem; font-weight: 600; border-radius: 50px; cursor: pointer; box-shadow: 0 5px 15px rgba(209, 26, 91, 0.3); transition: all 0.2s ease; }
+        .love-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(209, 26, 91, 0.4); }
+        .secret-msg { margin-top: 15px; font-size: 1rem; font-weight: 600; color: #d11a5b; min-height: 25px; transition: opacity 0.3s ease; opacity: 0; }
+        .falling-heart { position: absolute; top: -5%; user-select: none; pointer-events: none; animation: fall linear forwards; z-index: 1; }
+        @keyframes fall { 0% { transform: translateY(-10%) rotate(0deg); opacity: 0.9; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+    `;
+    document.head.appendChild(style);
+    // 2. HTML-Grundgerüst bauen (OHNE den Schließen-Button)
+    const overlay = document.createElement('div');
+    overlay.id = 'love-overlay';
+    overlay.innerHTML = `
+        <div class="falling-hearts-container" id="hearts-bg"></div>
+        <div class="love-card">
+            <div class="main-heart" id="pulsing-heart">❤️</div>
+            <div class="initials">L &hearts; K</div>
+            <div class="date-badge" id="secret-close">19.02.2026</div>
+            <div class="message">Ich liebe dich!</div>
+            <div class="counter" id="timer">Berechne unsere Zeit...</div>
+            <button class="love-btn" id="surprise-btn">Drück mich! 💖</button>
+            <div class="secret-msg" id="secret-text"></div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    // 3. Live-Zähler
+    const startDate = new Date('2026-02-19T00:00:00');
+    function updateCounter() {
+        const now = new Date();
+        const diff = now - startDate;
+        const isFuture = diff < 0;
+        const absDiff = Math.abs(diff);
+        const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+        const timerEl = document.getElementById('timer');
+        if (isFuture) {
+            timerEl.innerHTML = `Noch bis zu unserem Tag: <strong>${days} Tage, ${hours} Std, ${minutes} Min, ${seconds} Sek</strong>`;
+        } else {
+            timerEl.innerHTML = `Wir sind glücklich zusammen seit: <strong>${days} Tagen, ${hours} Std, ${minutes} Min, ${seconds} Sek</strong>`;
+        }
+    }
+    setInterval(updateCounter, 1000);
+    updateCounter();
+    // 4. Fallende Herzen
+    const heartsBg = document.getElementById('hearts-bg');
+    function createFallingHeart() {
+        if (overlay.style.display === 'none') return; // Stoppt die Herzen, wenn versteckt
+        const heart = document.createElement('div');
+        heart.classList.add('falling-heart');
+        heart.innerHTML = ['❤️', '💖', '💝', '💕', '🌸', '✨'][Math.floor(Math.random() * 6)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        const duration = Math.random() * 3 + 4;
+        heart.style.animationDuration = duration + 's';
+        heart.style.fontSize = (Math.random() * 15 + 12) + 'px';
+        heartsBg.appendChild(heart);
+        setTimeout(() => { heart.remove(); }, duration * 1000);
+    }
+    setInterval(createFallingHeart, 350);
+    // 5. Überraschungs-Button (Ohne Musik)
+    const sweetMessages = [
+        "Du bist mein absoluter Lieblingsmensch! 🥰",
+        "Jeder Tag mit dir ist mein Lieblingstag. 🌸",
+        "L + K = Für immer und ewig! 🔐",
+        "Danke, dass es dich gibt! ❤️",
+        "Du machst meine Welt so viel bunter! 🌈",
+        "Mein Herz schlägt nur für dich! 💑"
+    ];
+    const surpriseBtn = document.getElementById('surprise-btn');
+    const secretText = document.getElementById('secret-text');
+    function startSurprise() {
+        secretText.style.opacity = 0;
+        setTimeout(() => {
+            secretText.innerHTML = sweetMessages[Math.floor(Math.random() * sweetMessages.length)];
+            secretText.style.opacity = 1;
+        }, 200);
+        for (let i = 0; i < 8; i++) { createBurstHeart(); }
+    }
+    surpriseBtn.addEventListener('click', startSurprise);
+    document.getElementById('pulsing-heart').addEventListener('click', startSurprise);
+    function createBurstHeart() {
+        const heart = document.createElement('div');
+        heart.classList.add('falling-heart');
+        heart.innerHTML = ['❤️', '💖', '💕'][Math.floor(Math.random() * 3)];
+        heart.style.left = (Math.random() * 60 + 20) + 'vw';
+        heart.style.top = '75%';
+        const duration = Math.random() * 1.5 + 1.5;
+        heart.style.animationDuration = duration + 's';
+        heart.style.animationName = 'none';
+        setTimeout(() => { heart.style.animation = `burstUp ${duration}s ease-out forwards`; }, 10);
+        style.textContent += `@keyframes burstUp { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-50vh) translateX(${(Math.random() - 0.5) * 100}px) rotate(${(Math.random() - 0.5) * 360}deg); opacity: 0; } }`;
+        heartsBg.appendChild(heart);
+        setTimeout(() => { heart.remove(); }, duration * 1000);
+    }
+    // ==========================================
+    // DEINE GEHEIME HINTERTÜR ZUM SCHLIESSEN
+    // ==========================================
+    let clickCount = 0;
+    document.getElementById('secret-close').addEventListener('click', function() {
+        clickCount++;
+        if (clickCount >= 3) {
+            overlay.style.display = 'none'; // Schließt die Karte bei 3 schnellen Klicks
+        }
+        // Setzt den Zähler nach 1,5 Sekunden wieder auf 0 zurück
+        setTimeout(() => { clickCount = 0; }, 1500);
+    });
+});
+</script>
