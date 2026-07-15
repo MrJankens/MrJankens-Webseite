@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>L & K | 19.02.2026</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -115,13 +115,16 @@
         .c-msg-once-badge { display: inline-block; background: #ff9500; color: white; font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; margin-bottom: 4px; }
         .c-msg-once-btn { background: #ff9500; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-top: 6px; transition: all 0.2s; }
         .c-msg-once-btn:hover { transform: scale(1.05); }
-        #once-viewer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.97); z-index: 999999999; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; user-select: none; -webkit-user-select: none; }
+        #once-viewer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.97); z-index: 999999999; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
         #once-viewer.visible { opacity: 1; visibility: visible; }
         .once-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; z-index: 10; }
         .once-badge { position: absolute; top: 20px; left: 20px; background: #ff9500; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; z-index: 10; }
-        .once-content { max-width: 92vw; max-height: 75vh; display: flex; justify-content: center; align-items: center; }
+        .once-content { max-width: 92vw; max-height: 75vh; display: flex; justify-content: center; align-items: center; position: relative; }
+        .once-content canvas { max-width: 100%; max-height: 75vh; border-radius: 4px; }
         .once-content img { max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 4px; }
-        .once-hinweis { color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 15px; }
+        .once-timer { color: #ff9500; font-size: 1rem; font-weight: 700; margin-top: 10px; }
+        .once-hinweis { color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 8px; }
+        .once-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px); }
 
         /* LIGHTBOX */
         #lightbox { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.97); z-index: 999999999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; cursor: pointer; }
@@ -129,6 +132,55 @@
         #lightbox img { max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 4px; }
         .lightbox-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; }
         .lightbox-info { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 0.85rem; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 20px; white-space: nowrap; }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 480px) {
+            .login-container { padding: 30px 20px; width: 92%; }
+            .login-heart { font-size: 3rem; }
+            .login-title { font-size: 1.3rem; }
+            .login-input { padding: 12px 14px; font-size: 0.95rem; }
+            .love-card { padding: 35px 18px; width: 94%; border-radius: 20px; }
+            .main-heart { font-size: 4rem; }
+            .initials { font-size: 2rem; }
+            .message { font-size: 1.2rem; }
+            .counter { font-size: 0.85rem; padding: 10px; }
+            .counter strong { font-size: 0.95rem; }
+            .love-btn { padding: 10px 22px; font-size: 0.9rem; }
+            .gallery-btn { padding: 8px 16px; font-size: 0.85rem; }
+            .g-topbar { padding: 12px 15px; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+            .g-content { padding: 10px; }
+            .g-grid { gap: 2px; }
+            .g-empty { padding: 50px 15px; }
+            .c-topbar { padding: 12px 15px; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+            .c-messages { padding: 10px; }
+            .c-msg { max-width: 85%; font-size: 0.9rem; padding: 8px 12px; }
+            .c-input-bar { padding: 8px 10px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
+            .c-text { padding: 8px 12px; font-size: 0.9rem; }
+            .c-send { width: 32px; height: 32px; font-size: 1rem; }
+            .c-attach, .c-once-btn { font-size: 1.3rem; padding: 3px; }
+            .c-once-btn.active { padding: 2px 5px; }
+            .once-badge { top: 15px; left: 15px; padding: 5px 12px; font-size: 0.8rem; }
+            .once-close { top: 15px; right: 15px; width: 38px; height: 38px; font-size: 1.2rem; }
+            .once-content { max-width: 96vw; max-height: 70vh; }
+            .once-timer { font-size: 0.9rem; }
+            .once-hinweis { font-size: 0.7rem; }
+            .c-msg-delete { width: 18px; height: 18px; font-size: 0.55rem; }
+            .c-msg-once-btn { padding: 6px 12px; font-size: 0.8rem; }
+            .splash-heart { font-size: 4rem; }
+            .splash-text { font-size: 1.5rem; }
+        }
+
+        @media (max-height: 600px) {
+            .love-card { padding: 25px 15px; }
+            .main-heart { font-size: 3rem; }
+            .initials { font-size: 1.8rem; }
+            .message { font-size: 1.1rem; margin-bottom: 10px; }
+            .counter { padding: 8px; margin-bottom: 12px; }
+            .love-btn { padding: 8px 20px; }
+            .gallery-btn { padding: 7px 14px; margin-top: 10px; }
+            .c-topbar { padding: 8px 15px; }
+            .c-input-bar { padding: 6px 10px; }
+        }
     </style>
 </head>
 <body>
@@ -206,6 +258,7 @@
         <button class="once-close" id="once-close">✕</button>
         <div class="once-badge">👁️ 1x ansehen</div>
         <div class="once-content" id="once-content"></div>
+        <div class="once-timer" id="once-timer"></div>
         <div class="once-hinweis">Dieses Bild kann nur 1x angesehen werden.</div>
     </div>
 
@@ -566,20 +619,49 @@
 
             function openOnceViewer(media, mediaType, author, date, msgId) {
                 onceContent.innerHTML = '';
+                if (onceViewer._timer) clearInterval(onceViewer._timer);
                 if (mediaType === 'video') {
                     const vid = document.createElement('video');
                     vid.src = media;
                     vid.controls = true;
                     vid.autoplay = true;
+                    vid.style.maxWidth = '100%';
+                    vid.style.maxHeight = '75vh';
                     onceContent.appendChild(vid);
                 } else {
-                    const img = document.createElement('img');
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        canvas.style.maxWidth = '100%';
+                        canvas.style.maxHeight = '75vh';
+                        canvas.style.objectFit = 'contain';
+                        canvas.style.borderRadius = '4px';
+                        const overlay = document.createElement('div');
+                        overlay.className = 'once-overlay';
+                        canvas.style.position = 'relative';
+                        onceContent.appendChild(canvas);
+                        onceContent.appendChild(overlay);
+                    };
                     img.src = media;
-                    onceContent.appendChild(img);
                 }
                 onceViewer.classList.add('visible');
                 history.pushState({ once: true }, '');
                 onceViewer._msgId = msgId;
+                let seconds = 15;
+                const timerEl = document.getElementById('once-timer');
+                timerEl.textContent = 'Läuft in ' + seconds + ' Sekunden...';
+                onceViewer._timer = setInterval(() => {
+                    seconds--;
+                    timerEl.textContent = 'Läuft in ' + seconds + ' Sekunden...';
+                    if (seconds <= 0) {
+                        clearInterval(onceViewer._timer);
+                        closeOnceViewer();
+                    }
+                }, 1000);
             }
 
             document.getElementById('once-close').addEventListener('click', () => {
@@ -588,8 +670,10 @@
 
             function closeOnceViewer() {
                 const msgId = onceViewer._msgId;
+                if (onceViewer._timer) clearInterval(onceViewer._timer);
                 onceViewer.classList.remove('visible');
                 onceContent.innerHTML = '';
+                document.getElementById('once-timer').textContent = '';
                 history.back();
                 if (msgId) {
                     messagesRef.child(msgId).remove().then(() => {
@@ -714,6 +798,25 @@
                 history.back();
                 if (chatListener) { messagesRef.off('value', chatListener); chatListener = null; }
             });
+
+            // iOS Keyboard Handling
+            function handleIOSKeyboard() {
+                if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                    window.addEventListener('resize', () => {
+                        if (chatView.classList.contains('visible')) {
+                            const vh = window.innerHeight * 0.01;
+                            document.documentElement.style.setProperty('--vh', vh + 'px');
+                            cMessages.scrollTop = cMessages.scrollHeight;
+                        }
+                    });
+                    cText.addEventListener('focus', () => {
+                        setTimeout(() => {
+                            cMessages.scrollTop = cMessages.scrollHeight;
+                        }, 300);
+                    });
+                }
+            }
+            handleIOSKeyboard();
         }
     });
     </script>
