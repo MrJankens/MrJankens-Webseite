@@ -393,7 +393,19 @@
                 <button id="gl-bot-plus">+</button>
             </div>
         </div>
-        <button class="gl-start" id="gl-start">Spiel starten!</button>
+        <div class="gl-section">
+            <div class="gl-label" style="margin-bottom:12px;">oder beitretten:</div>
+            <div style="display:flex;gap:8px;">
+                <input type="text" id="gl-game-code" placeholder="Spiel-ID" style="flex:1;padding:10px 14px;border:2px solid #555;border-radius:12px;background:#1c1c1e;color:white;font-size:0.9rem;outline:none;">
+                <button class="gl-start" id="gl-join" style="margin:0;padding:10px 20px;font-size:0.9rem;">Beitreten</button>
+            </div>
+        </div>
+        <button class="gl-start" id="gl-start">Spiel erstellen</button>
+        <div id="gl-waiting" style="display:none;color:white;text-align:center;margin-top:20px;">
+            <div style="font-size:1.2rem;font-weight:700;">Warte auf Gegner...</div>
+            <div id="gl-game-id-display" style="background:#1c1c1e;padding:12px 20px;border-radius:12px;margin-top:10px;font-size:1.1rem;font-weight:700;color:#007AFF;cursor:pointer;" title="Klicken zum Kopieren"></div>
+            <div style="font-size:0.8rem;opacity:0.5;margin-top:8px;">Teile diese ID mit deinem Partner</div>
+        </div>
     </div>
 
     <div id="game-view">
@@ -407,7 +419,7 @@
         <div class="game-bottom">
             <div class="game-players" id="game-players"></div>
             <div class="game-controls">
-                <button class="dice-btn" id="dice-btn" disabled>
+                <button class="dice-btn" id="dice-btn">
                     <div class="dice-face" id="dice-face"></div>
                 </button>
             </div>
@@ -986,6 +998,8 @@
             let selectedColor = null;
             let botCount = 0;
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let myColor = null;
+            let gameStarted = false;
 
             function playSound(type) {
                 const o = audioCtx.createOscillator();
@@ -1128,7 +1142,7 @@
                 renderPieces();
                 renderPlayers();
                 const diceBtn = document.getElementById('dice-btn');
-                const isMyTurn = gameState.turn === currentUser || (gameState.bots && gameState.bots.includes(gameState.turn));
+                const isMyTurn = gameState.turn === myColor;
                 diceBtn.disabled = gameState.state !== 'ROLL' || !isMyTurn || gameState.finished;
                 renderDice(gameState.dice);
                 if (gameState.state === 'ROLL' && isMyTurn && !gameState.finished) {
@@ -1324,28 +1338,127 @@
             document.getElementById('gl-bot-plus').addEventListener('click', () => {
                 if (botCount < 3) { botCount++; document.getElementById('gl-bot-count').textContent = botCount; }
             });
+
+            let lobbyRef = null;
+            let lobbyListener = null;
+
             document.getElementById('gl-start').addEventListener('click', () => {
                 if (!selectedColor) { alert('Wähle zuerst eine Farbe!'); return; }
+                myColor = selectedColor;
                 const allColors = ['red','blue','green','yellow'];
                 const botColors = allColors.filter(c => c !== selectedColor);
                 const bots = botColors.slice(0, botCount);
                 const order = [selectedColor, ...bots];
                 const pieces = {};
                 order.forEach(c => { pieces[c] = [-1,-1,-1,-1]; });
-                gameState = {
-                    state: 'ROLL', turn: order[0], dice: null,
-                    msg: 'Spiel gestartet! ' + GAME_COLORS[order[0]].name + ' fängt an.',
-                    pieces, order, bots,
-                    winner: null, finished: false
+
+                lobbyRef = db.ref('lobbies').push();
+                const lobbyData = {
+                    host: currentUser,
+                    hostColor: myColor,
+                    bots: bots,
+                    status: 'waiting',
+                    players: {}
                 };
+                lobbyData.players[currentUser] = myColor;
+
+                lobbyRef.set(lobbyData);
+
+                document.getElementById('gl-waiting').style.display = 'block';
+                document.getElementById('gl-game-id-display').textContent = lobbyRef.key;
+                document.getElementById('gl-start').style.display = 'none';
+                document.getElementById('gl-join').style.display = 'none';
+                document.getElementById('gl-game-code').style.display = 'none';
+
+                document.getElementById('gl-game-id-display').addEventListener('click', () => {
+                    navigator.clipboard.writeText(lobbyRef.key).then(() => {
+                        document.getElementById('gl-game-id-display').style.background = '#0a5';
+                        setTimeout(() => { document.getElementById('gl-game-id-display').style.background = '#1c1c1e'; }, 500);
+                    });
+                });
+
+                lobbyRef.on('value', (snap) => {
+                    const data = snap.val();
+                    if (!data) return;
+                    if (data.status === 'ready') {
+                        const allColors = ['red','blue','green','yellow'];
+                        const usedColors = Object.values(data.players);
+                        const botColorsLeft = allColors.filter(c => !usedColors.includes(c));
+                        const botsFinal = botColorsLeft.slice(0, data.bots.length);
+                        const order = [...usedColors, ...botsFinal];
+                        const pieces = {};
+                        order.forEach(c => { pieces[c] = [-1,-1,-1,-1]; });
+
+                        gameState = {
+                            state: 'ROLL', turn: order[0], dice: null,
+                            msg: GAME_COLORS[order[0]].name + ' fängt an!',
+                            pieces, order, bots: botsFinal,
+                            winner: null, finished: false, gameKey: lobbyRef.key
+                        };
+                        db.ref('games/' + lobbyRef.key).set(gameState);
+                        gameRef = db.ref('games/' + lobbyRef.key);
+                        setupGameListener();
+                        startGameView();
+                        lobbyRef.off();
+                        lobbyRef.remove();
+                    }
+                });
+            });
+
+            document.getElementById('gl-join').addEventListener('click', () => {
+                if (!selectedColor) { alert('Wähle zuerst eine Farbe!'); return; }
+                const code = document.getElementById('gl-game-code').value.trim();
+                if (!code) { alert('Gib eine Spiel-ID ein!'); return; }
+                myColor = selectedColor;
+
+                const joinRef = db.ref('lobbies/' + code);
+                joinRef.once('value', (snap) => {
+                    const data = snap.val();
+                    if (!data || data.status !== 'waiting') {
+                        alert('Spiel nicht gefunden oder bereits gestartet!');
+                        return;
+                    }
+                    const takenColors = Object.values(data.players);
+                    if (takenColors.includes(myColor)) {
+                        alert('Farbe bereits vergeben! Wähl eine andere.');
+                        return;
+                    }
+                    data.players[currentUser] = myColor;
+                    joinRef.child('players').set(data.players);
+                    joinRef.child('status').set('ready');
+                });
+            });
+
+            function setupGameListener() {
+                if (gameListener && gameRef) gameRef.off('value', gameListener);
+                gameListener = gameRef.on('value', (snap) => {
+                    if (snap.exists()) {
+                        const newState = snap.val();
+                        const prevTurn = gameState ? gameState.turn : null;
+                        gameState = newState;
+                        renderGame();
+                        if (!gameState.finished && gameState.turn !== prevTurn && isBotTurn()) {
+                            setTimeout(botTurn, 1200);
+                        }
+                        if (gameState.finished && gameState.winner) {
+                            showWinOverlay(gameState.winner);
+                        }
+                    }
+                });
+            }
+
+            function startGameView() {
                 document.getElementById('game-lobby-view').classList.remove('visible');
                 document.getElementById('game-view').classList.add('visible');
                 buildBoard();
                 renderGame();
                 playSound('dice');
-            });
+                history.pushState({ game: true }, '');
+            }
             document.getElementById('game-back').addEventListener('click', () => {
                 document.getElementById('game-view').classList.remove('visible');
+                if (gameRef) { gameRef.off(); gameRef.remove(); gameRef = null; }
+                if (lobbyRef) { lobbyRef.off(); lobbyRef.remove(); lobbyRef = null; }
                 gameState = null;
             });
             document.getElementById('dice-btn').addEventListener('click', () => {
