@@ -1,29 +1,83 @@
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // 1. CSS-Styling (Jetzt mit blickdichtem Hintergrund!)
-    const style = document.createElement('style');
-    style.textContent = `
-        #love-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            /* Hier ist der Zauber: Ein blickdichter, wunderschöner Verlauf statt durchsichtig! */
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L & K | 19.02.2026</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #ffeef8 0%, #ffd1dc 50%, #fbc2eb 100%);
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            display: flex; justify-content: center; align-items: center; 
-            z-index: 9999999; overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
-        .love-card {
+
+        /* ==================== LOGIN SCREEN ==================== */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 99999;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        #login-screen.hidden {
+            opacity: 0; visibility: hidden; pointer-events: none;
+        }
+        .login-container {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 24px; padding: 40px 25px; width: 90%; max-width: 400px; 
-            text-align: center; box-shadow: 0 15px 35px rgba(253, 114, 148, 0.3); 
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            position: relative; z-index: 10; 
-            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            border-radius: 24px; padding: 40px 30px; width: 90%; max-width: 380px;
+            text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
         @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .main-heart { font-size: 5rem; margin-bottom: 10px; display: inline-block; animation: heartbeat 1.4s infinite ease-in-out; cursor: pointer; }
+        .login-heart { font-size: 4rem; margin-bottom: 15px; display: inline-block; animation: heartbeat 1.4s infinite ease-in-out; }
         @keyframes heartbeat { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.15); } 40% { transform: scale(1.05); } 60% { transform: scale(1.15); } }
+        .login-title { font-size: 1.5rem; font-weight: 800; color: #4a154b; margin-bottom: 5px; }
+        .login-subtitle { font-size: 0.9rem; color: #888; margin-bottom: 25px; }
+        .login-input {
+            width: 100%; padding: 14px 18px; border: 2px solid #e0e0e0; border-radius: 12px;
+            font-size: 1rem; margin-bottom: 12px; outline: none; transition: border-color 0.3s;
+            background: #fafafa;
+        }
+        .login-input:focus { border-color: #d11a5b; background: #fff; }
+        .login-input.error { border-color: #ff4444; animation: shake 0.4s ease; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        .login-btn {
+            width: 100%; padding: 14px; background: linear-gradient(45deg, #ff4081, #d11a5b);
+            color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: 700;
+            cursor: pointer; margin-top: 10px; box-shadow: 0 5px 15px rgba(209, 26, 91, 0.3);
+            transition: all 0.2s ease;
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(209, 26, 91, 0.5); }
+        .login-btn:active { transform: translateY(0); }
+        .login-error { color: #ff4444; font-size: 0.85rem; margin-top: 10px; min-height: 20px; font-weight: 600; }
+        .login-hint { color: #aaa; font-size: 0.75rem; margin-top: 15px; }
+
+        /* ==================== LOVE CARD (versteckt) ==================== */
+        #love-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffd1dc 50%, #fbc2eb 100%);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999999; overflow: hidden;
+            opacity: 0; visibility: hidden; transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        #love-overlay.visible { opacity: 1; visibility: visible; }
+        .love-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px; padding: 40px 25px; width: 90%; max-width: 400px;
+            text-align: center; box-shadow: 0 15px 35px rgba(253, 114, 148, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative; z-index: 10;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .main-heart { font-size: 5rem; margin-bottom: 10px; display: inline-block; animation: heartbeat 1.4s infinite ease-in-out; cursor: pointer; }
         .initials { font-size: 2.5rem; font-weight: 800; color: #d11a5b; letter-spacing: 2px; margin-bottom: 5px; }
         .date-badge { display: inline-block; background: #d11a5b; color: white; padding: 5px 15px; border-radius: 20px; font-size: 1rem; font-weight: 600; margin-bottom: 15px; user-select: none; }
+        .welcome-msg { font-size: 1rem; color: #888; margin-bottom: 10px; }
         .message { font-size: 1.5rem; font-weight: 700; color: #4a154b; margin-bottom: 15px; }
         .counter { font-size: 0.95rem; color: #615061; background: rgba(255, 255, 255, 0.8); padding: 12px; border-radius: 12px; margin-bottom: 20px; }
         .counter strong { color: #d11a5b; font-size: 1.05rem; display: block; margin-top: 4px; }
@@ -32,105 +86,204 @@ document.addEventListener("DOMContentLoaded", function() {
         .secret-msg { margin-top: 15px; font-size: 1rem; font-weight: 600; color: #d11a5b; min-height: 25px; transition: opacity 0.3s ease; opacity: 0; }
         .falling-heart { position: absolute; top: -5%; user-select: none; pointer-events: none; animation: fall linear forwards; z-index: 1; }
         @keyframes fall { 0% { transform: translateY(-10%) rotate(0deg); opacity: 0.9; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
-    `;
-    document.head.appendChild(style);
-    // 2. HTML-Grundgerüst bauen (OHNE den Schließen-Button)
-    const overlay = document.createElement('div');
-    overlay.id = 'love-overlay';
-    overlay.innerHTML = `
+        @keyframes burstUp { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-50vh) translateX(var(--bx)) rotate(var(--br)); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="login-container">
+            <div class="login-heart">❤️</div>
+            <div class="login-title">Willkommen zurück</div>
+            <div class="login-subtitle">Melde dich an um fortzufahren</div>
+            <input type="text" class="login-input" id="username" placeholder="Benutzername" autocomplete="off">
+            <input type="password" class="login-input" id="password" placeholder="Passwort">
+            <button class="login-btn" id="login-btn">Anmelden 💖</button>
+            <div class="login-error" id="login-error"></div>
+            <div class="login-hint">Tipp: Die initialen L & K geben einen Hinweis 😉</div>
+        </div>
+    </div>
+
+    <!-- LOVE CARD (zuerst unsichtbar) -->
+    <div id="love-overlay">
         <div class="falling-hearts-container" id="hearts-bg"></div>
         <div class="love-card">
             <div class="main-heart" id="pulsing-heart">❤️</div>
             <div class="initials">L &hearts; K</div>
             <div class="date-badge" id="secret-close">19.02.2026</div>
+            <div class="welcome-msg" id="welcome-msg"></div>
             <div class="message">Ich liebe dich!</div>
             <div class="counter" id="timer">Berechne unsere Zeit...</div>
             <button class="love-btn" id="surprise-btn">Drück mich! 💖</button>
             <div class="secret-msg" id="secret-text"></div>
         </div>
-    `;
-    document.body.appendChild(overlay);
-    // 3. Live-Zähler
-    const startDate = new Date('2026-02-19T00:00:00');
-    function updateCounter() {
-        const now = new Date();
-        const diff = now - startDate;
-        const isFuture = diff < 0;
-        const absDiff = Math.abs(diff);
-        const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
-        const timerEl = document.getElementById('timer');
-        if (isFuture) {
-            timerEl.innerHTML = `Noch bis zu unserem Tag: <strong>${days} Tage, ${hours} Std, ${minutes} Min, ${seconds} Sek</strong>`;
-        } else {
-            timerEl.innerHTML = `Wir sind glücklich zusammen seit: <strong>${days} Tagen, ${hours} Std, ${minutes} Min, ${seconds} Sek</strong>`;
+    </div>
+
+    <script>
+        // ==================== LOGIN LOGIK ====================
+        const accounts = {
+            kevin: "KevinLea0909",
+            lea: "KevinLea0909"
+        };
+
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('login-btn');
+        const loginError = document.getElementById('login-error');
+        const loginScreen = document.getElementById('login-screen');
+        const loveOverlay = document.getElementById('love-overlay');
+        const welcomeMsg = document.getElementById('welcome-msg');
+
+        let loginAttempts = parseInt(localStorage.getItem('lk_loginAttempts') || '0');
+
+        function attemptLogin() {
+            const user = usernameInput.value.trim().toLowerCase();
+            const pass = passwordInput.value;
+
+            if (accounts[user] && accounts[user] === pass) {
+                loginScreen.classList.add('hidden');
+                loveOverlay.classList.add('visible');
+                localStorage.setItem('lk_loggedIn', 'true');
+                localStorage.setItem('lk_user', user);
+                loginAttempts = 0;
+                localStorage.setItem('lk_loginAttempts', '0');
+                welcomeMsg.textContent = `Willkommen, ${user.charAt(0).toUpperCase() + user.slice(1)}! 💕`;
+                startLoveAnimations();
+            } else {
+                loginAttempts++;
+                localStorage.setItem('lk_loginAttempts', loginAttempts.toString());
+                loginError.textContent = loginAttempts >= 3
+                    ? 'Zu viele Fehlversuche! Versuch's später nochmal.'
+                    : 'Benutzername oder Passwort ist falsch.';
+                loginInput.classList.add('error');
+                setTimeout(() => loginInput.classList.remove('error'), 500);
+                passwordInput.value = '';
+                if (loginAttempts >= 3) {
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Gesperrt 🔒';
+                    setTimeout(() => {
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Anmelden 💖';
+                        loginAttempts = 0;
+                        localStorage.setItem('lk_loginAttempts', '0');
+                        loginError.textContent = '';
+                    }, 30000);
+                }
+            }
         }
-    }
-    setInterval(updateCounter, 1000);
-    updateCounter();
-    // 4. Fallende Herzen
-    const heartsBg = document.getElementById('hearts-bg');
-    function createFallingHeart() {
-        if (overlay.style.display === 'none') return; // Stoppt die Herzen, wenn versteckt
-        const heart = document.createElement('div');
-        heart.classList.add('falling-heart');
-        heart.innerHTML = ['❤️', '💖', '💝', '💕', '🌸', '✨'][Math.floor(Math.random() * 6)];
-        heart.style.left = Math.random() * 100 + 'vw';
-        const duration = Math.random() * 3 + 4;
-        heart.style.animationDuration = duration + 's';
-        heart.style.fontSize = (Math.random() * 15 + 12) + 'px';
-        heartsBg.appendChild(heart);
-        setTimeout(() => { heart.remove(); }, duration * 1000);
-    }
-    setInterval(createFallingHeart, 350);
-    // 5. Überraschungs-Button (Ohne Musik)
-    const sweetMessages = [
-        "Du bist mein absoluter Lieblingsmensch! 🥰",
-        "Jeder Tag mit dir ist mein Lieblingstag. 🌸",
-        "L + K = Für immer und ewig! 🔐",
-        "Danke, dass es dich gibt! ❤️",
-        "Du machst meine Welt so viel bunter! 🌈",
-        "Mein Herz schlägt nur für dich! 💑"
-    ];
-    const surpriseBtn = document.getElementById('surprise-btn');
-    const secretText = document.getElementById('secret-text');
-    function startSurprise() {
-        secretText.style.opacity = 0;
-        setTimeout(() => {
-            secretText.innerHTML = sweetMessages[Math.floor(Math.random() * sweetMessages.length)];
-            secretText.style.opacity = 1;
-        }, 200);
-        for (let i = 0; i < 8; i++) { createBurstHeart(); }
-    }
-    surpriseBtn.addEventListener('click', startSurprise);
-    document.getElementById('pulsing-heart').addEventListener('click', startSurprise);
-    function createBurstHeart() {
-        const heart = document.createElement('div');
-        heart.classList.add('falling-heart');
-        heart.innerHTML = ['❤️', '💖', '💕'][Math.floor(Math.random() * 3)];
-        heart.style.left = (Math.random() * 60 + 20) + 'vw';
-        heart.style.top = '75%';
-        const duration = Math.random() * 1.5 + 1.5;
-        heart.style.animationDuration = duration + 's';
-        heart.style.animationName = 'none';
-        setTimeout(() => { heart.style.animation = `burstUp ${duration}s ease-out forwards`; }, 10);
-        style.textContent += `@keyframes burstUp { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-50vh) translateX(${(Math.random() - 0.5) * 100}px) rotate(${(Math.random() - 0.5) * 360}deg); opacity: 0; } }`;
-        heartsBg.appendChild(heart);
-        setTimeout(() => { heart.remove(); }, duration * 1000);
-    }
-    // ==========================================
-    // DEINE GEHEIME HINTERTÜR ZUM SCHLIESSEN
-    // ==========================================
-    let clickCount = 0;
-    document.getElementById('secret-close').addEventListener('click', function() {
-        clickCount++;
-        if (clickCount >= 3) {
-            overlay.style.display = 'none'; // Schließt die Karte bei 3 schnellen Klicks
+
+        loginBtn.addEventListener('click', attemptLogin);
+        passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); });
+        usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') passwordInput.focus(); });
+
+        // Bereits eingeloggt?
+        if (localStorage.getItem('lk_loggedIn') === 'true') {
+            const savedUser = localStorage.getItem('lk_user') || '';
+            loginScreen.classList.add('hidden');
+            loveOverlay.classList.add('visible');
+            welcomeMsg.textContent = `Willkommen zurück, ${savedUser.charAt(0).toUpperCase() + savedUser.slice(1)}! 💕`;
+            startLoveAnimations();
         }
-        // Setzt den Zähler nach 1,5 Sekunden wieder auf 0 zurück
-        setTimeout(() => { clickCount = 0; }, 1500);
-    });
-});
-</script>
+
+        // ==================== LOVE CARD ANIMATIONS ====================
+        function startLoveAnimations() {
+            // Live-Zähler
+            const startDate = new Date('2026-02-19T00:00:00');
+            function updateCounter() {
+                const now = new Date();
+                const diff = now - startDate;
+                const isFuture = diff < 0;
+                const absDiff = Math.abs(diff);
+                const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+                const timerEl = document.getElementById('timer');
+                if (isFuture) {
+                    timerEl.innerHTML = `Noch bis zu unserem Tag: <strong>${days} Tage, ${hours} Std, ${minutes} Min, ${seconds} Sek</strong>`;
+                } else {
+                    timerEl.innerHTML = `Wir sind glücklich zusammen seit: <strong>${days} Tagen, ${hours} Std, ${minutes} Min, ${seconds} Sek</strong>`;
+                }
+            }
+            setInterval(updateCounter, 1000);
+            updateCounter();
+
+            // Fallende Herzen
+            const heartsBg = document.getElementById('hearts-bg');
+            function createFallingHeart() {
+                if (!loveOverlay.classList.contains('visible')) return;
+                const heart = document.createElement('div');
+                heart.classList.add('falling-heart');
+                heart.innerHTML = ['❤️', '💖', '💝', '💕', '🌸', '✨'][Math.floor(Math.random() * 6)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                const duration = Math.random() * 3 + 4;
+                heart.style.animationDuration = duration + 's';
+                heart.style.fontSize = (Math.random() * 15 + 12) + 'px';
+                heartsBg.appendChild(heart);
+                setTimeout(() => { heart.remove(); }, duration * 1000);
+            }
+            setInterval(createFallingHeart, 350);
+
+            // Überraschungs-Button
+            const sweetMessages = [
+                "Du bist mein absoluter Lieblingsmensch! 🥰",
+                "Jeder Tag mit dir ist mein Lieblingstag. 🌸",
+                "L + K = Für immer und ewig! 🔐",
+                "Danke, dass es dich gibt! ❤️",
+                "Du machst meine Welt so viel bunter! 🌈",
+                "Mein Herz schlägt nur für dich! 💑",
+                "Ich would immer wieder dich wählen. 💍",
+                "Du bist der beste Teil meines Lebens! ✨"
+            ];
+            const surpriseBtn = document.getElementById('surprise-btn');
+            const secretText = document.getElementById('secret-text');
+
+            function startSurprise() {
+                secretText.style.opacity = 0;
+                setTimeout(() => {
+                    secretText.innerHTML = sweetMessages[Math.floor(Math.random() * sweetMessages.length)];
+                    secretText.style.opacity = 1;
+                }, 200);
+                for (let i = 0; i < 8; i++) { createBurstHeart(); }
+            }
+
+            surpriseBtn.addEventListener('click', startSurprise);
+            document.getElementById('pulsing-heart').addEventListener('click', startSurprise);
+
+            function createBurstHeart() {
+                const heart = document.createElement('div');
+                heart.classList.add('falling-heart');
+                heart.innerHTML = ['❤️', '💖', '💕'][Math.floor(Math.random() * 3)];
+                heart.style.left = (Math.random() * 60 + 20) + 'vw';
+                heart.style.top = '75%';
+                const duration = Math.random() * 1.5 + 1.5;
+                heart.style.animationDuration = duration + 's';
+                heart.style.setProperty('--bx', (Math.random() - 0.5) * 100 + 'px');
+                heart.style.setProperty('--br', (Math.random() - 0.5) * 360 + 'deg');
+                heart.style.animation = 'none';
+                setTimeout(() => { heart.style.animation = `burstUp ${duration}s ease-out forwards`; }, 10);
+                heartsBg.appendChild(heart);
+                setTimeout(() => { heart.remove(); }, duration * 1000);
+            }
+
+            // Geheimer Close (3 Klicks auf Datum)
+            let clickCount = 0;
+            document.getElementById('secret-close').addEventListener('click', function() {
+                clickCount++;
+                if (clickCount >= 3) {
+                    loveOverlay.classList.remove('visible');
+                    localStorage.removeItem('lk_loggedIn');
+                    localStorage.removeItem('lk_user');
+                    setTimeout(() => {
+                        loginScreen.classList.remove('hidden');
+                        usernameInput.value = '';
+                        passwordInput.value = '';
+                        loginError.textContent = '';
+                    }, 800);
+                }
+                setTimeout(() => { clickCount = 0; }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
