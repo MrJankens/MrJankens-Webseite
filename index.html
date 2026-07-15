@@ -177,6 +177,7 @@
             <div class="c-topbar-title">💬 Unser Chat</div>
             <div style="width:60px;"></div>
         </div>
+        <div id="c-debug" style="background:#ff4444;color:white;padding:10px 15px;font-size:0.8rem;display:none;word-wrap:break-word;max-height:120px;overflow-y:auto;"></div>
         <div class="c-messages" id="c-messages">
             <div class="c-empty"><div class="c-empty-icon">💬</div>Noch keine Nachrichten.<br>Starte das Gespräch!</div>
         </div>
@@ -471,13 +472,39 @@
             const cSend = document.getElementById('c-send');
             const cAttach = document.getElementById('c-attach');
             const chatFileInput = document.getElementById('chat-file-input');
+            const cDebug = document.getElementById('c-debug');
             const messagesRef = db.ref('messages');
             let chatListener = null;
 
+            function chatLog(msg) {
+                console.log('[CHAT]', msg);
+                cDebug.style.display = 'block';
+                cDebug.innerHTML += '<div>' + new Date().toLocaleTimeString('de-DE') + ' - ' + msg + '</div>';
+                cDebug.scrollTop = cDebug.scrollHeight;
+            }
+
+            function chatError(msg) {
+                console.error('[CHAT]', msg);
+                cDebug.style.display = 'block';
+                cDebug.style.background = '#cc0000';
+                cDebug.innerHTML += '<div style="font-weight:bold;">❌ ' + msg + '</div>';
+                cDebug.scrollTop = cDebug.scrollHeight;
+            }
+
             function renderChat() {
+                chatLog('renderChat gestartet');
+                cDebug.innerHTML = '';
+                cDebug.style.display = 'none';
+                cDebug.style.background = '#ff4444';
                 cMessages.innerHTML = '';
-                if (chatListener) chatListener();
+                if (chatListener) {
+                    messagesRef.off('value', chatListener);
+                    chatListener = null;
+                    chatLog('Alter Listener entfernt');
+                }
+                chatLog('Starte Firebase-Listener für messages...');
                 chatListener = messagesRef.orderByChild('timestamp').on('value', (snapshot) => {
+                    chatLog('Firebase-Snapshot erhalten, exists=' + snapshot.exists() + ', size=' + snapshot.numChildren());
                     cMessages.innerHTML = '';
                     if (!snapshot.exists()) {
                         cMessages.innerHTML = '<div class="c-empty"><div class="c-empty-icon">💬</div>Noch keine Nachrichten.<br>Starte das Gespräch!</div>';
@@ -513,7 +540,11 @@
                             }
                         });
                     });
+                }, (err) => {
+                    chatError('Firebase-Listener Fehler: ' + err.message + ' (Code: ' + err.code + ')');
+                    cMessages.innerHTML = '<div class="c-empty"><div class="c-empty-icon">⚠️</div>Fehler: ' + err.message + '<br>Prüfe Firebase-Regeln für "messages".</div>';
                 });
+                chatLog('Firebase-Listener aktiv');
             }
 
             function escapeHtml(str) {
@@ -524,6 +555,7 @@
 
             function sendMessage(text, media, mediaType) {
                 if (!text && !media) return;
+                chatLog('Sende Nachricht: ' + (text || '(Medien)') + '...');
                 messagesRef.push({
                     text: text || '',
                     media: media || '',
@@ -531,6 +563,10 @@
                     author: currentUser,
                     timestamp: Date.now(),
                     date: new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+                }).then(() => {
+                    chatLog('Nachricht gesendet!');
+                }).catch(err => {
+                    chatError('Senden fehlgeschlagen: ' + err.message);
                 });
             }
 
@@ -569,6 +605,7 @@
             });
 
             document.getElementById('open-chat').addEventListener('click', () => {
+                chatLog('Chat-Button geklickt, currentUser=' + currentUser);
                 renderChat();
                 chatView.classList.add('visible');
                 history.pushState({ chat: true }, '');
