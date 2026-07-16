@@ -223,6 +223,12 @@
         .gl-open-game-info strong { color: #5ac8fa; }
         .gl-open-game-join { background: linear-gradient(135deg, #007AFF, #0055d4); color: white; border: none; padding: 7px 16px; border-radius: 18px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,122,255,0.3); }
         .gl-open-game-join:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,122,255,0.4); }
+        .gl-my-game { display: flex; justify-content: space-between; align-items: center; background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.2); border-radius: 14px; padding: 12px 16px; margin-bottom: 8px; transition: background 0.2s; }
+        .gl-my-game:hover { background: rgba(46,204,113,0.18); }
+        .gl-my-game-info { color: white; font-size: 0.85rem; }
+        .gl-my-game-info strong { color: #2ecc71; }
+        .gl-my-game-rejoin { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; padding: 7px 16px; border-radius: 18px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(46,204,113,0.3); }
+        .gl-my-game-rejoin:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(46,204,113,0.4); }
 
         /* SPIELBRETT */
         #game-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c29, #1a1a2e, #16213e); z-index: 99999999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; padding: 10px; }
@@ -420,6 +426,10 @@
         </div>
         <button class="gl-start" id="gl-start">Spiel starten</button>
         <div class="gl-section" style="margin-top:20px;">
+            <div class="gl-label">Meine Spiele:</div>
+            <div id="gl-my-games" style="color:rgba(255,255,255,0.4);font-size:0.85rem;"></div>
+        </div>
+        <div class="gl-section" style="margin-top:15px;">
             <div class="gl-label">Offene Spiele:</div>
             <div id="gl-open-games" style="color:rgba(255,255,255,0.4);font-size:0.85rem;">Wird geladen...</div>
         </div>
@@ -889,11 +899,12 @@
                     lightboxVideo.src = '';
                 } else if (document.getElementById('game-view').classList.contains('visible')) {
                     document.getElementById('game-view').classList.remove('visible');
-                    if (gameRef) { gameRef.off(); gameRef.remove(); gameRef = null; }
-                    if (lobbyRef) { lobbyRef.off(); lobbyRef.remove(); lobbyRef = null; }
+                    if (gameRef) { gameRef.off(); gameRef = null; }
+                    if (lobbyRef) { lobbyRef.off(); lobbyRef = null; }
                     gameState = null;
                     document.getElementById('game-lobby-view').classList.add('visible');
                     listenOpenGames();
+                    listenMyGames();
                 } else if (chatView.classList.contains('visible')) {
                     chatView.classList.remove('visible');
                     disableProtection();
@@ -1255,6 +1266,7 @@
                 if (!gameState || gameState.state !== 'MOVE' || gameState.turn !== color) return;
                 performMove(color, idx);
                 if (gameState.finished) {
+                    gameState.rollsLeft = null;
                     renderGame();
                     showWinOverlay(color);
                     syncGameState();
@@ -1262,7 +1274,9 @@
                 }
                 if (gameState.dice === 6) {
                     gameState.state = 'ROLL';
+                    gameState.rollsLeft = allPiecesInBase(color) ? 3 : 1;
                 } else {
+                    gameState.rollsLeft = null;
                     nextTurn();
                 }
                 renderGame();
@@ -1275,26 +1289,53 @@
                 gameState.turn = gameState.order[(idx + 1) % gameState.order.length];
                 gameState.state = 'ROLL';
                 gameState.dice = null;
+                gameState.rollsLeft = null;
+            }
+
+            function allPiecesInBase(color) {
+                return gameState.pieces[color].every(p => p === -1);
             }
 
             function rollDice() {
                 if (!gameState || gameState.state !== 'ROLL') return;
+                if (gameState.rollsLeft == null) {
+                    gameState.rollsLeft = allPiecesInBase(gameState.turn) ? 3 : 1;
+                }
                 gameState.dice = Math.floor(Math.random() * 6) + 1;
                 if (gameState.dice === 6) playSound('six'); else playSound('dice');
                 const movable = getMovablePieces(gameState.turn, gameState.dice);
                 if (movable.length === 0) {
-                    gameState.msg = GAME_COLORS[gameState.turn].name + ' würfelt ' + gameState.dice + '.';
-                    renderGame();
-                    setTimeout(() => {
-                        if (gameState.dice === 6) {
-                            gameState.state = 'ROLL';
-                        } else {
-                            nextTurn();
-                        }
+                    gameState.rollsLeft--;
+                    if (gameState.dice === 6) {
+                        gameState.msg = GAME_COLORS[gameState.turn].name + ' würfelt 6 – aber kein Zug möglich.';
+                        gameState.rollsLeft = allPiecesInBase(gameState.turn) ? 3 : 1;
                         renderGame();
-                        syncGameState();
-                        if (isBotTurn()) setTimeout(botTurn, 1200);
-                    }, 1000);
+                        setTimeout(() => {
+                            gameState.state = 'ROLL';
+                            renderGame();
+                            syncGameState();
+                            if (isBotTurn()) setTimeout(botTurn, 1200);
+                        }, 1000);
+                    } else if (gameState.rollsLeft > 0) {
+                        gameState.msg = GAME_COLORS[gameState.turn].name + ' würfelt ' + gameState.dice + '. Noch ' + gameState.rollsLeft + ' Versuch' + (gameState.rollsLeft > 1 ? 'e' : '') + '!';
+                        renderGame();
+                        setTimeout(() => {
+                            gameState.state = 'ROLL';
+                            renderGame();
+                            syncGameState();
+                            if (isBotTurn()) setTimeout(botTurn, 800);
+                        }, 800);
+                    } else {
+                        gameState.msg = GAME_COLORS[gameState.turn].name + ' würfelt ' + gameState.dice + ' – kein Zug möglich.';
+                        gameState.rollsLeft = null;
+                        renderGame();
+                        setTimeout(() => {
+                            nextTurn();
+                            renderGame();
+                            syncGameState();
+                            if (isBotTurn()) setTimeout(botTurn, 1200);
+                        }, 1000);
+                    }
                 } else {
                     gameState.state = 'MOVE';
                     gameState.msg = GAME_COLORS[gameState.turn].name + ' würfelt ' + gameState.dice + '!';
@@ -1363,10 +1404,12 @@
                 document.getElementById('gl-bot-count').textContent = '0';
                 document.querySelectorAll('#gl-my-colors .gl-color').forEach(c => c.classList.remove('selected'));
                 listenOpenGames();
+                listenMyGames();
             });
             document.getElementById('gl-back').addEventListener('click', () => {
                 document.getElementById('game-lobby-view').classList.remove('visible');
                 if (openGamesListener) { db.ref('lobbies').off('value', openGamesListener); openGamesListener = null; }
+                if (myGamesListener) { db.ref('games').off('value', myGamesListener); myGamesListener = null; }
                 if (lobbyRef) { lobbyRef.off(); lobbyRef = null; }
                 document.getElementById('gl-start').textContent = 'Spiel starten';
                 document.getElementById('gl-start').disabled = false;
@@ -1389,6 +1432,7 @@
             let lobbyRef = null;
             let lobbyListener = null;
             let openGamesListener = null;
+            let myGamesListener = null;
 
             function listenOpenGames() {
                 const list = document.getElementById('gl-open-games');
@@ -1421,6 +1465,65 @@
                             joinGame(btn.dataset.key);
                         });
                     });
+                });
+            }
+
+            function listenMyGames() {
+                const list = document.getElementById('gl-my-games');
+                if (!list) return;
+                if (myGamesListener) db.ref('games').off('value', myGamesListener);
+                myGamesListener = db.ref('games').on('value', (snap) => {
+                    list.innerHTML = '';
+                    if (!snap.exists()) {
+                        list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine aktiven Spiele</div>';
+                        return;
+                    }
+                    let count = 0;
+                    snap.forEach(child => {
+                        const g = child.val();
+                        if (g && g.players && g.players[currentUser] && !g.finished) {
+                            count++;
+                            const myCol = g.players[currentUser];
+                            const botInfo = g.bots && g.bots.length > 0 ? ` + ${g.bots.length} Bot${g.bots.length > 1 ? 's' : ''}` : '';
+                            const turnInfo = g.turn ? `Am Zug: ${GAME_COLORS[g.turn].name}` : '';
+                            const el = document.createElement('div');
+                            el.className = 'gl-my-game';
+                            el.innerHTML = `<div class="gl-my-game-info"><strong>${GAME_COLORS[myCol].name}</strong> ${botInfo} · ${turnInfo}</div><button class="gl-my-game-rejoin" data-key="${child.key}">Beitreten</button>`;
+                            list.appendChild(el);
+                        }
+                    });
+                    if (count === 0) {
+                        list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine aktiven Spiele</div>';
+                    }
+                    list.querySelectorAll('.gl-my-game-rejoin').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            rejoinGame(btn.dataset.key);
+                        });
+                    });
+                });
+            }
+
+            function rejoinGame(key) {
+                const gameRefRejoin = db.ref('games/' + key);
+                gameRefRejoin.once('value', (snap) => {
+                    if (!snap.exists()) {
+                        alert('Spiel nicht mehr vorhanden!');
+                        return;
+                    }
+                    const gData = snap.val();
+                    if (gData.finished) {
+                        alert('Dieses Spiel ist bereits beendet.');
+                        return;
+                    }
+                    if (!gData.players || !gData.players[currentUser]) {
+                        alert('Du bist kein Spieler in diesem Spiel.');
+                        return;
+                    }
+                    myColor = gData.players[currentUser];
+                    gameState = gData;
+                    gameRef = gameRefRejoin;
+                    setupGameListener();
+                    startGameView();
                 });
             }
 
@@ -1497,9 +1600,10 @@
 
                 if (botCount >= 1) {
                     gameState = {
-                        state: 'ROLL', turn: order[0], dice: null,
+                        state: 'ROLL', turn: order[0], dice: null, rollsLeft: null,
                         msg: GAME_COLORS[order[0]].name + ' fängt an!',
                         pieces, order, bots,
+                        players: { [currentUser]: selectedColor },
                         winner: null, finished: false
                     };
                     const gameKey = 'local_' + Date.now();
@@ -1542,9 +1646,10 @@
                                 orderFinal.forEach(c => { piecesFinal[c] = [-1,-1,-1,-1]; });
 
                                 gameState = {
-                                    state: 'ROLL', turn: orderFinal[0], dice: null,
+                                    state: 'ROLL', turn: orderFinal[0], dice: null, rollsLeft: null,
                                     msg: GAME_COLORS[orderFinal[0]].name + ' fängt an!',
                                     pieces: piecesFinal, order: orderFinal, bots: botsFinal,
+                                    players: data.players || {},
                                     winner: null, finished: false
                                 };
                                 db.ref('games/' + lobbyRef.key).set(gameState).then(() => {
@@ -1601,18 +1706,22 @@
             }
             document.getElementById('game-back').addEventListener('click', () => {
                 document.getElementById('game-view').classList.remove('visible');
-                if (gameRef) { gameRef.off(); gameRef.remove(); gameRef = null; }
-                if (lobbyRef) { lobbyRef.off(); lobbyRef.remove(); lobbyRef = null; }
+                if (gameRef) { gameRef.off(); gameRef = null; }
+                if (lobbyRef) { lobbyRef.off(); lobbyRef = null; }
                 gameState = null;
+                document.getElementById('game-lobby-view').classList.add('visible');
+                listenOpenGames();
+                listenMyGames();
             });
             document.getElementById('game-leave').addEventListener('click', () => {
-                if (confirm('Spiel wirklich verlassen?')) {
+                if (confirm('Spiel wirklich verlassen? Du kannst danach wieder beitreten.')) {
                     document.getElementById('game-view').classList.remove('visible');
-                    if (gameRef) { gameRef.off(); gameRef.remove(); gameRef = null; }
-                    if (lobbyRef) { lobbyRef.off(); lobbyRef.remove(); lobbyRef = null; }
+                    if (gameRef) { gameRef.off(); gameRef = null; }
+                    if (lobbyRef) { lobbyRef.off(); lobbyRef = null; }
                     gameState = null;
                     document.getElementById('game-lobby-view').classList.add('visible');
                     listenOpenGames();
+                    listenMyGames();
                 }
             });
             document.getElementById('dice-btn').addEventListener('click', () => {
@@ -1626,8 +1735,11 @@
             document.getElementById('win-btn').addEventListener('click', () => {
                 document.getElementById('win-overlay').classList.remove('visible');
                 document.getElementById('game-view').classList.remove('visible');
-                document.getElementById('game-menu-view').classList.add('visible');
+                if (gameRef) { gameRef.off(); gameRef = null; }
                 gameState = null;
+                document.getElementById('game-lobby-view').classList.add('visible');
+                listenOpenGames();
+                listenMyGames();
             });
         }
     });
