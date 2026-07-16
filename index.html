@@ -166,6 +166,11 @@
             .c-msg-once-btn { padding: 6px 12px; font-size: 0.8rem; }
             .splash-heart { font-size: 4rem; }
             .splash-text { font-size: 1.5rem; }
+            .game-topbar { gap: 6px; }
+            .game-back, .game-leave { padding: 5px 10px; font-size: 0.75rem; }
+            .game-msg { font-size: 0.78rem; }
+            .dice-btn { width: 60px; height: 60px; font-size: 1.6rem; }
+            .dice-face { width: 44px; height: 44px; gap: 3px; }
         }
 
         @media (max-height: 600px) {
@@ -267,7 +272,9 @@
 
         .game-topbar { display: flex; justify-content: space-between; align-items: center; width: min(90vw, 450px); margin-bottom: 10px; }
         .game-back { background: rgba(255,255,255,0.15); color: white; border: none; padding: 6px 14px; border-radius: 16px; font-size: 0.85rem; cursor: pointer; backdrop-filter: blur(10px); }
-        .game-msg { color: white; font-size: 0.9rem; font-weight: 600; text-align: center; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+        .game-leave { background: rgba(255,59,48,0.2); color: #ff3b30; border: none; padding: 6px 14px; border-radius: 16px; font-size: 0.85rem; cursor: pointer; backdrop-filter: blur(10px); transition: all 0.2s; }
+        .game-leave:hover { background: rgba(255,59,48,0.4); transform: scale(1.05); }
+        .game-msg { color: white; font-size: 0.9rem; font-weight: 600; text-align: center; text-shadow: 0 1px 4px rgba(0,0,0,0.5); flex: 1; }
 
         .game-bottom { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; width: min(90vw, 450px); }
         .game-players { display: flex; gap: 8px; width: 100%; justify-content: center; flex-wrap: wrap; }
@@ -422,6 +429,7 @@
         <div class="game-topbar">
             <button class="game-back" id="game-back">← Abbrechen</button>
             <div class="game-msg" id="game-msg">Wird geladen...</div>
+            <button class="game-leave" id="game-leave">Spiel verlassen</button>
         </div>
         <div class="board-container">
             <div class="board" id="board"></div>
@@ -879,6 +887,13 @@
                     lightbox.classList.remove('visible');
                     lightboxVideo.pause();
                     lightboxVideo.src = '';
+                } else if (document.getElementById('game-view').classList.contains('visible')) {
+                    document.getElementById('game-view').classList.remove('visible');
+                    if (gameRef) { gameRef.off(); gameRef.remove(); gameRef = null; }
+                    if (lobbyRef) { lobbyRef.off(); lobbyRef.remove(); lobbyRef = null; }
+                    gameState = null;
+                    document.getElementById('game-lobby-view').classList.add('visible');
+                    listenOpenGames();
                 } else if (chatView.classList.contains('visible')) {
                     chatView.classList.remove('visible');
                     disableProtection();
@@ -1095,6 +1110,8 @@
             function renderPieces() {
                 document.querySelectorAll('.piece').forEach(p => p.remove());
                 if (!gameState) return;
+                const board = document.getElementById('board');
+                const borderW = board.clientLeft || 3;
                 const occupied = {};
                 Object.entries(gameState.pieces).forEach(([color, pieces]) => {
                     pieces.forEach((pos, i) => {
@@ -1107,21 +1124,16 @@
                 Object.entries(occupied).forEach(([key, stack]) => {
                     const [gx, gy] = key.split(',').map(Number);
                     const base = getCellPx(gx, gy);
+                    const size = stack.length > 1 ? 24 : 32;
                     stack.forEach((item, si) => {
                         const el = document.createElement('div');
                         el.className = 'piece ' + item.color;
-                        el.style.left = (base.x - 15) + 'px';
-                        el.style.top = (base.y - 15) + 'px';
-                        el.style.width = '30px';
-                        el.style.height = '30px';
-                        if (stack.length > 1) {
-                            el.style.left = (base.x - 12 + si * 6) + 'px';
-                            el.style.top = (base.y - 12) + 'px';
-                            el.style.width = '24px';
-                            el.style.height = '24px';
-                            el.style.fontSize = '0.5rem';
-                        }
-                        el.textContent = item.idx + 1;
+                        const offsetX = stack.length > 1 ? (si - (stack.length - 1) / 2) * 6 : 0;
+                        el.style.left = (base.x + borderW + offsetX) + 'px';
+                        el.style.top = (base.y + borderW) + 'px';
+                        el.style.width = size + 'px';
+                        el.style.height = size + 'px';
+                        el.style.transform = 'translate(-50%, -50%)';
                         el.dataset.color = item.color;
                         el.dataset.idx = item.idx;
                         if (gameState.state === 'MOVE' && gameState.turn === item.color && isLegalMove(item.color, item.idx, gameState.dice)) {
@@ -1427,16 +1439,41 @@
                         return;
                     }
                     data.players[currentUser] = myColor;
-                    joinRef.child('players').set(data.players);
-                    joinRef.child('status').set('ready');
 
                     document.getElementById('gl-start').textContent = 'Verbinde...';
                     document.getElementById('gl-start').disabled = true;
                     document.getElementById('gl-open-games').style.display = 'none';
 
+                    joinRef.update({
+                        players: data.players,
+                        status: 'ready'
+                    }).then(() => {
+                        console.log('Lobby beigetreten, warte auf Spiel...');
+                    }).catch(err => {
+                        console.error('Join-Fehler:', err);
+                        alert('Fehler beim Beitreten: ' + err.message);
+                        document.getElementById('gl-start').textContent = 'Spiel starten';
+                        document.getElementById('gl-start').disabled = false;
+                        document.getElementById('gl-open-games').style.display = 'block';
+                    });
+
                     const joinGameRef = db.ref('games/' + key);
+                    let joined = false;
+                    const joinTimeout = setTimeout(() => {
+                        if (!joined && document.getElementById('gl-start').textContent === 'Verbinde...') {
+                            alert('Zeitüberschreitung. Das Spiel wurde nicht gestartet. Bitte versuche es erneut.');
+                            document.getElementById('gl-start').textContent = 'Spiel starten';
+                            document.getElementById('gl-start').disabled = false;
+                            document.getElementById('gl-open-games').style.display = 'block';
+                            joinGameRef.off('value');
+                            joinRef.off();
+                        }
+                    }, 20000);
+
                     joinGameRef.on('value', (gSnap) => {
-                        if (gSnap.exists()) {
+                        if (gSnap.exists() && !joined) {
+                            joined = true;
+                            clearTimeout(joinTimeout);
                             joinGameRef.off('value');
                             gameState = gSnap.val();
                             gameRef = joinGameRef;
@@ -1467,7 +1504,11 @@
                     };
                     const gameKey = 'local_' + Date.now();
                     gameRef = db.ref('games/' + gameKey);
-                    gameRef.set(gameState);
+                    gameRef.set(gameState).then(() => {
+                        console.log('Lokales Spiel erstellt');
+                    }).catch(err => {
+                        console.error('Lokales Spiel-Fehler:', err);
+                    });
                     setupGameListener();
                     startGameView();
                 } else {
@@ -1478,30 +1519,48 @@
                         bots: bots,
                         status: 'waiting',
                         players: { [currentUser]: myColor }
+                    }).then(() => {
+                        console.log('Lobby erstellt:', lobbyRef.key);
+                    }).catch(err => {
+                        console.error('Lobby-Erstellungsfehler:', err);
+                        alert('Fehler beim Erstellen der Lobby: ' + err.message);
+                        document.getElementById('gl-start').textContent = 'Spiel starten';
+                        document.getElementById('gl-start').disabled = false;
+                        document.getElementById('gl-open-games').style.display = 'block';
                     });
 
                     lobbyRef.on('value', (snap) => {
                         const data = snap.val();
                         if (!data) return;
                         if (data.status === 'ready' || data.status === 'start') {
-                            const usedColors = Object.values(data.players || {});
-                            const botsFinal = allColors.filter(c => !usedColors.includes(c)).slice(0, data.bots.length);
-                            const orderFinal = [...usedColors, ...botsFinal];
-                            const piecesFinal = {};
-                            orderFinal.forEach(c => { piecesFinal[c] = [-1,-1,-1,-1]; });
+                            try {
+                                const usedColors = Object.values(data.players || {});
+                                const botsArr = data.bots || [];
+                                const botsFinal = allColors.filter(c => !usedColors.includes(c)).slice(0, botsArr.length);
+                                const orderFinal = [...usedColors, ...botsFinal];
+                                const piecesFinal = {};
+                                orderFinal.forEach(c => { piecesFinal[c] = [-1,-1,-1,-1]; });
 
-                            gameState = {
-                                state: 'ROLL', turn: orderFinal[0], dice: null,
-                                msg: GAME_COLORS[orderFinal[0]].name + ' fängt an!',
-                                pieces: piecesFinal, order: orderFinal, bots: botsFinal,
-                                winner: null, finished: false
-                            };
-                            db.ref('games/' + lobbyRef.key).set(gameState);
-                            gameRef = db.ref('games/' + lobbyRef.key);
-                            setupGameListener();
-                            startGameView();
-                            lobbyRef.off();
-                            lobbyRef.remove();
+                                gameState = {
+                                    state: 'ROLL', turn: orderFinal[0], dice: null,
+                                    msg: GAME_COLORS[orderFinal[0]].name + ' fängt an!',
+                                    pieces: piecesFinal, order: orderFinal, bots: botsFinal,
+                                    winner: null, finished: false
+                                };
+                                db.ref('games/' + lobbyRef.key).set(gameState).then(() => {
+                                    console.log('Spiel erstellt:', lobbyRef.key);
+                                }).catch(err => {
+                                    console.error('Spiel-Erstellungsfehler:', err);
+                                    alert('Fehler beim Erstellen des Spiels: ' + err.message);
+                                });
+                                gameRef = db.ref('games/' + lobbyRef.key);
+                                setupGameListener();
+                                startGameView();
+                                lobbyRef.off();
+                                lobbyRef.remove();
+                            } catch (err) {
+                                console.error('Lobby-Listener-Fehler:', err);
+                            }
                         }
                     });
 
@@ -1545,6 +1604,16 @@
                 if (gameRef) { gameRef.off(); gameRef.remove(); gameRef = null; }
                 if (lobbyRef) { lobbyRef.off(); lobbyRef.remove(); lobbyRef = null; }
                 gameState = null;
+            });
+            document.getElementById('game-leave').addEventListener('click', () => {
+                if (confirm('Spiel wirklich verlassen?')) {
+                    document.getElementById('game-view').classList.remove('visible');
+                    if (gameRef) { gameRef.off(); gameRef.remove(); gameRef = null; }
+                    if (lobbyRef) { lobbyRef.off(); lobbyRef.remove(); lobbyRef = null; }
+                    gameState = null;
+                    document.getElementById('game-lobby-view').classList.add('visible');
+                    listenOpenGames();
+                }
             });
             document.getElementById('dice-btn').addEventListener('click', () => {
                 if (gameState && gameState.state === 'ROLL' && !gameState.finished) {
