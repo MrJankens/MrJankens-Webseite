@@ -1025,9 +1025,10 @@
 
             function getCellPx(gx, gy) {
                 const board = document.getElementById('board');
-                const cellW = board.clientWidth / 11;
-                const cellH = board.clientHeight / 11;
-                return { x: gx * cellW + cellW / 2, y: gy * cellH + cellH / 2 };
+                const gap = 2;
+                const cellW = (board.clientWidth - gap * 10) / 11;
+                const cellH = (board.clientHeight - gap * 10) / 11;
+                return { x: gx * (cellW + gap) + cellW / 2, y: gy * (cellH + gap) + cellH / 2 };
             }
 
             function buildBoard() {
@@ -1428,6 +1429,22 @@
                     data.players[currentUser] = myColor;
                     joinRef.child('players').set(data.players);
                     joinRef.child('status').set('ready');
+
+                    document.getElementById('gl-start').textContent = 'Verbinde...';
+                    document.getElementById('gl-start').disabled = true;
+                    document.getElementById('gl-open-games').style.display = 'none';
+
+                    const joinGameRef = db.ref('games/' + key);
+                    joinGameRef.on('value', (gSnap) => {
+                        if (gSnap.exists()) {
+                            joinGameRef.off('value');
+                            gameState = gSnap.val();
+                            gameRef = joinGameRef;
+                            setupGameListener();
+                            startGameView();
+                            joinRef.off();
+                        }
+                    });
                 });
             }
 
