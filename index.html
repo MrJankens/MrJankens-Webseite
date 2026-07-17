@@ -171,6 +171,13 @@
             .game-msg { font-size: 0.78rem; }
             .dice-btn { width: 60px; height: 60px; font-size: 1.6rem; }
             .dice-face { width: 44px; height: 44px; gap: 3px; }
+            .mem-diff-btns { gap: 6px; }
+            .mem-diff-btn { padding: 10px 6px; font-size: 0.78rem; }
+            .mem-diff-icon { font-size: 1.2rem; }
+            .mem-picker-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            .mem-board { gap: 6px; width: min(92vw, 380px); }
+            .mem-card-back { font-size: min(7vw, 1.6rem); }
+            .mem-info { gap: 12px; font-size: 0.78rem; }
         }
 
         @media (max-height: 600px) {
@@ -306,6 +313,42 @@
         @keyframes winPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .win-sub { color: rgba(255,255,255,0.6); font-size: 1rem; margin-top: 10px; }
         .win-btn { margin-top: 25px; padding: 12px 30px; background: linear-gradient(45deg, #ff4081, #d11a5b); color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(209,26,91,0.4); }
+
+        /* MEMORY */
+        .mem-diff-btns { display: flex; gap: 10px; }
+        .mem-diff-btn { flex: 1; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 14px 8px; color: white; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.25s; text-align: center; }
+        .mem-diff-btn:hover { background: rgba(255,255,255,0.15); }
+        .mem-diff-btn.active { border-color: #ff4081; background: rgba(255,64,129,0.15); box-shadow: 0 0 12px rgba(255,64,129,0.2); }
+        .mem-diff-icon { font-size: 1.5rem; font-weight: 900; margin-bottom: 4px; color: #5ac8fa; }
+        .mem-diff-sub { font-size: 0.7rem; opacity: 0.5; margin-top: 2px; }
+        .mem-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 90%; max-width: 400px; max-height: 55vh; overflow-y: auto; padding: 10px; }
+        .mem-picker-item { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: all 0.25s; }
+        .mem-picker-item img { width: 100%; height: 100%; object-fit: cover; }
+        .mem-picker-item.selected { border-color: #2ecc71; box-shadow: 0 0 12px rgba(46,204,113,0.5); }
+        .mem-picker-item.selected::after { content: '✓'; position: absolute; top: 6px; right: 6px; background: #2ecc71; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; }
+        .mem-picker-item:disabled { opacity: 0.4; pointer-events: none; }
+        #memory-game-view { justify-content: flex-start; padding-top: 10px; }
+        .mem-board { display: grid; gap: 8px; padding: 10px; width: min(90vw, 420px); }
+        .mem-card { aspect-ratio: 1; border-radius: 12px; cursor: pointer; perspective: 600px; }
+        .mem-card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.4s ease; }
+        .mem-card.flipped .mem-card-inner { transform: rotateY(180deg); }
+        .mem-card.matched .mem-card-inner { transform: rotateY(180deg); }
+        .mem-card.matched { opacity: 0.7; pointer-events: none; }
+        .mem-card-front, .mem-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; overflow: hidden; }
+        .mem-card-front { transform: rotateY(180deg); }
+        .mem-card-front img { width: 100%; height: 100%; object-fit: cover; }
+        .mem-card-back { background: linear-gradient(135deg, #d11a5b, #ff4081); display: flex; align-items: center; justify-content: center; font-size: min(8vw, 2rem); box-shadow: 0 3px 10px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.2); }
+        .mem-card:not(.flipped):not(.matched):hover .mem-card-back { box-shadow: 0 4px 16px rgba(209,26,91,0.5); transform: scale(1.03); }
+        .mem-info { display: flex; justify-content: center; gap: 20px; width: min(90vw, 420px); margin-top: 10px; color: rgba(255,255,255,0.6); font-size: 0.85rem; font-weight: 600; }
+        .mem-info span { color: white; }
+        .mem-info { display: flex; justify-content: center; gap: 20px; width: min(90vw, 420px); margin-top: 10px; color: rgba(255,255,255,0.6); font-size: 0.85rem; font-weight: 600; }
+        .mem-info span { color: white; }
+        .gl-open-mem { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 16px; margin-bottom: 8px; transition: background 0.2s; }
+        .gl-open-mem:hover { background: rgba(255,255,255,0.1); }
+        .gl-open-mem-info { color: white; font-size: 0.85rem; }
+        .gl-open-mem-info strong { color: #5ac8fa; }
+        .gl-open-mem-join { background: linear-gradient(135deg, #007AFF, #0055d4); color: white; border: none; padding: 7px 16px; border-radius: 18px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,122,255,0.3); }
+        .gl-open-mem-join:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,122,255,0.4); }
     </style>
 </head>
 <body>
@@ -396,6 +439,11 @@
                 <div class="gm-card-name">Mensch ärgere dich nicht</div>
                 <div class="gm-card-desc">2-4 Spieler</div>
             </div>
+            <div class="gm-card" id="gm-memory">
+                <div class="gm-card-icon">🧠</div>
+                <div class="gm-card-name">Memory</div>
+                <div class="gm-card-desc">2 Spieler · mit Fotos</div>
+            </div>
             <div class="gm-card" style="opacity:0.3;pointer-events:none;">
                 <div class="gm-card-icon">🚧</div>
                 <div class="gm-card-name">Bald mehr...</div>
@@ -458,6 +506,52 @@
         <div class="win-text" id="win-text"></div>
         <div class="win-sub">Herzlichen Glückwunsch!</div>
         <button class="win-btn" id="win-btn">Zurück zum Menü</button>
+    </div>
+
+    <div id="memory-lobby-view">
+        <button class="gl-back" id="mem-lobby-back">← Zurück</button>
+        <div class="gl-title">🧠 Memory</div>
+        <div class="gl-section">
+            <div class="gl-label">Schwierigkeit:</div>
+            <div class="mem-diff-btns">
+                <button class="mem-diff-btn active" data-diff="easy"><div class="mem-diff-icon">4×3</div><div>Einfach</div><div class="mem-diff-sub">6 Paare</div></button>
+                <button class="mem-diff-btn" data-diff="medium"><div class="mem-diff-icon">4×4</div><div>Mittel</div><div class="mem-diff-sub">8 Paare</div></button>
+                <button class="mem-diff-btn" data-diff="hard"><div class="mem-diff-icon">6×4</div><div>Schwer</div><div class="mem-diff-sub">12 Paare</div></button>
+            </div>
+        </div>
+        <button class="gl-start" id="mem-start">Bilder auswählen →</button>
+        <div class="gl-section" style="margin-top:20px;">
+            <div class="gl-label">Offene Spiele:</div>
+            <div id="mem-open-games" style="color:rgba(255,255,255,0.4);font-size:0.85rem;">Wird geladen...</div>
+        </div>
+    </div>
+
+    <div id="memory-picker-view">
+        <button class="gl-back" id="mem-picker-back">← Zurück</button>
+        <div class="gl-title">📷 Bilder wählen</div>
+        <div class="gl-section" style="width:90%;max-width:400px;">
+            <div class="gl-label" id="mem-picker-label">Wähle 6 Bilder aus der Galerie:</div>
+            <div class="gl-label" style="color:#2ecc71;font-size:0.8rem;" id="mem-picker-count">0 / 6 ausgewählt</div>
+        </div>
+        <div class="mem-picker-grid" id="mem-picker-grid">Lade Bilder...</div>
+        <button class="gl-start" id="mem-picker-go" disabled>Spiel starten</button>
+    </div>
+
+    <div id="memory-game-view">
+        <div class="game-topbar">
+            <button class="game-back" id="mem-game-back">← Zurück</button>
+            <div class="game-msg" id="mem-game-msg">Zuerst 2 Karten aufdecken!</div>
+            <button class="game-leave" id="mem-game-leave">Verlassen</button>
+        </div>
+        <div class="mem-board" id="mem-board"></div>
+        <div class="mem-info" id="mem-info"></div>
+    </div>
+
+    <div class="win-overlay" id="mem-win-overlay">
+        <div class="win-text" id="mem-win-text"></div>
+        <div class="win-sub">Ihr habt es geschafft!</div>
+        <div class="win-sub" id="mem-win-stats" style="margin-top:5px;"></div>
+        <button class="win-btn" id="mem-win-btn">Zurück zum Menü</button>
     </div>
 
     <input type="file" id="chat-file-input" accept="image/*,video/*">
@@ -891,7 +985,22 @@
             }
 
             window.addEventListener('popstate', (e) => {
-                if (onceViewer.classList.contains('visible')) {
+                if (memWinOverlay.classList.contains('visible')) {
+                    memWinOverlay.classList.remove('visible');
+                    memGameView.classList.remove('visible');
+                    memGameState = null;
+                    document.getElementById('game-menu-view').classList.add('visible');
+                } else if (memGameView.classList.contains('visible')) {
+                    memGameView.classList.remove('visible');
+                    memGameState = null;
+                    memLobbyView.classList.add('visible');
+                } else if (memPickerView.classList.contains('visible')) {
+                    memPickerView.classList.remove('visible');
+                    memLobbyView.classList.add('visible');
+                } else if (memLobbyView.classList.contains('visible')) {
+                    memLobbyView.classList.remove('visible');
+                    document.getElementById('game-menu-view').classList.add('visible');
+                } else if (onceViewer.classList.contains('visible')) {
                     closeOnceViewer();
                 } else if (lightbox.classList.contains('visible')) {
                     lightbox.classList.remove('visible');
@@ -1740,6 +1849,343 @@
                 document.getElementById('game-lobby-view').classList.add('visible');
                 listenOpenGames();
                 listenMyGames();
+            });
+
+            // === MEMORY ===
+            const MEM_DIFFS = {
+                easy:   { cols: 4, rows: 3, pairs: 6 },
+                medium: { cols: 4, rows: 4, pairs: 8 },
+                hard:   { cols: 6, rows: 4, pairs: 12 }
+            };
+            let memDiff = 'easy';
+            let memSelectedImages = [];
+            let memGameState = null;
+            let memFlipping = false;
+            let memGameRef = null;
+            let memGameListener = null;
+            let memLobbyListener = null;
+            let memStartTime = 0;
+
+            const memLobbyView = document.getElementById('memory-lobby-view');
+            const memPickerView = document.getElementById('memory-picker-view');
+            const memGameView = document.getElementById('memory-game-view');
+            const memBoard = document.getElementById('mem-board');
+            const memInfo = document.getElementById('mem-info');
+            const memWinOverlay = document.getElementById('mem-win-overlay');
+
+            document.getElementById('gm-memory').addEventListener('click', () => {
+                document.getElementById('game-menu-view').classList.remove('visible');
+                memLobbyView.classList.add('visible');
+            });
+            document.getElementById('mem-lobby-back').addEventListener('click', () => {
+                memLobbyView.classList.remove('visible');
+                document.getElementById('game-menu-view').classList.add('visible');
+                if (memLobbyListener) { db.ref('mem_lobbies').off('value', memLobbyListener); memLobbyListener = null; }
+            });
+
+            document.querySelectorAll('.mem-diff-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mem-diff-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    memDiff = btn.dataset.diff;
+                });
+            });
+
+            document.getElementById('mem-start').addEventListener('click', () => {
+                const needed = MEM_DIFFS[memDiff].pairs;
+                document.getElementById('mem-picker-label').textContent = `Wähle ${needed} Bilder aus der Galerie:`;
+                document.getElementById('mem-picker-count').textContent = `0 / ${needed} ausgewählt`;
+                memSelectedImages = [];
+                memPickerView.classList.add('visible');
+                loadMemPicker(needed);
+            });
+            document.getElementById('mem-picker-back').addEventListener('click', () => {
+                memPickerView.classList.remove('visible');
+                memLobbyView.classList.add('visible');
+            });
+
+            function loadMemPicker(needed) {
+                const grid = document.getElementById('mem-picker-grid');
+                grid.innerHTML = 'Lade Bilder...';
+                photosRef.get().then(snap => {
+                    const images = [];
+                    if (snap.exists()) {
+                        snap.forEach(child => {
+                            const val = child.val();
+                            if (val && val.data) images.push(val.data);
+                        });
+                    }
+                    grid.innerHTML = '';
+                    if (images.length === 0) {
+                        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.4);padding:40px;">Keine Bilder in der Galerie.</div>';
+                        return;
+                    }
+                    images.forEach(img => {
+                        const el = document.createElement('div');
+                        el.className = 'mem-picker-item';
+                        el.innerHTML = `<img src="${img}">`;
+                        el.addEventListener('click', () => {
+                            if (el.classList.contains('selected')) {
+                                el.classList.remove('selected');
+                                memSelectedImages = memSelectedImages.filter(i => i !== img);
+                            } else if (memSelectedImages.length < needed) {
+                                el.classList.add('selected');
+                                memSelectedImages.push(img);
+                            }
+                            document.getElementById('mem-picker-count').textContent = `${memSelectedImages.length} / ${needed} ausgewählt`;
+                            document.getElementById('mem-picker-go').disabled = memSelectedImages.length < needed;
+                        });
+                        grid.appendChild(el);
+                    });
+                }).catch(err => {
+                    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#ff4444;">Fehler: ${err.message}</div>`;
+                });
+            }
+
+            document.getElementById('mem-picker-go').addEventListener('click', () => {
+                const needed = MEM_DIFFS[memDiff].pairs;
+                if (memSelectedImages.length < needed) return;
+                createMemGame();
+            });
+
+            function createMemGame() {
+                const { cols, rows, pairs } = MEM_DIFFS[memDiff];
+                const selected = memSelectedImages.slice(0, pairs);
+                let cards = [];
+                selected.forEach((img, i) => {
+                    cards.push({ id: i * 2, pairId: i, img, flipped: false, matched: false });
+                    cards.push({ id: i * 2 + 1, pairId: i, img, flipped: false, matched: false });
+                });
+                for (let i = cards.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [cards[i], cards[j]] = [cards[j], cards[i]];
+                }
+                const lobbyRef = db.ref('mem_lobbies').push();
+                const gameData = {
+                    cards, cols, rows, pairs, totalPairs: pairs,
+                    matchedPairs: 0, moves: 0, finished: false,
+                    host: currentUser, status: 'waiting',
+                    images: selected
+                };
+                lobbyRef.set(gameData).then(() => {
+                    memPickerView.classList.remove('visible');
+                    memLobbyView.classList.add('visible');
+                    listenMemOpenGames();
+                    document.getElementById('mem-open-games').innerHTML = '<div style="color:#2ecc71;">Warte auf Gegner... 🔗</div>';
+                    lobbyRef.on('value', (snap) => {
+                        const d = snap.val();
+                        if (d && d.status === 'started') {
+                            lobbyRef.off();
+                            lobbyRef.remove();
+                            startMemGameFromData(d, 'mem_games/' + lobbyRef.key);
+                        }
+                    });
+                }).catch(err => {
+                    console.error('Memory Lobby Fehler:', err);
+                    alert('Fehler: ' + err.message);
+                });
+            }
+
+            function listenMemOpenGames() {
+                const list = document.getElementById('mem-open-games');
+                if (memLobbyListener) db.ref('mem_lobbies').off('value', memLobbyListener);
+                memLobbyListener = db.ref('mem_lobbies').on('value', (snap) => {
+                    list.innerHTML = '';
+                    if (!snap.exists()) {
+                        list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine offenen Spiele</div>';
+                        return;
+                    }
+                    let count = 0;
+                    snap.forEach(child => {
+                        const g = child.val();
+                        if (g && g.status === 'waiting' && g.host !== currentUser) {
+                            count++;
+                            const el = document.createElement('div');
+                            el.className = 'gl-open-mem';
+                            el.innerHTML = `<div class="gl-open-mem-info"><strong>${g.host}</strong> · ${g.pairs} Paare</div><button class="gl-open-mem-join" data-key="${child.key}">Beitreten</button>`;
+                            list.appendChild(el);
+                        }
+                    });
+                    if (count === 0) {
+                        list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine offenen Spiele</div>';
+                    }
+                    list.querySelectorAll('.gl-open-mem-join').forEach(btn => {
+                        btn.addEventListener('click', () => joinMemGame(btn.dataset.key));
+                    });
+                });
+            }
+
+            function joinMemGame(key) {
+                const lobbyRefJoin = db.ref('mem_lobbies/' + key);
+                lobbyRefJoin.once('value', (snap) => {
+                    const data = snap.val();
+                    if (!data || data.status !== 'waiting') {
+                        alert('Spiel nicht mehr verfügbar!');
+                        return;
+                    }
+                    lobbyRefJoin.child('status').set('started').then(() => {
+                        lobbyRefJoin.once('value', (snap2) => {
+                            const gameData = snap2.val();
+                            startMemGameFromData(gameData, 'mem_games/' + key);
+                        });
+                    });
+                });
+            }
+
+            function startMemGameFromData(data, gamePath) {
+                memGameState = {
+                    cards: data.cards,
+                    cols: data.cols, rows: data.rows,
+                    pairs: data.pairs, totalPairs: data.totalPairs,
+                    matchedPairs: data.matchedPairs || 0,
+                    moves: data.moves || 0,
+                    finished: data.finished || false,
+                    flipped: [], lockInput: false
+                };
+                memStartTime = Date.now();
+                memPickerView.classList.remove('visible');
+                memLobbyView.classList.remove('visible');
+                memGameView.classList.add('visible');
+                history.pushState({ memGame: true }, '');
+                memGameRef = db.ref(gamePath);
+                memGameRef.set(memGameState);
+                if (memGameListener) memGameRef.off('value', memGameListener);
+                memGameListener = memGameRef.on('value', (snap) => {
+                    if (snap.exists()) {
+                        const remote = snap.val();
+                        if (remote.finished && !memGameState.finished) {
+                            memGameState.finished = true;
+                            memGameState.cards = remote.cards;
+                            memGameState.matchedPairs = remote.matchedPairs;
+                            memGameState.moves = remote.moves;
+                            renderMemGame();
+                            setTimeout(showMemWin, 400);
+                        } else if (remote.cards) {
+                            memGameState.cards = remote.cards;
+                            memGameState.matchedPairs = remote.matchedPairs;
+                            memGameState.moves = remote.moves;
+                            if (!memFlipping) renderMemGame();
+                        }
+                    }
+                });
+                renderMemGame();
+            }
+
+            function syncMemState() {
+                if (memGameRef && memGameState) {
+                    memGameRef.set({
+                        cards: memGameState.cards,
+                        cols: memGameState.cols, rows: memGameState.rows,
+                        pairs: memGameState.pairs, totalPairs: memGameState.totalPairs,
+                        matchedPairs: memGameState.matchedPairs,
+                        moves: memGameState.moves, finished: memGameState.finished
+                    }).catch(e => console.error('Memory sync error:', e));
+                }
+            }
+
+            function renderMemGame() {
+                if (!memGameState) return;
+                const { cards, cols, rows, finished } = memGameState;
+                memBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                memBoard.innerHTML = '';
+                cards.forEach((card, idx) => {
+                    const el = document.createElement('div');
+                    el.className = 'mem-card' + (card.flipped ? ' flipped' : '') + (card.matched ? ' matched' : '');
+                    el.innerHTML = `<div class="mem-card-inner"><div class="mem-card-back">❤️</div><div class="mem-card-front"><img src="${card.img}"></div></div>`;
+                    if (!card.matched && !card.flipped && !memGameState.lockInput && !finished) {
+                        el.addEventListener('click', () => flipMemCard(idx));
+                    }
+                    memBoard.appendChild(el);
+                });
+                const elapsed = Math.floor((Date.now() - memStartTime) / 1000);
+                const min = Math.floor(elapsed / 60);
+                const sec = elapsed % 60;
+                memInfo.innerHTML = `Züge: <span>${memGameState.moves}</span> · Paare: <span>${memGameState.matchedPairs}/${memGameState.totalPairs}</span> · Zeit: <span>${min}:${sec.toString().padStart(2,'0')}</span>`;
+                const msgEl = document.getElementById('mem-game-msg');
+                if (finished) {
+                    msgEl.textContent = 'Geschafft! 🎉';
+                } else if (memGameState.lockInput) {
+                    msgEl.textContent = 'Zweite Karte...';
+                } else {
+                    msgEl.textContent = 'Zuerst 2 Karten aufdecken!';
+                }
+            }
+
+            function flipMemCard(idx) {
+                if (!memGameState || memGameState.lockInput || memGameState.finished) return;
+                const card = memGameState.cards[idx];
+                if (card.flipped || card.matched) return;
+                memFlipping = true;
+                card.flipped = true;
+                memGameState.flipped.push(idx);
+                renderMemGame();
+                memFlipping = false;
+                if (memGameState.flipped.length === 2) {
+                    memGameState.lockInput = true;
+                    memGameState.moves++;
+                    const [i1, i2] = memGameState.flipped;
+                    const c1 = memGameState.cards[i1];
+                    const c2 = memGameState.cards[i2];
+                    if (c1.pairId === c2.pairId) {
+                        c1.matched = true;
+                        c2.matched = true;
+                        memGameState.matchedPairs++;
+                        memGameState.flipped = [];
+                        memGameState.lockInput = false;
+                        playSound('move');
+                        syncMemState();
+                        renderMemGame();
+                        if (memGameState.matchedPairs >= memGameState.totalPairs) {
+                            memGameState.finished = true;
+                            syncMemState();
+                            setTimeout(showMemWin, 600);
+                        }
+                    } else {
+                        syncMemState();
+                        renderMemGame();
+                        setTimeout(() => {
+                            c1.flipped = false;
+                            c2.flipped = false;
+                            memGameState.flipped = [];
+                            memGameState.lockInput = false;
+                            syncMemState();
+                            renderMemGame();
+                        }, 800);
+                    }
+                }
+            }
+
+            function showMemWin() {
+                const elapsed = Math.floor((Date.now() - memStartTime) / 1000);
+                const min = Math.floor(elapsed / 60);
+                const sec = elapsed % 60;
+                document.getElementById('mem-win-text').textContent = '🎉 Geschafft!';
+                document.getElementById('mem-win-stats').textContent = memGameState.moves + ' Züge · ' + min + ':' + sec.toString().padStart(2, '0') + ' Minuten';
+                memWinOverlay.classList.add('visible');
+            }
+
+            document.getElementById('mem-game-back').addEventListener('click', () => {
+                memGameView.classList.remove('visible');
+                if (memGameRef) { memGameRef.off(); memGameRef = null; }
+                memGameState = null;
+                memLobbyView.classList.add('visible');
+                listenMemOpenGames();
+            });
+            document.getElementById('mem-game-leave').addEventListener('click', () => {
+                if (confirm('Puzzle wirklich verlassen?')) {
+                    memGameView.classList.remove('visible');
+                    if (memGameRef) { memGameRef.off(); memGameRef = null; }
+                    memGameState = null;
+                    memLobbyView.classList.add('visible');
+                    listenMemOpenGames();
+                }
+            });
+            document.getElementById('mem-win-btn').addEventListener('click', () => {
+                memWinOverlay.classList.remove('visible');
+                memGameView.classList.remove('visible');
+                if (memGameRef) { memGameRef.off(); memGameRef = null; }
+                memGameState = null;
+                document.getElementById('game-menu-view').classList.add('visible');
             });
         }
     });
