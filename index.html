@@ -327,7 +327,12 @@
         .mem-picker-item.selected { border-color: #2ecc71; box-shadow: 0 0 12px rgba(46,204,113,0.5); }
         .mem-picker-item.selected::after { content: '✓'; position: absolute; top: 6px; right: 6px; background: #2ecc71; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; }
         .mem-picker-item:disabled { opacity: 0.4; pointer-events: none; }
-        #memory-game-view { justify-content: flex-start; padding-top: 10px; }
+        #memory-lobby-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
+        #memory-lobby-view.visible { opacity: 1; visibility: visible; }
+        #memory-picker-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
+        #memory-picker-view.visible { opacity: 1; visibility: visible; }
+        #memory-game-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c29, #1a1a2e, #16213e); z-index: 99999999; display: flex; flex-direction: column; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; padding: 10px; justify-content: flex-start; }
+        #memory-game-view.visible { opacity: 1; visibility: visible; }
         .mem-board { display: grid; gap: 8px; padding: 10px; width: min(90vw, 420px); }
         .mem-card { aspect-ratio: 1; border-radius: 12px; cursor: pointer; perspective: 600px; }
         .mem-card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.4s ease; }
@@ -339,8 +344,6 @@
         .mem-card-front img { width: 100%; height: 100%; object-fit: cover; }
         .mem-card-back { background: linear-gradient(135deg, #d11a5b, #ff4081); display: flex; align-items: center; justify-content: center; font-size: min(8vw, 2rem); box-shadow: 0 3px 10px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.2); }
         .mem-card:not(.flipped):not(.matched):hover .mem-card-back { box-shadow: 0 4px 16px rgba(209,26,91,0.5); transform: scale(1.03); }
-        .mem-info { display: flex; justify-content: center; gap: 20px; width: min(90vw, 420px); margin-top: 10px; color: rgba(255,255,255,0.6); font-size: 0.85rem; font-weight: 600; }
-        .mem-info span { color: white; }
         .mem-info { display: flex; justify-content: center; gap: 20px; width: min(90vw, 420px); margin-top: 10px; color: rgba(255,255,255,0.6); font-size: 0.85rem; font-weight: 600; }
         .mem-info span { color: white; }
         .gl-open-mem { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 16px; margin-bottom: 8px; transition: background 0.2s; }
@@ -1874,8 +1877,11 @@
             const memWinOverlay = document.getElementById('mem-win-overlay');
 
             document.getElementById('gm-memory').addEventListener('click', () => {
+                console.log('Memory clicked, memLobbyView:', memLobbyView);
                 document.getElementById('game-menu-view').classList.remove('visible');
                 memLobbyView.classList.add('visible');
+                try { listenMemOpenGames(); } catch(e) { console.error('Memory open games error:', e); }
+                history.pushState({ memLobby: true }, '');
             });
             document.getElementById('mem-lobby-back').addEventListener('click', () => {
                 memLobbyView.classList.remove('visible');
@@ -1988,6 +1994,7 @@
 
             function listenMemOpenGames() {
                 const list = document.getElementById('mem-open-games');
+                if (!list) return;
                 if (memLobbyListener) db.ref('mem_lobbies').off('value', memLobbyListener);
                 memLobbyListener = db.ref('mem_lobbies').on('value', (snap) => {
                     list.innerHTML = '';
@@ -2012,6 +2019,9 @@
                     list.querySelectorAll('.gl-open-mem-join').forEach(btn => {
                         btn.addEventListener('click', () => joinMemGame(btn.dataset.key));
                     });
+                }, (err) => {
+                    console.error('Memory Lobby listen error:', err);
+                    list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine offenen Spiele</div>';
                 });
             }
 
