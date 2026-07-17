@@ -1884,7 +1884,7 @@
             document.getElementById('mem-lobby-back').addEventListener('click', () => {
                 memLobbyView.classList.remove('visible');
                 document.getElementById('game-menu-view').classList.add('visible');
-                if (memLobbyListener) { db.ref('mem_lobbies').off('value', memLobbyListener); memLobbyListener = null; }
+                if (memLobbyListener) { db.ref('lobbies_mem').off('value', memLobbyListener); memLobbyListener = null; }
             });
 
             document.querySelectorAll('.mem-diff-btn').forEach(btn => {
@@ -1979,7 +1979,7 @@
                     const j = Math.floor(Math.random() * (i + 1));
                     [cards[i], cards[j]] = [cards[j], cards[i]];
                 }
-                const lobbyRef = db.ref('mem_lobbies').push();
+                const lobbyRef = db.ref('lobbies_mem').push();
                 const gameData = {
                     cards, cols: MEM_DIFFS[memDiff].cols, rows: MEM_DIFFS[memDiff].rows,
                     pairs, totalPairs: pairs,
@@ -1997,7 +1997,7 @@
                         if (d && d.status === 'started') {
                             lobbyRef.off();
                             lobbyRef.remove();
-                            startMemGameFromData(d, 'mem_games/' + lobbyRef.key);
+                            startMemGameFromData(d, 'games_mem/' + lobbyRef.key);
                         }
                     });
                 }).catch(err => {
@@ -2009,8 +2009,8 @@
             function listenMemOpenGames() {
                 const list = document.getElementById('mem-open-games');
                 if (!list) return;
-                if (memLobbyListener) db.ref('mem_lobbies').off('value', memLobbyListener);
-                memLobbyListener = db.ref('mem_lobbies').on('value', (snap) => {
+                if (memLobbyListener) db.ref('lobbies_mem').off('value', memLobbyListener);
+                memLobbyListener = db.ref('lobbies_mem').on('value', (snap) => {
                     list.innerHTML = '';
                     if (!snap.exists()) {
                         list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine offenen Spiele</div>';
@@ -2040,7 +2040,7 @@
             }
 
             function joinMemGame(key) {
-                const lobbyRefJoin = db.ref('mem_lobbies/' + key);
+                const lobbyRefJoin = db.ref('lobbies_mem/' + key);
                 lobbyRefJoin.once('value', (snap) => {
                     const data = snap.val();
                     if (!data || data.status !== 'waiting') {
@@ -2050,7 +2050,7 @@
                     lobbyRefJoin.child('status').set('started').then(() => {
                         lobbyRefJoin.once('value', (snap2) => {
                             const gameData = snap2.val();
-                            startMemGameFromData(gameData, 'mem_games/' + key);
+                            startMemGameFromData(gameData, 'games_mem/' + key);
                         });
                     });
                 });
