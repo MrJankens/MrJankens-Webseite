@@ -328,8 +328,8 @@
         #puzzle-picker-view.visible { opacity: 1; visibility: visible; }
         #puzzle-game-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c29, #1a1a2e, #16213e); z-index: 99999999; display: flex; flex-direction: column; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; padding: 10px; justify-content: flex-start; }
         #puzzle-game-view.visible { opacity: 1; visibility: visible; }
-        #pz-board { position: relative; width: min(94vw, 480px); height: min(65vh, 380px); overflow: hidden; border-radius: 12px; background: rgba(255,255,255,0.03); border: 2px dashed rgba(255,255,255,0.1); touch-action: none; user-select: none; -webkit-user-select: none; }
-        #pz-shadow { position: absolute; border: 2px dashed rgba(255,255,255,0.15); border-radius: 4px; background: rgba(255,255,255,0.04); pointer-events: none; }
+        #pz-board { position: relative; width: min(94vw, 480px); min-height: min(80vh, 520px); overflow-y: auto; overflow-x: hidden; border-radius: 12px; background: rgba(255,255,255,0.03); border: 2px dashed rgba(255,255,255,0.1); user-select: none; -webkit-user-select: none; -webkit-overflow-scrolling: touch; }
+        #pz-shadow { position: sticky; top: 0; z-index: 1; border: 2px dashed rgba(255,255,255,0.15); border-radius: 4px; background: rgba(255,255,255,0.04); pointer-events: none; }
         .pz-piece { position: absolute; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5)); transition: filter 0.15s; }
         .pz-piece:active { cursor: grabbing; }
         .pz-piece.placed { filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3)) brightness(1.05); cursor: default; }
@@ -508,9 +508,10 @@
         <div class="gl-section">
             <div class="gl-label">Schwierigkeit:</div>
             <div class="pz-diff-btns">
-                <button class="pz-diff-btn active" data-diff="easy"><div class="pz-diff-icon">6</div><div>Einfach</div><div class="pz-diff-sub">3×2</div></button>
-                <button class="pz-diff-btn" data-diff="medium"><div class="pz-diff-icon">12</div><div>Mittel</div><div class="pz-diff-sub">4×3</div></button>
-                <button class="pz-diff-btn" data-diff="hard"><div class="pz-diff-icon">24</div><div>Schwer</div><div class="pz-diff-sub">6×4</div></button>
+                <button class="pz-diff-btn active" data-diff="easy"><div class="pz-diff-icon">24</div><div>Einfach</div><div class="pz-diff-sub">6×4</div></button>
+                <button class="pz-diff-btn" data-diff="medium"><div class="pz-diff-icon">48</div><div>Mittel</div><div class="pz-diff-sub">8×6</div></button>
+                <button class="pz-diff-btn" data-diff="hard"><div class="pz-diff-icon">96</div><div>Schwer</div><div class="pz-diff-sub">12×8</div></button>
+                <button class="pz-diff-btn" data-diff="expert"><div class="pz-diff-icon">192</div><div>Experte</div><div class="pz-diff-sub">16×12</div></button>
             </div>
         </div>
         <button class="gl-start" id="pz-start">Bild wählen →</button>
@@ -1848,9 +1849,10 @@
 
             // === PUZZLE ===
             const PUZZLE_DIFFS = {
-                easy:   { cols: 3, rows: 2 },
-                medium: { cols: 4, rows: 3 },
-                hard:   { cols: 6, rows: 4 }
+                easy:   { cols: 6, rows: 4 },
+                medium: { cols: 8, rows: 6 },
+                hard:   { cols: 12, rows: 8 },
+                expert: { cols: 16, rows: 12 }
             };
             let pzDiff = 'easy';
             let pzSelectedImage = null;
@@ -1971,16 +1973,21 @@
 
             function generatePieceImage(img, col, row, cols, rows, pieceW, pieceH, edges) {
                 const knob = Math.min(pieceW, pieceH) * 0.2;
-                const pad = Math.ceil(knob * 2) + 2;
+                const pad = Math.ceil(knob * 2.5) + 2;
                 const cw = pieceW + pad * 2, ch = pieceH + pad * 2;
+                const boardW = cols * pieceW, boardH = rows * pieceH;
                 const canvas = document.createElement('canvas');
                 canvas.width = cw; canvas.height = ch;
                 const ctx = canvas.getContext('2d');
+                const boardX = col * pieceW - pad;
+                const boardY = row * pieceH - pad;
+                const sx = boardX * img.width / boardW;
+                const sy = boardY * img.height / boardH;
+                const sw = cw * img.width / boardW;
+                const sh = ch * img.height / boardH;
                 drawPiecePath(ctx, pad, pad, pieceW, pieceH, edges, knob);
                 ctx.save(); ctx.clip();
-                const sx = col * (img.width / cols), sy = row * (img.height / rows);
-                const sw = img.width / cols, sh = img.height / rows;
-                ctx.drawImage(img, sx, sy, sw, sh, pad, pad, pieceW, pieceH);
+                ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
                 ctx.restore();
                 drawPiecePath(ctx, pad, pad, pieceW, pieceH, edges, knob);
                 ctx.strokeStyle = 'rgba(0,0,0,0.4)';
@@ -1997,7 +2004,7 @@
                     img.src = pzSelectedImage;
                     await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
                     const es = generateEdgeShapes(cols, rows);
-                    const boardW = Math.min(window.innerWidth * 0.88, 480);
+                    const boardW = Math.min(window.innerWidth * 0.92, 500);
                     const boardH = boardW * (img.height / img.width);
                     const pieceW = boardW / cols;
                     const pieceH = boardH / rows;
@@ -2006,11 +2013,13 @@
                         for (let c = 0; c < cols; c++) {
                             const edges = getPieceEdges(c, r, cols, rows, es);
                             const pi = generatePieceImage(img, c, r, cols, rows, pieceW, pieceH, edges);
-                            const angle = (Math.random() - 0.5) * 0.4;
+                            const angle = (Math.random() - 0.5) * 0.3;
+                            const scatterX = Math.random() * (boardW - pi.cw);
+                            const scatterY = boardH + 10 + (r * cols + c) % Math.ceil(rows * 1.5) * (pieceH * 0.6);
                             pieces.push({
                                 id: r * cols + c, col: c, row: r,
                                 edges: edges, dataUrl: pi.dataUrl, pad: pi.pad, cw: pi.cw, ch: pi.ch,
-                                x: c * pieceW, y: rows * pieceH + 20 + Math.random() * 50,
+                                x: scatterX, y: scatterY,
                                 placed: false, angle: angle, zIndex: 0
                             });
                         }
@@ -2097,7 +2106,7 @@
             function renderPzBoard() {
                 if (!pzState) return;
                 pzBoard.style.width = pzState.boardW + 'px';
-                pzBoard.style.height = (pzState.boardH + 50) + 'px';
+                pzBoard.style.height = Math.max(pzState.boardH + 120, window.innerHeight * 0.85) + 'px';
                 const shadow = document.getElementById('pz-shadow');
                 shadow.style.width = pzState.boardW + 'px';
                 shadow.style.height = pzState.boardH + 'px';
@@ -2126,6 +2135,7 @@
             }
 
             let pzDragAttached = false;
+            let pzScrolling = false;
             function setupPzDrag() {
                 if (pzDragAttached) return;
                 pzDragAttached = true;
@@ -2140,8 +2150,8 @@
                     piece.zIndex = ++pzMaxZ;
                     el.style.zIndex = pzMaxZ;
                     const rect = pzBoard.getBoundingClientRect();
-                    pzDragOff.x = e.clientX - rect.left - piece.x;
-                    pzDragOff.y = e.clientY - rect.top - piece.y;
+                    pzDragOff.x = e.clientX - rect.left - piece.x + pzBoard.scrollLeft;
+                    pzDragOff.y = e.clientY - rect.top - piece.y + pzBoard.scrollTop;
                     el.classList.add('dragging');
                     pzBoard.setPointerCapture(e.pointerId);
                 });
@@ -2149,8 +2159,8 @@
                     if (!pzDragPiece) return;
                     e.preventDefault();
                     const rect = pzBoard.getBoundingClientRect();
-                    pzDragPiece.x = e.clientX - rect.left - pzDragOff.x;
-                    pzDragPiece.y = e.clientY - rect.top - pzDragOff.y;
+                    pzDragPiece.x = e.clientX - rect.left - pzDragOff.x + pzBoard.scrollLeft;
+                    pzDragPiece.y = e.clientY - rect.top - pzDragOff.y + pzBoard.scrollTop;
                     const el = pzBoard.querySelector('.pz-piece[data-id="' + pzDragPiece.id + '"]');
                     if (el) {
                         el.style.left = (pzDragPiece.x - pzDragPiece.pad) + 'px';
