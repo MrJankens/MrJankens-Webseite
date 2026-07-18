@@ -2028,13 +2028,16 @@
                             });
                         }
                     }
-                    const key = db.ref('pz_games').push().key;
-                    pzState = { pieces: JSON.parse(JSON.stringify(pieces)), cols: cols, rows: rows, boardW: boardW, boardH: boardH, pieceW: pieceW, pieceH: pieceH, host: currentUser, players: {}, finished: false };
+                    pzState = { pieces: pieces, cols: cols, rows: rows, boardW: boardW, boardH: boardH, pieceW: pieceW, pieceH: pieceH, host: currentUser, players: {}, finished: false };
                     pzState.players[currentUser] = true;
-                    await db.ref('pz_games/' + key).set(pzState);
-                    await db.ref('pz_lobbies/' + key).set({ host: currentUser, pieces: cols * rows, status: 'playing' });
-                    pzState.pieces = pieces;
                     scatterPieces();
+                    const key = db.ref('pz_games').push().key;
+                    await db.ref('pz_games/' + key).set({
+                        pieces: pzState.pieces.map(p => ({ id: p.id, col: p.col, row: p.row, edges: p.edges, dataUrl: p.dataUrl, pad: p.pad, cw: p.cw, ch: p.ch, x: p.x, y: p.y, placed: p.placed, angle: p.angle, zIndex: p.zIndex })),
+                        cols: pzState.cols, rows: pzState.rows, boardW: pzState.boardW, boardH: pzState.boardH, pieceW: pzState.pieceW, pieceH: pzState.pieceH,
+                        host: pzState.host, players: pzState.players, finished: pzState.finished
+                    });
+                    await db.ref('pz_lobbies/' + key).set({ host: currentUser, pieces: cols * rows, status: 'playing' });
                     startPzGameFromData(pzState, 'pz_games/' + key);
                 } catch(err) {
                     console.error('Puzzle Fehler:', err);
