@@ -1973,7 +1973,6 @@
 
             async function createMemGame() {
                 console.log('createMemGame START, memDiff=' + memDiff);
-                console.log('MEM_DIFFS:', JSON.stringify(MEM_DIFFS[memDiff]));
                 const { pairs } = MEM_DIFFS[memDiff];
                 const imgData = memSelectedImages[0];
                 console.log('imgData length:', imgData ? imgData.length : 'NULL');
@@ -1990,7 +1989,6 @@
                         const j = Math.floor(Math.random() * (i + 1));
                         [cards[i], cards[j]] = [cards[j], cards[i]];
                     }
-                    console.log('cards created:', cards.length);
                     const lobbyRef = db.ref('mem_lobbies').push();
                     const gameData = {
                         cards, cols: MEM_DIFFS[memDiff].cols, rows: MEM_DIFFS[memDiff].rows,
@@ -2000,27 +1998,47 @@
                         image: imgData
                     };
                     console.log('gameData size:', JSON.stringify(gameData).length);
-                    lobbyRef.set(gameData).then(() => {
-                        console.log('Lobby created OK, key:', lobbyRef.key);
-                        memPickerView.classList.remove('visible');
-                        memLobbyView.classList.add('visible');
-                        listenMemOpenGames();
-                        document.getElementById('mem-open-games').innerHTML = '<div style="color:#2ecc71;">Warte auf Gegner... 🔗</div>';
-                        lobbyRef.on('value', (snap) => {
-                            const d = snap.val();
-                            if (d && d.status === 'started') {
-                                lobbyRef.off();
-                                lobbyRef.remove();
-                                startMemGameFromData(d, 'mem_games/' + lobbyRef.key);
-                            }
+                    await lobbyRef.set(gameData);
+                    console.log('Lobby created OK, key:', lobbyRef.key);
+                    memPickerView.classList.remove('visible');
+                    memLobbyView.classList.add('visible');
+                    console.log('Views switched: picker hidden, lobby shown');
+                    if (memLobbyListener) db.ref('mem_lobbies').off('value', memLobbyListener);
+                    const list = document.getElementById('mem-open-games');
+                    list.innerHTML = '<div style="color:#2ecc71;">Warte auf Gegner... 🔗</div>';
+                    memLobbyListener = db.ref('mem_lobbies').on('value', (snap) => {
+                        console.log('mem_lobbies listener fired');
+                        let count = 0;
+                        list.innerHTML = '';
+                        if (snap.exists()) {
+                            snap.forEach(child => {
+                                const g = child.val();
+                                if (g && g.status === 'waiting' && g.host !== currentUser) {
+                                    count++;
+                                    const el = document.createElement('div');
+                                    el.className = 'gl-open-mem';
+                                    el.innerHTML = `<div class="gl-open-mem-info"><strong>${g.host}</strong> · ${g.pairs} Teile</div><button class="gl-open-mem-join" data-key="${child.key}">Beitreten</button>`;
+                                    list.appendChild(el);
+                                }
+                            });
+                        }
+                        if (count === 0) {
+                            list.innerHTML = '<div style="color:#2ecc71;">Warte auf Gegner... 🔗</div>';
+                        }
+                        list.querySelectorAll('.gl-open-mem-join').forEach(btn => {
+                            btn.addEventListener('click', () => joinMemGame(btn.dataset.key));
                         });
-                    }).catch(err => {
-                        console.error('Memory Lobby SET Fehler:', err.message, err.code);
-                        alert('Fehler beim Erstellen: ' + err.message);
+                    });
+                    lobbyRef.on('value', (snap) => {
+                        const d = snap.val();
+                        if (d && d.status === 'started') {
+                            lobbyRef.off();
+                            lobbyRef.remove();
+                            startMemGameFromData(d, 'mem_games/' + lobbyRef.key);
+                        }
                     });
                 } catch(err) {
                     console.error('createMemGame FEHLER:', err.message, err.stack);
-                    alert('Fehler: ' + err.message);
                 }
             }
 
