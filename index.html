@@ -996,11 +996,6 @@
                     memGameState = null;
                     memLobbyView.classList.add('visible');
                 } else if (memPickerView.classList.contains('visible')) {
-                    if (memWaitingLobbyRef) {
-                        memWaitingLobbyRef.off();
-                        memWaitingLobbyRef.remove();
-                        memWaitingLobbyRef = null;
-                    }
                     memPickerView.classList.remove('visible');
                     memLobbyView.classList.add('visible');
                     document.getElementById('mem-picker-label').textContent = 'Wähle 1 Bild aus der Galerie:';
@@ -1871,7 +1866,6 @@
             let memGameRef = null;
             let memGameListener = null;
             let memLobbyListener = null;
-            let memWaitingLobbyRef = null;
             let memStartTime = 0;
 
             const memLobbyView = document.getElementById('memory-lobby-view');
@@ -1907,14 +1901,8 @@
                 loadMemPicker();
             });
             document.getElementById('mem-picker-back').addEventListener('click', () => {
-                if (memWaitingLobbyRef) {
-                    memWaitingLobbyRef.off();
-                    memWaitingLobbyRef.remove();
-                    memWaitingLobbyRef = null;
-                }
                 memPickerView.classList.remove('visible');
                 memLobbyView.classList.add('visible');
-                document.getElementById('mem-picker-label').textContent = 'Wähle 1 Bild aus der Galerie:';
             });
 
             function loadMemPicker() {
@@ -1985,14 +1973,11 @@
             }
 
             async function createMemGame() {
-                console.log('createMemGame START, memDiff=' + memDiff);
                 const { pairs } = MEM_DIFFS[memDiff];
                 const imgData = memSelectedImages[0];
-                console.log('imgData length:', imgData ? imgData.length : 'NULL');
-                if (!imgData) { console.error('Kein Bild ausgewählt!'); return; }
+                if (!imgData) return;
                 try {
                     const pieces = await splitImageIntoPieces(imgData, pairs);
-                    console.log('pieces created:', pieces.length);
                     let cards = [];
                     pieces.forEach((pieceImg, i) => {
                         cards.push({ id: i * 2, pairId: i, img: pieceImg, flipped: false, matched: false });
@@ -2002,50 +1987,19 @@
                         const j = Math.floor(Math.random() * (i + 1));
                         [cards[i], cards[j]] = [cards[j], cards[i]];
                     }
-                    const lobbyRef = db.ref('mem_lobbies').push();
-                    memWaitingLobbyRef = lobbyRef;
+                    const key = db.ref('mem_games').push().key;
                     const gameData = {
                         cards, cols: MEM_DIFFS[memDiff].cols, rows: MEM_DIFFS[memDiff].rows,
                         pairs, totalPairs: pairs,
                         matchedPairs: 0, moves: 0, finished: false,
-                        host: currentUser, status: 'waiting',
-                        image: imgData
+                        host: currentUser, players: { [currentUser]: true }
                     };
-                    console.log('gameData size:', JSON.stringify(gameData).length);
-                    await lobbyRef.set(gameData);
-                    console.log('Lobby created OK, key:', lobbyRef.key);
-
-                    document.getElementById('mem-picker-label').textContent = 'Warte auf Gegner... 🔗';
-                    document.getElementById('mem-picker-grid').innerHTML = `
-                        <div style="text-align:center;color:#2ecc71;padding:40px 20px;">
-                            <div style="font-size:3rem;margin-bottom:16px;">🧠</div>
-                            <div style="font-size:1.1rem;margin-bottom:8px;">Spiel erstellt!</div>
-                            <div style="font-size:0.85rem;color:rgba(255,255,255,0.4);margin-bottom:20px;">Warte auf einen Gegner, der beitritt...</div>
-                            <button id="mem-cancel-lobby" style="background:rgba(255,59,48,0.2);border:1px solid rgba(255,59,48,0.4);color:#ff3b30;padding:10px 24px;border-radius:12px;cursor:pointer;font-size:0.9rem;">Abbrechen</button>
-                        </div>
-                    `;
-                    document.getElementById('mem-cancel-lobby').addEventListener('click', () => {
-                        lobbyRef.off();
-                        lobbyRef.remove();
-                        memWaitingLobbyRef = null;
-                        memPickerView.classList.remove('visible');
-                        memLobbyView.classList.add('visible');
-                        document.getElementById('mem-picker-label').textContent = 'Wähle 1 Bild aus der Galerie:';
-                    });
-
-                    if (memLobbyListener) db.ref('mem_lobbies').off('value', memLobbyListener);
-                    lobbyRef.on('value', (snap) => {
-                        const d = snap.val();
-                        if (d && d.status === 'started') {
-                            lobbyRef.off();
-                            lobbyRef.remove();
-                            memWaitingLobbyRef = null;
-                            memPickerView.classList.remove('visible');
-                            startMemGameFromData(d, 'mem_games/' + lobbyRef.key);
-                        }
-                    });
+                    await db.ref('mem_games/' + key).set(gameData);
+                    await db.ref('mem_lobbies/' + key).set({ host: currentUser, pairs, status: 'playing' });
+                    memPickerView.classList.remove('visible');
+                    startMemGameFromData(gameData, 'mem_games/' + key);
                 } catch(err) {
-                    console.error('createMemGame FEHLER:', err.message, err.stack);
+                    console.error('createMemGame FEHLER:', err);
                 }
             }
 
@@ -2062,7 +2016,7 @@
                     let count = 0;
                     snap.forEach(child => {
                         const g = child.val();
-                        if (g && g.status === 'waiting' && g.host !== currentUser) {
+                        if (g && g.status === 'playing' && g.host !== currentUser) {
                             count++;
                             const el = document.createElement('div');
                             el.className = 'gl-open-mem';
@@ -2083,19 +2037,13 @@
             }
 
             function joinMemGame(key) {
-                const lobbyRefJoin = db.ref('mem_lobbies/' + key);
-                lobbyRefJoin.once('value', (snap) => {
+                const gameRefJoin = db.ref('mem_games/' + key);
+                gameRefJoin.once('value', (snap) => {
                     const data = snap.val();
-                    if (!data || data.status !== 'waiting') {
-                        alert('Spiel nicht mehr verfügbar!');
-                        return;
-                    }
-                    lobbyRefJoin.child('status').set('started').then(() => {
-                        lobbyRefJoin.once('value', (snap2) => {
-                            const gameData = snap2.val();
-                            startMemGameFromData(gameData, 'mem_games/' + key);
-                        });
-                    });
+                    if (!data) { alert('Spiel nicht mehr verfügbar!'); return; }
+                    gameRefJoin.child('players/' + currentUser).set(true);
+                    memLobbyView.classList.remove('visible');
+                    startMemGameFromData(data, 'mem_games/' + key);
                 });
             }
 
@@ -2231,8 +2179,16 @@
                 memWinOverlay.classList.add('visible');
             }
 
+            function cleanupMemLobby() {
+                if (memGameRef) {
+                    const key = memGameRef.key;
+                    db.ref('mem_lobbies/' + key).remove();
+                    db.ref('mem_games/' + key).remove();
+                }
+            }
             document.getElementById('mem-game-back').addEventListener('click', () => {
                 memGameView.classList.remove('visible');
+                cleanupMemLobby();
                 if (memGameRef) { memGameRef.off(); memGameRef = null; }
                 memGameState = null;
                 memLobbyView.classList.add('visible');
@@ -2241,6 +2197,7 @@
             document.getElementById('mem-game-leave').addEventListener('click', () => {
                 if (confirm('Puzzle wirklich verlassen?')) {
                     memGameView.classList.remove('visible');
+                    cleanupMemLobby();
                     if (memGameRef) { memGameRef.off(); memGameRef = null; }
                     memGameState = null;
                     memLobbyView.classList.add('visible');
@@ -2250,6 +2207,7 @@
             document.getElementById('mem-win-btn').addEventListener('click', () => {
                 memWinOverlay.classList.remove('visible');
                 memGameView.classList.remove('visible');
+                cleanupMemLobby();
                 if (memGameRef) { memGameRef.off(); memGameRef = null; }
                 memGameState = null;
                 document.getElementById('game-menu-view').classList.add('visible');
