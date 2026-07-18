@@ -2815,9 +2815,16 @@ function unoCreateDeck() {
                 if (!pzState) return;
                 const boardW = pzState.boardW;
                 const shadowH = pzState.boardH;
+                const knob = Math.min(pzState.pieceW, pzState.pieceH) * 0.2;
+                const pad = Math.ceil(knob * 2.5) + 2;
+                const margin = 6;
+                const colsInRow = Math.max(1, Math.floor(boardW / (pzState.pieceW + pad * 2 + margin)));
+                const totalRows = Math.ceil(pzState.pieces.length / colsInRow);
+                const scatteredH = 20 + totalRows * (pzState.pieceH * 0.8) + pad + 40;
+                const neededH = shadowH + scatteredH;
                 const totalH = window.innerHeight - pzBoard.offsetTop - 80;
                 pzBoard.style.width = boardW + 'px';
-                pzBoard.style.height = Math.max(shadowH + 200, totalH) + 'px';
+                pzBoard.style.height = Math.max(neededH, totalH) + 'px';
                 const shadow = document.getElementById('pz-shadow');
                 shadow.style.width = boardW + 'px';
                 shadow.style.height = shadowH + 'px';
