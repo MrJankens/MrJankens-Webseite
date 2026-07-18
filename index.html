@@ -311,32 +311,35 @@
         .win-sub { color: rgba(255,255,255,0.6); font-size: 1rem; margin-top: 10px; }
         .win-btn { margin-top: 25px; padding: 12px 30px; background: linear-gradient(45deg, #ff4081, #d11a5b); color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(209,26,91,0.4); }
 
-        /* MEMORY */
-        .pz-diff-btns { display: flex; gap: 10px; }
-        .pz-diff-btn { flex: 1; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 14px 8px; color: white; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.25s; text-align: center; }
-        .pz-diff-btn:hover { background: rgba(255,255,255,0.15); }
-        .pz-diff-btn.active { border-color: #ff4081; background: rgba(255,64,129,0.15); box-shadow: 0 0 12px rgba(255,64,129,0.2); }
-        .pz-diff-icon { font-size: 1.5rem; font-weight: 900; margin-bottom: 4px; color: #5ac8fa; }
+        /* PUZZLE */
+        .pz-diff-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; max-width: 340px; }
+        .pz-diff-btn { background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px 8px; color: white; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: center; }
+        .pz-diff-btn:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
+        .pz-diff-btn.active { border-color: #ff4081; background: rgba(255,64,129,0.12); box-shadow: 0 0 20px rgba(255,64,129,0.25); }
+        .pz-diff-icon { font-size: 1.6rem; font-weight: 900; margin-bottom: 4px; color: #5ac8fa; }
         .pz-diff-sub { font-size: 0.7rem; opacity: 0.5; margin-top: 2px; }
-        .pz-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 90%; max-width: 400px; max-height: 55vh; overflow-y: auto; padding: 10px; }
-        .pz-picker-item { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: all 0.25s; }
+        .pz-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 90%; max-width: 400px; max-height: 60vh; overflow-y: auto; padding: 10px; }
+        .pz-picker-item { position: relative; aspect-ratio: 1; border-radius: 14px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: all 0.25s; }
         .pz-picker-item img { width: 100%; height: 100%; object-fit: cover; }
-        .pz-picker-item.selected { border-color: #2ecc71; box-shadow: 0 0 12px rgba(46,204,113,0.5); }
-        #puzzle-lobby-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
+        .pz-picker-item.selected { border-color: #2ecc71; box-shadow: 0 0 16px rgba(46,204,113,0.5); }
+        #puzzle-lobby-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; padding-top: max(20px, env(safe-area-inset-top)); opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
         #puzzle-lobby-view.visible { opacity: 1; visibility: visible; }
-        #puzzle-picker-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
+        #puzzle-picker-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; padding-top: max(20px, env(safe-area-inset-top)); opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
         #puzzle-picker-view.visible { opacity: 1; visibility: visible; }
-        #puzzle-game-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c29, #1a1a2e, #16213e); z-index: 99999999; display: flex; flex-direction: column; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; padding: 10px; justify-content: flex-start; }
+        #puzzle-game-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; background: linear-gradient(180deg, #0a0a1a 0%, #12122a 50%, #1a1a3e 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow: hidden; }
         #puzzle-game-view.visible { opacity: 1; visibility: visible; }
-        #pz-board { position: relative; width: min(94vw, 480px); min-height: min(80vh, 520px); overflow-y: auto; overflow-x: hidden; border-radius: 12px; background: rgba(255,255,255,0.03); border: 2px dashed rgba(255,255,255,0.1); user-select: none; -webkit-user-select: none; -webkit-overflow-scrolling: touch; }
-        #pz-shadow { position: sticky; top: 0; z-index: 1; border: 2px dashed rgba(255,255,255,0.15); border-radius: 4px; background: rgba(255,255,255,0.04); pointer-events: none; }
-        .pz-piece { position: absolute; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5)); transition: filter 0.15s; }
+        #pz-board { position: relative; flex: 1; width: min(96vw, 520px); overflow: hidden; border-radius: 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); touch-action: none; user-select: none; -webkit-user-select: none; }
+        #pz-shadow { position: absolute; top: 0; left: 0; border: 2px dashed rgba(255,255,255,0.1); border-radius: 6px; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 4px, transparent 4px, transparent 8px); pointer-events: none; z-index: 0; }
+        #pz-pieces { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .pz-piece { position: absolute; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); transition: filter 0.15s ease; will-change: left, top; }
         .pz-piece:active { cursor: grabbing; }
-        .pz-piece.placed { filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3)) brightness(1.05); cursor: default; }
-        .pz-piece.dragging { filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6)) brightness(1.1); z-index: 9999 !important; }
-        .pz-piece img { width: 100%; height: 100%; pointer-events: none; }
-        .pz-info { display: flex; justify-content: center; gap: 20px; width: min(90vw, 420px); margin-top: 8px; color: rgba(255,255,255,0.6); font-size: 0.85rem; font-weight: 600; }
-        .pz-info span { color: white; }
+        .pz-piece.placed { filter: drop-shadow(0 0 0 transparent); transition: left 0.2s ease, top 0.2s ease, filter 0.3s ease; cursor: default; }
+        .pz-piece.dragging { filter: drop-shadow(0 12px 24px rgba(0,0,0,0.6)) brightness(1.08); z-index: 99999 !important; transition: filter 0.1s ease; }
+        .pz-piece img { width: 100%; height: 100%; pointer-events: none; display: block; }
+        .pz-info { display: flex; justify-content: center; align-items: center; gap: 16px; width: min(96vw, 520px); padding: 10px 0; color: rgba(255,255,255,0.5); font-size: 0.82rem; font-weight: 600; flex-shrink: 0; }
+        .pz-info span { color: #5ac8fa; font-weight: 700; }
+        .pz-progress { width: min(96vw, 520px); height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; flex-shrink: 0; margin-top: 4px; }
+        .pz-progress-bar { height: 100%; background: linear-gradient(90deg, #5ac8fa, #2ecc71); border-radius: 2px; transition: width 0.3s ease; }
         .gl-open-pz { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 16px; margin-bottom: 8px; transition: background 0.2s; }
         .gl-open-pz:hover { background: rgba(255,255,255,0.1); }
         .gl-open-pz-info { color: white; font-size: 0.85rem; }
@@ -538,7 +541,9 @@
         </div>
         <div id="pz-board">
             <div id="pz-shadow"></div>
+            <div id="pz-pieces"></div>
         </div>
+        <div class="pz-progress"><div class="pz-progress-bar" id="pz-progress-bar" style="width:0%"></div></div>
         <div class="pz-info" id="pz-info"></div>
     </div>
 
@@ -1864,13 +1869,16 @@
             let pzDragPiece = null;
             let pzDragOff = { x: 0, y: 0 };
             let pzMaxZ = 100;
+            let pzTimerInterval = null;
 
             const pzLobbyView = document.getElementById('puzzle-lobby-view');
             const pzPickerView = document.getElementById('puzzle-picker-view');
             const pzGameView = document.getElementById('puzzle-game-view');
             const pzBoard = document.getElementById('pz-board');
+            const pzPiecesContainer = document.getElementById('pz-pieces');
             const pzInfo = document.getElementById('pz-info');
             const pzWinOverlay = document.getElementById('pz-win-overlay');
+            const pzProgressBar = document.getElementById('pz-progress-bar');
 
             document.getElementById('gm-memory').addEventListener('click', () => {
                 document.getElementById('game-menu-view').classList.remove('visible');
@@ -1990,10 +1998,10 @@
                 ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
                 ctx.restore();
                 drawPiecePath(ctx, pad, pad, pieceW, pieceH, edges, knob);
-                ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
-                return { dataUrl: canvas.toDataURL('image/png'), pad, cw, ch };
+                return { dataUrl: canvas.toDataURL('image/jpeg', 0.92), pad, cw, ch };
             }
 
             async function createPzGame() {
@@ -2004,7 +2012,7 @@
                     img.src = pzSelectedImage;
                     await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
                     const es = generateEdgeShapes(cols, rows);
-                    const boardW = Math.min(window.innerWidth * 0.92, 500);
+                    const boardW = Math.min(window.innerWidth * 0.96, 520);
                     const boardH = boardW * (img.height / img.width);
                     const pieceW = boardW / cols;
                     const pieceH = boardH / rows;
@@ -2013,28 +2021,41 @@
                         for (let c = 0; c < cols; c++) {
                             const edges = getPieceEdges(c, r, cols, rows, es);
                             const pi = generatePieceImage(img, c, r, cols, rows, pieceW, pieceH, edges);
-                            const angle = (Math.random() - 0.5) * 0.3;
-                            const scatterX = Math.random() * (boardW - pi.cw);
-                            const scatterY = boardH + 10 + (r * cols + c) % Math.ceil(rows * 1.5) * (pieceH * 0.6);
                             pieces.push({
                                 id: r * cols + c, col: c, row: r,
                                 edges: edges, dataUrl: pi.dataUrl, pad: pi.pad, cw: pi.cw, ch: pi.ch,
-                                x: scatterX, y: scatterY,
-                                placed: false, angle: angle, zIndex: 0
+                                x: 0, y: 0, placed: false, angle: (Math.random() - 0.5) * 0.3, zIndex: 0
                             });
                         }
                     }
                     const key = db.ref('pz_games').push().key;
-                    const totalPieces = cols * rows;
                     pzState = { pieces: JSON.parse(JSON.stringify(pieces)), cols: cols, rows: rows, boardW: boardW, boardH: boardH, pieceW: pieceW, pieceH: pieceH, host: currentUser, players: {}, finished: false };
                     pzState.players[currentUser] = true;
                     await db.ref('pz_games/' + key).set(pzState);
-                    await db.ref('pz_lobbies/' + key).set({ host: currentUser, pieces: totalPieces, status: 'playing' });
+                    await db.ref('pz_lobbies/' + key).set({ host: currentUser, pieces: cols * rows, status: 'playing' });
                     pzState.pieces = pieces;
+                    scatterPieces();
                     startPzGameFromData(pzState, 'pz_games/' + key);
                 } catch(err) {
                     console.error('Puzzle Fehler:', err);
                 }
+            }
+
+            function scatterPieces() {
+                if (!pzState) return;
+                const { boardW, boardH, pieces, pieceW, pieceH } = pzState;
+                const total = pieces.length;
+                const cols = pzState.cols;
+                const rows = pzState.rows;
+                const margin = 8;
+                const colsInRow = Math.ceil(Math.sqrt(total * (boardW / (boardH * 1.2))));
+                pieces.forEach((p, i) => {
+                    const col = i % colsInRow;
+                    const row = Math.floor(i / colsInRow);
+                    p.x = margin + col * (pieceW + margin * 2) + (Math.random() - 0.5) * 4;
+                    p.y = boardH + 20 + row * (pieceH * 0.7) + (Math.random() - 0.5) * 4;
+                    p.zIndex = 10 + i;
+                });
             }
 
             function listenPzOpenGames() {
@@ -2088,31 +2109,53 @@
                         if (remote.finished && !pzState.finished) {
                             pzState.finished = true;
                             pzState.pieces = remote.pieces;
-                            renderPzBoard();
+                            renderAllPieces();
                             setTimeout(showPzWin, 400);
                         } else if (remote.pieces && !pzDragPiece) {
                             remote.pieces.forEach(rp => {
                                 const lp = pzState.pieces.find(p => p.id === rp.id);
-                                if (lp && !lp.placed) { lp.x = rp.x; lp.y = rp.y; lp.zIndex = rp.zIndex || 0; }
+                                if (lp && !lp.placed) {
+                                    lp.x = rp.x; lp.y = rp.y;
+                                    const el = pzPiecesContainer.querySelector('[data-id="' + lp.id + '"]');
+                                    if (el) { el.style.left = (lp.x - lp.pad) + 'px'; el.style.top = (lp.y - lp.pad) + 'px'; }
+                                }
                             });
-                            renderPzBoard();
                         }
                     }
                 });
-                renderPzBoard();
+                layoutBoard();
+                renderAllPieces();
                 setupPzDrag();
+                startPzTimer();
             }
 
-            function renderPzBoard() {
+            function startPzTimer() {
+                if (pzTimerInterval) clearInterval(pzTimerInterval);
+                pzTimerInterval = setInterval(() => {
+                    if (!pzState || pzState.finished) { clearInterval(pzTimerInterval); return; }
+                    const placed = pzState.pieces.filter(p => p.placed).length;
+                    const total = pzState.pieces.length;
+                    const elapsed = Math.floor((Date.now() - pzStartTime) / 1000);
+                    const min = Math.floor(elapsed / 60), sec = elapsed % 60;
+                    pzInfo.innerHTML = 'Teile: <span>' + placed + '/' + total + '</span> · Zeit: <span>' + min + ':' + sec.toString().padStart(2, '0') + '</span>';
+                    pzProgressBar.style.width = (total > 0 ? (placed / total * 100) : 0) + '%';
+                }, 500);
+            }
+
+            function layoutBoard() {
                 if (!pzState) return;
-                pzBoard.style.width = pzState.boardW + 'px';
-                pzBoard.style.height = Math.max(pzState.boardH + 120, window.innerHeight * 0.85) + 'px';
+                const boardW = pzState.boardW;
+                const boardH = pzState.boardH;
+                pzBoard.style.width = boardW + 'px';
+                pzBoard.style.height = (window.innerHeight - pzBoard.offsetTop - 80) + 'px';
                 const shadow = document.getElementById('pz-shadow');
-                shadow.style.width = pzState.boardW + 'px';
-                shadow.style.height = pzState.boardH + 'px';
-                shadow.style.left = '0px';
-                shadow.style.top = '0px';
-                pzBoard.querySelectorAll('.pz-piece').forEach(el => el.remove());
+                shadow.style.width = boardW + 'px';
+                shadow.style.height = boardH + 'px';
+            }
+
+            function renderAllPieces() {
+                if (!pzState) return;
+                pzPiecesContainer.innerHTML = '';
                 pzState.pieces.forEach(p => {
                     const el = document.createElement('div');
                     el.className = 'pz-piece' + (p.placed ? ' placed' : '');
@@ -2124,67 +2167,76 @@
                     el.style.zIndex = p.placed ? 1 : (p.zIndex || 10);
                     if (!p.placed) el.style.transform = 'rotate(' + p.angle + 'rad)';
                     el.innerHTML = '<img src="' + p.dataUrl + '">';
-                    pzBoard.appendChild(el);
+                    pzPiecesContainer.appendChild(el);
                 });
                 const placed = pzState.pieces.filter(p => p.placed).length;
                 const total = pzState.pieces.length;
-                const elapsed = Math.floor((Date.now() - pzStartTime) / 1000);
-                const min = Math.floor(elapsed / 60), sec = elapsed % 60;
-                pzInfo.innerHTML = 'Teile: <span>' + placed + '/' + total + '</span> · Zeit: <span>' + min + ':' + sec.toString().padStart(2, '0') + '</span>';
-                document.getElementById('pz-game-msg').textContent = pzState.finished ? 'Fertig! 🎉' : 'Puzzle zusammenbauen!';
+                pzProgressBar.style.width = (total > 0 ? (placed / total * 100) : 0) + '%';
+                document.getElementById('pz-game-msg').textContent = pzState.finished ? 'Fertig! 🎉' : placed + '/' + total + ' Teile';
+            }
+
+            function updatePieceEl(piece) {
+                const el = pzPiecesContainer.querySelector('[data-id="' + piece.id + '"]');
+                if (!el) return;
+                el.style.left = (piece.x - piece.pad) + 'px';
+                el.style.top = (piece.y - piece.pad) + 'px';
             }
 
             let pzDragAttached = false;
-            let pzScrolling = false;
             function setupPzDrag() {
                 if (pzDragAttached) return;
                 pzDragAttached = true;
-                pzBoard.addEventListener('pointerdown', (e) => {
-                    if (pzState && pzState.finished) return;
+
+                document.addEventListener('pointerdown', (e) => {
+                    if (!pzGameView.classList.contains('visible') || pzState && pzState.finished) return;
                     const el = e.target.closest('.pz-piece');
                     if (!el) return;
                     const piece = pzState.pieces.find(p => p.id === parseInt(el.dataset.id));
                     if (!piece || piece.placed) return;
                     e.preventDefault();
+                    e.stopPropagation();
                     pzDragPiece = piece;
                     piece.zIndex = ++pzMaxZ;
                     el.style.zIndex = pzMaxZ;
                     const rect = pzBoard.getBoundingClientRect();
-                    pzDragOff.x = e.clientX - rect.left - piece.x + pzBoard.scrollLeft;
-                    pzDragOff.y = e.clientY - rect.top - piece.y + pzBoard.scrollTop;
+                    pzDragOff.x = e.clientX - rect.left - piece.x;
+                    pzDragOff.y = e.clientY - rect.top - piece.y;
                     el.classList.add('dragging');
-                    pzBoard.setPointerCapture(e.pointerId);
+                    document.body.setPointerCapture(e.pointerId);
                 });
-                pzBoard.addEventListener('pointermove', (e) => {
+
+                document.addEventListener('pointermove', (e) => {
                     if (!pzDragPiece) return;
                     e.preventDefault();
                     const rect = pzBoard.getBoundingClientRect();
-                    pzDragPiece.x = e.clientX - rect.left - pzDragOff.x + pzBoard.scrollLeft;
-                    pzDragPiece.y = e.clientY - rect.top - pzDragOff.y + pzBoard.scrollTop;
-                    const el = pzBoard.querySelector('.pz-piece[data-id="' + pzDragPiece.id + '"]');
-                    if (el) {
-                        el.style.left = (pzDragPiece.x - pzDragPiece.pad) + 'px';
-                        el.style.top = (pzDragPiece.y - pzDragPiece.pad) + 'px';
-                    }
+                    pzDragPiece.x = e.clientX - rect.left - pzDragOff.x;
+                    pzDragPiece.y = e.clientY - rect.top - pzDragOff.y;
+                    updatePieceEl(pzDragPiece);
                 });
-                pzBoard.addEventListener('pointerup', (e) => {
+
+                document.addEventListener('pointerup', (e) => {
                     if (!pzDragPiece) return;
                     e.preventDefault();
-                    const el = pzBoard.querySelector('.pz-piece[data-id="' + pzDragPiece.id + '"]');
+                    const el = pzPiecesContainer.querySelector('[data-id="' + pzDragPiece.id + '"]');
                     if (el) el.classList.remove('dragging');
                     const piece = pzDragPiece;
                     pzDragPiece = null;
                     const correctX = piece.col * pzState.pieceW;
                     const correctY = piece.row * pzState.pieceH;
                     const snapDist = Math.min(pzState.pieceW, pzState.pieceH) * 0.35;
-                    if (Math.abs(piece.x - correctX) < snapDist && Math.abs(piece.y - correctY) < snapDist) {
+                    if (!piece.placed && Math.abs(piece.x - correctX) < snapDist && Math.abs(piece.y - correctY) < snapDist) {
                         piece.x = correctX; piece.y = correctY;
                         piece.placed = true; piece.angle = 0;
+                        if (el) { el.classList.add('placed'); el.style.transform = ''; el.style.zIndex = 1; }
+                        updatePieceEl(piece);
                         playSound('move');
                         checkPzWin();
                     }
                     syncPzPieces();
-                    renderPzBoard();
+                    const placed = pzState.pieces.filter(p => p.placed).length;
+                    const total = pzState.pieces.length;
+                    document.getElementById('pz-game-msg').textContent = pzState.finished ? 'Fertig! 🎉' : placed + '/' + total + ' Teile';
+                    pzProgressBar.style.width = (total > 0 ? (placed / total * 100) : 0) + '%';
                 });
             }
 
@@ -2197,6 +2249,7 @@
             }
 
             function showPzWin() {
+                if (pzTimerInterval) clearInterval(pzTimerInterval);
                 const elapsed = Math.floor((Date.now() - pzStartTime) / 1000);
                 const min = Math.floor(elapsed / 60), sec = elapsed % 60;
                 document.getElementById('pz-win-text').textContent = '🧩 Geschafft!';
@@ -2214,8 +2267,9 @@
             }
 
             function pzCleanup() {
+                if (pzTimerInterval) { clearInterval(pzTimerInterval); pzTimerInterval = null; }
                 if (pzGameRef) { const key = pzGameRef.key; pzGameRef.off(); pzGameRef = null; db.ref('pz_lobbies/' + key).remove(); db.ref('pz_games/' + key).remove(); }
-                pzState = null; pzDragPiece = null;
+                pzState = null; pzDragPiece = null; pzPiecesContainer.innerHTML = '';
             }
 
             document.getElementById('pz-game-back').addEventListener('click', () => {
