@@ -1925,9 +1925,11 @@
                         el.className = 'mem-picker-item';
                         el.innerHTML = `<img src="${img}">`;
                         el.addEventListener('click', () => {
+                            console.log('Image clicked, starting createMemGame...');
                             grid.querySelectorAll('.mem-picker-item').forEach(i => i.classList.remove('selected'));
                             el.classList.add('selected');
                             memSelectedImages = [img];
+                            console.log('memSelectedImages set, calling createMemGame()');
                             createMemGame();
                         });
                         grid.appendChild(el);
@@ -1938,9 +1940,12 @@
             }
 
             function splitImageIntoPieces(imgDataUrl, numPieces) {
-                return new Promise((resolve) => {
+                console.log('splitImageIntoPieces: numPieces=' + numPieces);
+                return new Promise((resolve, reject) => {
                     const img = new Image();
+                    img.onerror = function() { console.error('splitImage: Bild konnte nicht geladen werden!'); reject(new Error('Bild laden fehlgeschlagen')); };
                     img.onload = function() {
+                        console.log('splitImage: Bild geladen, ' + img.width + 'x' + img.height);
                         const w = img.width;
                         const h = img.height;
                         let cols, rows;
@@ -1967,43 +1972,56 @@
             }
 
             async function createMemGame() {
+                console.log('createMemGame START, memDiff=' + memDiff);
+                console.log('MEM_DIFFS:', JSON.stringify(MEM_DIFFS[memDiff]));
                 const { pairs } = MEM_DIFFS[memDiff];
                 const imgData = memSelectedImages[0];
-                const pieces = await splitImageIntoPieces(imgData, pairs);
-                let cards = [];
-                pieces.forEach((pieceImg, i) => {
-                    cards.push({ id: i * 2, pairId: i, img: pieceImg, flipped: false, matched: false });
-                    cards.push({ id: i * 2 + 1, pairId: i, img: pieceImg, flipped: false, matched: false });
-                });
-                for (let i = cards.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [cards[i], cards[j]] = [cards[j], cards[i]];
-                }
-                const lobbyRef = db.ref('mem_lobbies').push();
-                const gameData = {
-                    cards, cols: MEM_DIFFS[memDiff].cols, rows: MEM_DIFFS[memDiff].rows,
-                    pairs, totalPairs: pairs,
-                    matchedPairs: 0, moves: 0, finished: false,
-                    host: currentUser, status: 'waiting',
-                    image: imgData
-                };
-                lobbyRef.set(gameData).then(() => {
-                    memPickerView.classList.remove('visible');
-                    memLobbyView.classList.add('visible');
-                    listenMemOpenGames();
-                    document.getElementById('mem-open-games').innerHTML = '<div style="color:#2ecc71;">Warte auf Gegner... 🔗</div>';
-                    lobbyRef.on('value', (snap) => {
-                        const d = snap.val();
-                        if (d && d.status === 'started') {
-                            lobbyRef.off();
-                            lobbyRef.remove();
-                            startMemGameFromData(d, 'mem_games/' + lobbyRef.key);
-                        }
+                console.log('imgData length:', imgData ? imgData.length : 'NULL');
+                if (!imgData) { console.error('Kein Bild ausgewählt!'); return; }
+                try {
+                    const pieces = await splitImageIntoPieces(imgData, pairs);
+                    console.log('pieces created:', pieces.length);
+                    let cards = [];
+                    pieces.forEach((pieceImg, i) => {
+                        cards.push({ id: i * 2, pairId: i, img: pieceImg, flipped: false, matched: false });
+                        cards.push({ id: i * 2 + 1, pairId: i, img: pieceImg, flipped: false, matched: false });
                     });
-                }).catch(err => {
-                    console.error('Memory Lobby Fehler:', err);
+                    for (let i = cards.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [cards[i], cards[j]] = [cards[j], cards[i]];
+                    }
+                    console.log('cards created:', cards.length);
+                    const lobbyRef = db.ref('mem_lobbies').push();
+                    const gameData = {
+                        cards, cols: MEM_DIFFS[memDiff].cols, rows: MEM_DIFFS[memDiff].rows,
+                        pairs, totalPairs: pairs,
+                        matchedPairs: 0, moves: 0, finished: false,
+                        host: currentUser, status: 'waiting',
+                        image: imgData
+                    };
+                    console.log('gameData size:', JSON.stringify(gameData).length);
+                    lobbyRef.set(gameData).then(() => {
+                        console.log('Lobby created OK, key:', lobbyRef.key);
+                        memPickerView.classList.remove('visible');
+                        memLobbyView.classList.add('visible');
+                        listenMemOpenGames();
+                        document.getElementById('mem-open-games').innerHTML = '<div style="color:#2ecc71;">Warte auf Gegner... 🔗</div>';
+                        lobbyRef.on('value', (snap) => {
+                            const d = snap.val();
+                            if (d && d.status === 'started') {
+                                lobbyRef.off();
+                                lobbyRef.remove();
+                                startMemGameFromData(d, 'mem_games/' + lobbyRef.key);
+                            }
+                        });
+                    }).catch(err => {
+                        console.error('Memory Lobby SET Fehler:', err.message, err.code);
+                        alert('Fehler beim Erstellen: ' + err.message);
+                    });
+                } catch(err) {
+                    console.error('createMemGame FEHLER:', err.message, err.stack);
                     alert('Fehler: ' + err.message);
-                });
+                }
             }
 
             function listenMemOpenGames() {
@@ -2212,6 +2230,72 @@
                 document.getElementById('game-menu-view').classList.add('visible');
             });
         }
+    });
+
+    /* ===== DEBUG PANEL (O+P) ===== */
+    const debugLog = [];
+    const origConsoleLog = console.log;
+    const origConsoleError = console.error;
+    const origConsoleWarn = console.warn;
+    function debugAdd(type, args) {
+        const msg = Array.from(args).map(a => {
+            if (a && typeof a === 'object') {
+                try { return JSON.stringify(a, null, 2); } catch(e) { return String(a); }
+            }
+            return String(a);
+        }).join(' ');
+        debugLog.push({ time: new Date().toLocaleTimeString(), type, msg });
+        if (debugLog.length > 200) debugLog.shift();
+        updateDebugPanel();
+    }
+    console.log = function() { origConsoleLog.apply(console, arguments); debugAdd('log', arguments); };
+    console.error = function() { origConsoleError.apply(console, arguments); debugAdd('error', arguments); };
+    window.addEventListener('error', (e) => { debugAdd('error', ['UNCAUGHT: ' + e.message + ' @ ' + e.filename + ':' + e.lineno]); });
+    window.addEventListener('unhandledrejection', (e) => { debugAdd('error', ['UNHANDLED PROMISE: ' + (e.reason?.message || e.reason || 'unknown')]); });
+
+    const debugPanel = document.createElement('div');
+    debugPanel.id = 'debug-panel';
+    debugPanel.innerHTML = '<div id="debug-header"><b>Debug Log</b> <span id="debug-clear" style="cursor:pointer;margin-left:10px;color:#ff4444;">Löschen</span> <span id="debug-close" style="cursor:pointer;margin-left:10px;">✕</span></div><pre id="debug-content"></pre>';
+    document.body.appendChild(debugPanel);
+
+    const debugStyle = document.createElement('style');
+    debugStyle.textContent = `
+        #debug-panel { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.92); z-index:999999999; flex-direction:column; padding:12px; padding-top:env(safe-area-inset-top,12px); padding-bottom:env(safe-area-inset-bottom,12px); overflow:hidden; }
+        #debug-panel.open { display:flex; }
+        #debug-header { display:flex; align-items:center; color:#fff; font-family:system-ui; font-size:14px; margin-bottom:8px; flex-shrink:0; }
+        #debug-close { color:#888; font-size:18px; }
+        #debug-content { flex:1; overflow-y:auto; color:#0f0; font-family:monospace; font-size:11px; white-space:pre-wrap; word-break:break-all; margin:0; padding:0; -webkit-overflow-scrolling:touch; }
+        #debug-content .err { color:#ff4444; }
+        #debug-content .warn { color:#ffaa00; }
+        #debug-content .time { color:#666; }
+    `;
+    document.head.appendChild(debugStyle);
+
+    function updateDebugPanel() {
+        const el = document.getElementById('debug-content');
+        if (!el) return;
+        el.innerHTML = debugLog.map(e => {
+            const cls = e.type === 'error' ? 'err' : (e.type === 'warn' ? 'warn' : '');
+            return `<span class="time">[${e.time}]</span> <span class="${cls}">${e.msg}</span>`;
+        }).join('\n');
+        el.scrollTop = el.scrollHeight;
+    }
+
+    document.getElementById('debug-close').addEventListener('click', () => debugPanel.classList.remove('open'));
+    document.getElementById('debug-clear').addEventListener('click', () => { debugLog.length = 0; updateDebugPanel(); });
+
+    let oPressed = false, pPressed = false;
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'o' || e.key === 'O') oPressed = true;
+        if (e.key === 'p' || e.key === 'P') pPressed = true;
+        if (oPressed && pPressed) {
+            debugPanel.classList.toggle('open');
+            oPressed = false; pPressed = false;
+        }
+    });
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'o' || e.key === 'O') oPressed = false;
+        if (e.key === 'p' || e.key === 'P') pPressed = false;
     });
     </script>
 </body>
