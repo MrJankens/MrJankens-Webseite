@@ -996,8 +996,14 @@
                     memGameState = null;
                     memLobbyView.classList.add('visible');
                 } else if (memPickerView.classList.contains('visible')) {
+                    if (memWaitingLobbyRef) {
+                        memWaitingLobbyRef.off();
+                        memWaitingLobbyRef.remove();
+                        memWaitingLobbyRef = null;
+                    }
                     memPickerView.classList.remove('visible');
                     memLobbyView.classList.add('visible');
+                    document.getElementById('mem-picker-label').textContent = 'Wähle 1 Bild aus der Galerie:';
                 } else if (memLobbyView.classList.contains('visible')) {
                     memLobbyView.classList.remove('visible');
                     document.getElementById('game-menu-view').classList.add('visible');
@@ -1865,6 +1871,7 @@
             let memGameRef = null;
             let memGameListener = null;
             let memLobbyListener = null;
+            let memWaitingLobbyRef = null;
             let memStartTime = 0;
 
             const memLobbyView = document.getElementById('memory-lobby-view');
@@ -1900,8 +1907,14 @@
                 loadMemPicker();
             });
             document.getElementById('mem-picker-back').addEventListener('click', () => {
+                if (memWaitingLobbyRef) {
+                    memWaitingLobbyRef.off();
+                    memWaitingLobbyRef.remove();
+                    memWaitingLobbyRef = null;
+                }
                 memPickerView.classList.remove('visible');
                 memLobbyView.classList.add('visible');
+                document.getElementById('mem-picker-label').textContent = 'Wähle 1 Bild aus der Galerie:';
             });
 
             function loadMemPicker() {
@@ -1990,6 +2003,7 @@
                         [cards[i], cards[j]] = [cards[j], cards[i]];
                     }
                     const lobbyRef = db.ref('mem_lobbies').push();
+                    memWaitingLobbyRef = lobbyRef;
                     const gameData = {
                         cards, cols: MEM_DIFFS[memDiff].cols, rows: MEM_DIFFS[memDiff].rows,
                         pairs, totalPairs: pairs,
@@ -2000,40 +2014,33 @@
                     console.log('gameData size:', JSON.stringify(gameData).length);
                     await lobbyRef.set(gameData);
                     console.log('Lobby created OK, key:', lobbyRef.key);
-                    memPickerView.classList.remove('visible');
-                    memLobbyView.classList.add('visible');
-                    console.log('Views switched: picker hidden, lobby shown');
-                    if (memLobbyListener) db.ref('mem_lobbies').off('value', memLobbyListener);
-                    const list = document.getElementById('mem-open-games');
-                    list.innerHTML = '<div style="color:#2ecc71;">Warte auf Gegner... 🔗</div>';
-                    memLobbyListener = db.ref('mem_lobbies').on('value', (snap) => {
-                        console.log('mem_lobbies listener fired');
-                        let count = 0;
-                        list.innerHTML = '';
-                        if (snap.exists()) {
-                            snap.forEach(child => {
-                                const g = child.val();
-                                if (g && g.status === 'waiting' && g.host !== currentUser) {
-                                    count++;
-                                    const el = document.createElement('div');
-                                    el.className = 'gl-open-mem';
-                                    el.innerHTML = `<div class="gl-open-mem-info"><strong>${g.host}</strong> · ${g.pairs} Teile</div><button class="gl-open-mem-join" data-key="${child.key}">Beitreten</button>`;
-                                    list.appendChild(el);
-                                }
-                            });
-                        }
-                        if (count === 0) {
-                            list.innerHTML = '<div style="color:#2ecc71;">Warte auf Gegner... 🔗</div>';
-                        }
-                        list.querySelectorAll('.gl-open-mem-join').forEach(btn => {
-                            btn.addEventListener('click', () => joinMemGame(btn.dataset.key));
-                        });
+
+                    document.getElementById('mem-picker-label').textContent = 'Warte auf Gegner... 🔗';
+                    document.getElementById('mem-picker-grid').innerHTML = `
+                        <div style="text-align:center;color:#2ecc71;padding:40px 20px;">
+                            <div style="font-size:3rem;margin-bottom:16px;">🧠</div>
+                            <div style="font-size:1.1rem;margin-bottom:8px;">Spiel erstellt!</div>
+                            <div style="font-size:0.85rem;color:rgba(255,255,255,0.4);margin-bottom:20px;">Warte auf einen Gegner, der beitritt...</div>
+                            <button id="mem-cancel-lobby" style="background:rgba(255,59,48,0.2);border:1px solid rgba(255,59,48,0.4);color:#ff3b30;padding:10px 24px;border-radius:12px;cursor:pointer;font-size:0.9rem;">Abbrechen</button>
+                        </div>
+                    `;
+                    document.getElementById('mem-cancel-lobby').addEventListener('click', () => {
+                        lobbyRef.off();
+                        lobbyRef.remove();
+                        memWaitingLobbyRef = null;
+                        memPickerView.classList.remove('visible');
+                        memLobbyView.classList.add('visible');
+                        document.getElementById('mem-picker-label').textContent = 'Wähle 1 Bild aus der Galerie:';
                     });
+
+                    if (memLobbyListener) db.ref('mem_lobbies').off('value', memLobbyListener);
                     lobbyRef.on('value', (snap) => {
                         const d = snap.val();
                         if (d && d.status === 'started') {
                             lobbyRef.off();
                             lobbyRef.remove();
+                            memWaitingLobbyRef = null;
+                            memPickerView.classList.remove('visible');
                             startMemGameFromData(d, 'mem_games/' + lobbyRef.key);
                         }
                     });
