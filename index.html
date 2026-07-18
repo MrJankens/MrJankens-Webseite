@@ -330,7 +330,7 @@
         #puzzle-game-view.visible { opacity: 1; visibility: visible; }
         #pz-board { position: relative; flex: 1; width: min(96vw, 520px); overflow: hidden; border-radius: 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); touch-action: none; user-select: none; -webkit-user-select: none; }
         #pz-shadow { position: absolute; top: 0; left: 0; border: 2px dashed rgba(255,255,255,0.1); border-radius: 6px; background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 4px, transparent 4px, transparent 8px); pointer-events: none; z-index: 0; }
-        #pz-pieces { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #pz-pieces { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; overflow: visible; }
         .pz-piece { position: absolute; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); transition: filter 0.15s ease; will-change: left, top; }
         .pz-piece:active { cursor: grabbing; }
         .pz-piece.placed { filter: drop-shadow(0 0 0 transparent); transition: left 0.2s ease, top 0.2s ease, filter 0.3s ease; cursor: default; }
@@ -2001,7 +2001,7 @@
                 ctx.strokeStyle = 'rgba(0,0,0,0.3)';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
-                return { dataUrl: canvas.toDataURL('image/jpeg', 0.92), pad, cw, ch };
+                return { dataUrl: canvas.toDataURL('image/png'), pad, cw, ch };
             }
 
             async function createPzGame() {
@@ -2045,15 +2045,16 @@
                 if (!pzState) return;
                 const { boardW, boardH, pieces, pieceW, pieceH } = pzState;
                 const total = pieces.length;
-                const cols = pzState.cols;
-                const rows = pzState.rows;
-                const margin = 8;
-                const colsInRow = Math.ceil(Math.sqrt(total * (boardW / (boardH * 1.2))));
+                const margin = 6;
+                const knob = Math.min(pieceW, pieceH) * 0.2;
+                const pad = Math.ceil(knob * 2.5) + 2;
+                const usableW = boardW;
+                const colsInRow = Math.max(1, Math.floor(usableW / (pieceW + pad * 2 + margin)));
                 pieces.forEach((p, i) => {
                     const col = i % colsInRow;
                     const row = Math.floor(i / colsInRow);
-                    p.x = margin + col * (pieceW + margin * 2) + (Math.random() - 0.5) * 4;
-                    p.y = boardH + 20 + row * (pieceH * 0.7) + (Math.random() - 0.5) * 4;
+                    p.x = margin + col * (pieceW + pad * 2 + margin) + pad;
+                    p.y = boardH + 20 + row * (pieceH * 0.8) + pad;
                     p.zIndex = 10 + i;
                 });
             }
@@ -2145,12 +2146,13 @@
             function layoutBoard() {
                 if (!pzState) return;
                 const boardW = pzState.boardW;
-                const boardH = pzState.boardH;
+                const shadowH = pzState.boardH;
+                const totalH = window.innerHeight - pzBoard.offsetTop - 80;
                 pzBoard.style.width = boardW + 'px';
-                pzBoard.style.height = (window.innerHeight - pzBoard.offsetTop - 80) + 'px';
+                pzBoard.style.height = Math.max(shadowH + 200, totalH) + 'px';
                 const shadow = document.getElementById('pz-shadow');
                 shadow.style.width = boardW + 'px';
-                shadow.style.height = boardH + 'px';
+                shadow.style.height = shadowH + 'px';
             }
 
             function renderAllPieces() {
@@ -2260,7 +2262,7 @@
             function syncPzPieces() {
                 if (!pzGameRef || !pzState) return;
                 pzGameRef.set({
-                    pieces: pzState.pieces.map(p => ({ id: p.id, col: p.col, row: p.row, edges: p.edges, dataUrl: p.dataUrl, pad: p.pad, cw: p.cw, ch: p.ch, x: p.x, y: p.y, placed: p.placed, angle: p.angle })),
+                    pieces: pzState.pieces.map(p => ({ id: p.id, col: p.col, row: p.row, edges: p.edges, dataUrl: p.dataUrl, pad: p.pad, cw: p.cw, ch: p.ch, x: p.x, y: p.y, placed: p.placed, angle: p.angle, zIndex: p.zIndex })),
                     cols: pzState.cols, rows: pzState.rows, boardW: pzState.boardW, boardH: pzState.boardH, pieceW: pzState.pieceW, pieceH: pzState.pieceH,
                     host: pzState.host, players: pzState.players, finished: pzState.finished
                 }).catch(e => console.error('Puzzle sync error:', e));
