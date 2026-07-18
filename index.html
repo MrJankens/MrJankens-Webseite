@@ -171,13 +171,10 @@
             .game-msg { font-size: 0.78rem; }
             .dice-btn { width: 60px; height: 60px; font-size: 1.6rem; }
             .dice-face { width: 44px; height: 44px; gap: 3px; }
-            .mem-diff-btns { gap: 6px; }
-            .mem-diff-btn { padding: 10px 6px; font-size: 0.78rem; }
-            .mem-diff-icon { font-size: 1.2rem; }
-            .mem-picker-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-            .mem-board { gap: 6px; width: min(92vw, 380px); }
-            .mem-card-back { font-size: min(7vw, 1.6rem); }
-            .mem-info { gap: 12px; font-size: 0.78rem; }
+            .pz-diff-btns { gap: 6px; }
+            .pz-diff-btn { padding: 10px 6px; font-size: 0.78rem; }
+            .pz-diff-icon { font-size: 1.2rem; }
+            .pz-picker-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
         }
 
         @media (max-height: 600px) {
@@ -315,43 +312,37 @@
         .win-btn { margin-top: 25px; padding: 12px 30px; background: linear-gradient(45deg, #ff4081, #d11a5b); color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(209,26,91,0.4); }
 
         /* MEMORY */
-        .mem-diff-btns { display: flex; gap: 10px; }
-        .mem-diff-btn { flex: 1; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 14px 8px; color: white; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.25s; text-align: center; }
-        .mem-diff-btn:hover { background: rgba(255,255,255,0.15); }
-        .mem-diff-btn.active { border-color: #ff4081; background: rgba(255,64,129,0.15); box-shadow: 0 0 12px rgba(255,64,129,0.2); }
-        .mem-diff-icon { font-size: 1.5rem; font-weight: 900; margin-bottom: 4px; color: #5ac8fa; }
-        .mem-diff-sub { font-size: 0.7rem; opacity: 0.5; margin-top: 2px; }
-        .mem-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 90%; max-width: 400px; max-height: 55vh; overflow-y: auto; padding: 10px; }
-        .mem-picker-item { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: all 0.25s; }
-        .mem-picker-item img { width: 100%; height: 100%; object-fit: cover; }
-        .mem-picker-item.selected { border-color: #2ecc71; box-shadow: 0 0 12px rgba(46,204,113,0.5); }
-        .mem-picker-item.selected::after { content: '✓'; position: absolute; top: 6px; right: 6px; background: #2ecc71; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; }
-        .mem-picker-item:disabled { opacity: 0.4; pointer-events: none; }
-        #memory-lobby-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
-        #memory-lobby-view.visible { opacity: 1; visibility: visible; }
-        #memory-picker-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
-        #memory-picker-view.visible { opacity: 1; visibility: visible; }
-        #memory-game-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c29, #1a1a2e, #16213e); z-index: 99999999; display: flex; flex-direction: column; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; padding: 10px; justify-content: flex-start; }
-        #memory-game-view.visible { opacity: 1; visibility: visible; }
-        .mem-board { display: grid; gap: 8px; padding: 10px; width: min(90vw, 420px); }
-        .mem-card { aspect-ratio: 1; border-radius: 12px; cursor: pointer; perspective: 600px; }
-        .mem-card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.4s ease; }
-        .mem-card.flipped .mem-card-inner { transform: rotateY(180deg); }
-        .mem-card.matched .mem-card-inner { transform: rotateY(180deg); }
-        .mem-card.matched { opacity: 0.7; pointer-events: none; }
-        .mem-card-front, .mem-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; overflow: hidden; }
-        .mem-card-front { transform: rotateY(180deg); }
-        .mem-card-front img { width: 100%; height: 100%; object-fit: cover; }
-        .mem-card-back { background: linear-gradient(135deg, #d11a5b, #ff4081); display: flex; align-items: center; justify-content: center; font-size: min(8vw, 2rem); box-shadow: 0 3px 10px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.2); }
-        .mem-card:not(.flipped):not(.matched):hover .mem-card-back { box-shadow: 0 4px 16px rgba(209,26,91,0.5); transform: scale(1.03); }
-        .mem-info { display: flex; justify-content: center; gap: 20px; width: min(90vw, 420px); margin-top: 10px; color: rgba(255,255,255,0.6); font-size: 0.85rem; font-weight: 600; }
-        .mem-info span { color: white; }
-        .gl-open-mem { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 16px; margin-bottom: 8px; transition: background 0.2s; }
-        .gl-open-mem:hover { background: rgba(255,255,255,0.1); }
-        .gl-open-mem-info { color: white; font-size: 0.85rem; }
-        .gl-open-mem-info strong { color: #5ac8fa; }
-        .gl-open-mem-join { background: linear-gradient(135deg, #007AFF, #0055d4); color: white; border: none; padding: 7px 16px; border-radius: 18px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,122,255,0.3); }
-        .gl-open-mem-join:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,122,255,0.4); }
+        .pz-diff-btns { display: flex; gap: 10px; }
+        .pz-diff-btn { flex: 1; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 14px 8px; color: white; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.25s; text-align: center; }
+        .pz-diff-btn:hover { background: rgba(255,255,255,0.15); }
+        .pz-diff-btn.active { border-color: #ff4081; background: rgba(255,64,129,0.15); box-shadow: 0 0 12px rgba(255,64,129,0.2); }
+        .pz-diff-icon { font-size: 1.5rem; font-weight: 900; margin-bottom: 4px; color: #5ac8fa; }
+        .pz-diff-sub { font-size: 0.7rem; opacity: 0.5; margin-top: 2px; }
+        .pz-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 90%; max-width: 400px; max-height: 55vh; overflow-y: auto; padding: 10px; }
+        .pz-picker-item { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 3px solid transparent; transition: all 0.25s; }
+        .pz-picker-item img { width: 100%; height: 100%; object-fit: cover; }
+        .pz-picker-item.selected { border-color: #2ecc71; box-shadow: 0 0 12px rgba(46,204,113,0.5); }
+        #puzzle-lobby-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
+        #puzzle-lobby-view.visible { opacity: 1; visibility: visible; }
+        #puzzle-picker-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 99999999; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; overflow-y: auto; }
+        #puzzle-picker-view.visible { opacity: 1; visibility: visible; }
+        #puzzle-game-view { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c29, #1a1a2e, #16213e); z-index: 99999999; display: flex; flex-direction: column; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; padding: 10px; justify-content: flex-start; }
+        #puzzle-game-view.visible { opacity: 1; visibility: visible; }
+        #pz-board { position: relative; width: min(94vw, 480px); height: min(65vh, 380px); overflow: hidden; border-radius: 12px; background: rgba(255,255,255,0.03); border: 2px dashed rgba(255,255,255,0.1); touch-action: none; user-select: none; -webkit-user-select: none; }
+        #pz-shadow { position: absolute; border: 2px dashed rgba(255,255,255,0.15); border-radius: 4px; background: rgba(255,255,255,0.04); pointer-events: none; }
+        .pz-piece { position: absolute; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5)); transition: filter 0.15s; }
+        .pz-piece:active { cursor: grabbing; }
+        .pz-piece.placed { filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3)) brightness(1.05); cursor: default; }
+        .pz-piece.dragging { filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6)) brightness(1.1); z-index: 9999 !important; }
+        .pz-piece img { width: 100%; height: 100%; pointer-events: none; }
+        .pz-info { display: flex; justify-content: center; gap: 20px; width: min(90vw, 420px); margin-top: 8px; color: rgba(255,255,255,0.6); font-size: 0.85rem; font-weight: 600; }
+        .pz-info span { color: white; }
+        .gl-open-pz { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 16px; margin-bottom: 8px; transition: background 0.2s; }
+        .gl-open-pz:hover { background: rgba(255,255,255,0.1); }
+        .gl-open-pz-info { color: white; font-size: 0.85rem; }
+        .gl-open-pz-info strong { color: #5ac8fa; }
+        .gl-open-pz-join { background: linear-gradient(135deg, #007AFF, #0055d4); color: white; border: none; padding: 7px 16px; border-radius: 18px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,122,255,0.3); }
+        .gl-open-pz-join:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,122,255,0.4); }
     </style>
 </head>
 <body>
@@ -443,9 +434,9 @@
                 <div class="gm-card-desc">2-4 Spieler</div>
             </div>
             <div class="gm-card" id="gm-memory">
-                <div class="gm-card-icon">🧠</div>
-                <div class="gm-card-name">Memory</div>
-                <div class="gm-card-desc">2 Spieler · mit Fotos</div>
+                <div class="gm-card-icon">🧩</div>
+                <div class="gm-card-name">Puzzle</div>
+                <div class="gm-card-desc">1-2 Spieler · mit Fotos</div>
             </div>
             <div class="gm-card" style="opacity:0.3;pointer-events:none;">
                 <div class="gm-card-icon">🚧</div>
@@ -511,48 +502,50 @@
         <button class="win-btn" id="win-btn">Zurück zum Menü</button>
     </div>
 
-    <div id="memory-lobby-view">
-        <button class="gl-back" id="mem-lobby-back">← Zurück</button>
-        <div class="gl-title">🧠 Memory</div>
+    <div id="puzzle-lobby-view">
+        <button class="gl-back" id="pz-lobby-back">← Zurück</button>
+        <div class="gl-title">🧩 Puzzle</div>
         <div class="gl-section">
             <div class="gl-label">Schwierigkeit:</div>
-            <div class="mem-diff-btns">
-                <button class="mem-diff-btn active" data-diff="easy"><div class="mem-diff-icon">6</div><div>Einfach</div><div class="mem-diff-sub">6 Teile</div></button>
-                <button class="mem-diff-btn" data-diff="medium"><div class="mem-diff-icon">8</div><div>Mittel</div><div class="mem-diff-sub">8 Teile</div></button>
-                <button class="mem-diff-btn" data-diff="hard"><div class="mem-diff-icon">12</div><div>Schwer</div><div class="mem-diff-sub">12 Teile</div></button>
+            <div class="pz-diff-btns">
+                <button class="pz-diff-btn active" data-diff="easy"><div class="pz-diff-icon">6</div><div>Einfach</div><div class="pz-diff-sub">3×2</div></button>
+                <button class="pz-diff-btn" data-diff="medium"><div class="pz-diff-icon">12</div><div>Mittel</div><div class="pz-diff-sub">4×3</div></button>
+                <button class="pz-diff-btn" data-diff="hard"><div class="pz-diff-icon">24</div><div>Schwer</div><div class="pz-diff-sub">6×4</div></button>
             </div>
         </div>
-        <button class="gl-start" id="mem-start">Bild auswählen →</button>
+        <button class="gl-start" id="pz-start">Bild wählen →</button>
         <div class="gl-section" style="margin-top:20px;">
-            <div class="gl-label">Offene Spiele:</div>
-            <div id="mem-open-games" style="color:rgba(255,255,255,0.4);font-size:0.85rem;">Wird geladen...</div>
+            <div class="gl-label">Laufende Spiele:</div>
+            <div id="pz-open-games" style="color:rgba(255,255,255,0.4);font-size:0.85rem;">Wird geladen...</div>
         </div>
     </div>
 
-    <div id="memory-picker-view">
-        <button class="gl-back" id="mem-picker-back">← Zurück</button>
+    <div id="puzzle-picker-view">
+        <button class="gl-back" id="pz-picker-back">← Zurück</button>
         <div class="gl-title">📷 Bild wählen</div>
         <div class="gl-section" style="width:90%;max-width:400px;">
-            <div class="gl-label" id="mem-picker-label">Wähle 1 Bild aus der Galerie:</div>
+            <div class="gl-label">Wähle 1 Bild aus der Galerie:</div>
         </div>
-        <div class="mem-picker-grid" id="mem-picker-grid">Lade Bilder...</div>
+        <div class="pz-picker-grid" id="pz-picker-grid">Lade Bilder...</div>
     </div>
 
-    <div id="memory-game-view">
+    <div id="puzzle-game-view">
         <div class="game-topbar">
-            <button class="game-back" id="mem-game-back">← Zurück</button>
-            <div class="game-msg" id="mem-game-msg">Zuerst 2 Karten aufdecken!</div>
-            <button class="game-leave" id="mem-game-leave">Verlassen</button>
+            <button class="game-back" id="pz-game-back">← Zurück</button>
+            <div class="game-msg" id="pz-game-msg">Puzzle zusammenbauen!</div>
+            <button class="game-leave" id="pz-game-leave">Verlassen</button>
         </div>
-        <div class="mem-board" id="mem-board"></div>
-        <div class="mem-info" id="mem-info"></div>
+        <div id="pz-board">
+            <div id="pz-shadow"></div>
+        </div>
+        <div class="pz-info" id="pz-info"></div>
     </div>
 
-    <div class="win-overlay" id="mem-win-overlay">
-        <div class="win-text" id="mem-win-text"></div>
-        <div class="win-sub">Ihr habt es geschafft!</div>
-        <div class="win-sub" id="mem-win-stats" style="margin-top:5px;"></div>
-        <button class="win-btn" id="mem-win-btn">Zurück zum Menü</button>
+    <div class="win-overlay" id="pz-win-overlay">
+        <div class="win-text" id="pz-win-text">🧩 Geschafft!</div>
+        <div class="win-sub">Puzzle fertig!</div>
+        <div class="win-sub" id="pz-win-stats" style="margin-top:5px;"></div>
+        <button class="win-btn" id="pz-win-btn">Zurück zum Menü</button>
     </div>
 
     <input type="file" id="chat-file-input" accept="image/*,video/*">
@@ -986,21 +979,21 @@
             }
 
             window.addEventListener('popstate', (e) => {
-                if (memWinOverlay.classList.contains('visible')) {
-                    memWinOverlay.classList.remove('visible');
-                    memGameView.classList.remove('visible');
-                    memGameState = null;
+                if (pzWinOverlay && pzWinOverlay.classList.contains('visible')) {
+                    pzWinOverlay.classList.remove('visible');
+                    pzGameView.classList.remove('visible');
+                    pzCleanup();
                     document.getElementById('game-menu-view').classList.add('visible');
-                } else if (memGameView.classList.contains('visible')) {
-                    memGameView.classList.remove('visible');
-                    memGameState = null;
-                    memLobbyView.classList.add('visible');
-                } else if (memPickerView.classList.contains('visible')) {
-                    memPickerView.classList.remove('visible');
-                    memLobbyView.classList.add('visible');
-                    document.getElementById('mem-picker-label').textContent = 'Wähle 1 Bild aus der Galerie:';
-                } else if (memLobbyView.classList.contains('visible')) {
-                    memLobbyView.classList.remove('visible');
+                } else if (pzGameView && pzGameView.classList.contains('visible')) {
+                    pzGameView.classList.remove('visible');
+                    pzCleanup();
+                    pzLobbyView.classList.add('visible');
+                    listenPzOpenGames();
+                } else if (pzPickerView && pzPickerView.classList.contains('visible')) {
+                    pzPickerView.classList.remove('visible');
+                    pzLobbyView.classList.add('visible');
+                } else if (pzLobbyView && pzLobbyView.classList.contains('visible')) {
+                    pzLobbyView.classList.remove('visible');
                     document.getElementById('game-menu-view').classList.add('visible');
                 } else if (onceViewer.classList.contains('visible')) {
                     closeOnceViewer();
@@ -1853,60 +1846,59 @@
                 listenMyGames();
             });
 
-            // === MEMORY ===
-            const MEM_DIFFS = {
-                easy:   { cols: 4, rows: 3, pairs: 6 },
-                medium: { cols: 4, rows: 4, pairs: 8 },
-                hard:   { cols: 6, rows: 4, pairs: 12 }
+            // === PUZZLE ===
+            const PUZZLE_DIFFS = {
+                easy:   { cols: 3, rows: 2 },
+                medium: { cols: 4, rows: 3 },
+                hard:   { cols: 6, rows: 4 }
             };
-            let memDiff = 'easy';
-            let memSelectedImages = [];
-            let memGameState = null;
-            let memFlipping = false;
-            let memGameRef = null;
-            let memGameListener = null;
-            let memLobbyListener = null;
-            let memStartTime = 0;
+            let pzDiff = 'easy';
+            let pzSelectedImage = null;
+            let pzState = null;
+            let pzGameRef = null;
+            let pzGameListener = null;
+            let pzLobbyListener = null;
+            let pzStartTime = 0;
+            let pzDragPiece = null;
+            let pzDragOff = { x: 0, y: 0 };
+            let pzMaxZ = 100;
 
-            const memLobbyView = document.getElementById('memory-lobby-view');
-            const memPickerView = document.getElementById('memory-picker-view');
-            const memGameView = document.getElementById('memory-game-view');
-            const memBoard = document.getElementById('mem-board');
-            const memInfo = document.getElementById('mem-info');
-            const memWinOverlay = document.getElementById('mem-win-overlay');
+            const pzLobbyView = document.getElementById('puzzle-lobby-view');
+            const pzPickerView = document.getElementById('puzzle-picker-view');
+            const pzGameView = document.getElementById('puzzle-game-view');
+            const pzBoard = document.getElementById('pz-board');
+            const pzInfo = document.getElementById('pz-info');
+            const pzWinOverlay = document.getElementById('pz-win-overlay');
 
             document.getElementById('gm-memory').addEventListener('click', () => {
-                console.log('Memory clicked, memLobbyView:', memLobbyView);
                 document.getElementById('game-menu-view').classList.remove('visible');
-                memLobbyView.classList.add('visible');
-                try { listenMemOpenGames(); } catch(e) { console.error('Memory open games error:', e); }
-                history.pushState({ memLobby: true }, '');
+                pzLobbyView.classList.add('visible');
+                try { listenPzOpenGames(); } catch(e) {}
+                history.pushState({ pzLobby: true }, '');
             });
-            document.getElementById('mem-lobby-back').addEventListener('click', () => {
-                memLobbyView.classList.remove('visible');
+            document.getElementById('pz-lobby-back').addEventListener('click', () => {
+                pzLobbyView.classList.remove('visible');
                 document.getElementById('game-menu-view').classList.add('visible');
-                if (memLobbyListener) { db.ref('mem_lobbies').off('value', memLobbyListener); memLobbyListener = null; }
+                if (pzLobbyListener) { db.ref('pz_lobbies').off('value', pzLobbyListener); pzLobbyListener = null; }
             });
-
-            document.querySelectorAll('.mem-diff-btn').forEach(btn => {
+            document.querySelectorAll('.pz-diff-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    document.querySelectorAll('.mem-diff-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.pz-diff-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    memDiff = btn.dataset.diff;
+                    pzDiff = btn.dataset.diff;
                 });
             });
-
-            document.getElementById('mem-start').addEventListener('click', () => {
-                memPickerView.classList.add('visible');
-                loadMemPicker();
+            document.getElementById('pz-start').addEventListener('click', () => {
+                pzPickerView.classList.add('visible');
+                loadPzPicker();
             });
-            document.getElementById('mem-picker-back').addEventListener('click', () => {
-                memPickerView.classList.remove('visible');
-                memLobbyView.classList.add('visible');
+            document.getElementById('pz-picker-back').addEventListener('click', () => {
+                pzPickerView.classList.remove('visible');
+                pzLobbyView.classList.add('visible');
             });
 
-            function loadMemPicker() {
-                const grid = document.getElementById('mem-picker-grid');
+            function loadPzPicker() {
+                const grid = document.getElementById('pz-picker-grid');
                 grid.innerHTML = 'Lade Bilder...';
                 photosRef.get().then(snap => {
                     const images = [];
@@ -1923,297 +1915,316 @@
                     }
                     images.forEach(img => {
                         const el = document.createElement('div');
-                        el.className = 'mem-picker-item';
-                        el.innerHTML = `<img src="${img}">`;
+                        el.className = 'pz-picker-item';
+                        el.innerHTML = '<img src="' + img + '">';
                         el.addEventListener('click', () => {
-                            console.log('Image clicked, starting createMemGame...');
-                            grid.querySelectorAll('.mem-picker-item').forEach(i => i.classList.remove('selected'));
-                            el.classList.add('selected');
-                            memSelectedImages = [img];
-                            console.log('memSelectedImages set, calling createMemGame()');
-                            createMemGame();
+                            pzSelectedImage = img;
+                            pzPickerView.classList.remove('visible');
+                            createPzGame();
                         });
                         grid.appendChild(el);
                     });
                 }).catch(err => {
-                    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#ff4444;">Fehler: ${err.message}</div>`;
+                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#ff4444;">Fehler: ' + err.message + '</div>';
                 });
             }
 
-            function splitImageIntoPieces(imgDataUrl, numPieces) {
-                console.log('splitImageIntoPieces: numPieces=' + numPieces);
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onerror = function() { console.error('splitImage: Bild konnte nicht geladen werden!'); reject(new Error('Bild laden fehlgeschlagen')); };
-                    img.onload = function() {
-                        console.log('splitImage: Bild geladen, ' + img.width + 'x' + img.height);
-                        const w = img.width;
-                        const h = img.height;
-                        let cols, rows;
-                        if (numPieces <= 6) { cols = 3; rows = 2; }
-                        else if (numPieces <= 8) { cols = 4; rows = 2; }
-                        else { cols = 4; rows = 3; }
-                        const pieceW = Math.floor(w / cols);
-                        const pieceH = Math.floor(h / rows);
-                        const pieces = [];
-                        for (let r = 0; r < rows; r++) {
-                            for (let c = 0; c < cols; c++) {
-                                const canvas = document.createElement('canvas');
-                                canvas.width = pieceW;
-                                canvas.height = pieceH;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, c * pieceW, r * pieceH, pieceW, pieceH, 0, 0, pieceW, pieceH);
-                                pieces.push(canvas.toDataURL('image/jpeg', 0.85));
-                            }
-                        }
-                        resolve(pieces.slice(0, numPieces));
-                    };
-                    img.src = imgDataUrl;
-                });
+            function generateEdgeShapes(cols, rows) {
+                const h = [], v = [];
+                for (let r = 0; r < rows; r++) { h[r] = []; for (let c = 0; c < cols - 1; c++) h[r][c] = Math.random() < 0.5 ? 1 : -1; }
+                for (let r = 0; r < rows - 1; r++) { v[r] = []; for (let c = 0; c < cols; c++) v[r][c] = Math.random() < 0.5 ? 1 : -1; }
+                return { h, v };
             }
 
-            async function createMemGame() {
-                const { pairs } = MEM_DIFFS[memDiff];
-                const imgData = memSelectedImages[0];
-                if (!imgData) return;
+            function getPieceEdges(col, row, cols, rows, es) {
+                return {
+                    top:    row === 0 ? 0 : -es.v[row - 1][col],
+                    right:  col === cols - 1 ? 0 : es.h[row][col],
+                    bottom: row === rows - 1 ? 0 : es.v[row][col],
+                    left:   col === 0 ? 0 : -es.h[row][col - 1]
+                };
+            }
+
+            function drawJigsawEdge(ctx, x1, y1, x2, y2, shape, knob) {
+                if (shape === 0) { ctx.lineTo(x2, y2); return; }
+                const dx = x2 - x1, dy = y2 - y1;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                const nx = -dy / len, ny = dx / len;
+                const s = shape;
+                const f1x = x1 + dx * 0.34, f1y = y1 + dy * 0.34;
+                const f2x = x1 + dx * 0.66, f2y = y1 + dy * 0.66;
+                const mx = x1 + dx * 0.5, my = y1 + dy * 0.5;
+                ctx.lineTo(f1x, f1y);
+                ctx.quadraticCurveTo(mx + nx * knob * 1.8 * s, my + ny * knob * 1.8 * s, f2x, f2y);
+                ctx.lineTo(x2, y2);
+            }
+
+            function drawPiecePath(ctx, x, y, w, h, edges, knob) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                drawJigsawEdge(ctx, x, y, x + w, y, edges.top, knob);
+                drawJigsawEdge(ctx, x + w, y, x + w, y + h, edges.right, knob);
+                drawJigsawEdge(ctx, x + w, y + h, x, y + h, edges.bottom, knob);
+                drawJigsawEdge(ctx, x, y + h, x, y, edges.left, knob);
+                ctx.closePath();
+            }
+
+            function generatePieceImage(img, col, row, cols, rows, pieceW, pieceH, edges) {
+                const knob = Math.min(pieceW, pieceH) * 0.2;
+                const pad = Math.ceil(knob * 2) + 2;
+                const cw = pieceW + pad * 2, ch = pieceH + pad * 2;
+                const canvas = document.createElement('canvas');
+                canvas.width = cw; canvas.height = ch;
+                const ctx = canvas.getContext('2d');
+                drawPiecePath(ctx, pad, pad, pieceW, pieceH, edges, knob);
+                ctx.save(); ctx.clip();
+                const sx = col * (img.width / cols), sy = row * (img.height / rows);
+                const sw = img.width / cols, sh = img.height / rows;
+                ctx.drawImage(img, sx, sy, sw, sh, pad, pad, pieceW, pieceH);
+                ctx.restore();
+                drawPiecePath(ctx, pad, pad, pieceW, pieceH, edges, knob);
+                ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                return { dataUrl: canvas.toDataURL('image/png'), pad, cw, ch };
+            }
+
+            async function createPzGame() {
+                const { cols, rows } = PUZZLE_DIFFS[pzDiff];
+                if (!pzSelectedImage) return;
                 try {
-                    const pieces = await splitImageIntoPieces(imgData, pairs);
-                    let cards = [];
-                    pieces.forEach((pieceImg, i) => {
-                        cards.push({ id: i * 2, pairId: i, img: pieceImg, flipped: false, matched: false });
-                        cards.push({ id: i * 2 + 1, pairId: i, img: pieceImg, flipped: false, matched: false });
-                    });
-                    for (let i = cards.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [cards[i], cards[j]] = [cards[j], cards[i]];
+                    const img = new Image();
+                    img.src = pzSelectedImage;
+                    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+                    const es = generateEdgeShapes(cols, rows);
+                    const boardW = Math.min(window.innerWidth * 0.88, 480);
+                    const boardH = boardW * (img.height / img.width);
+                    const pieceW = boardW / cols;
+                    const pieceH = boardH / rows;
+                    const pieces = [];
+                    for (let r = 0; r < rows; r++) {
+                        for (let c = 0; c < cols; c++) {
+                            const edges = getPieceEdges(c, r, cols, rows, es);
+                            const pi = generatePieceImage(img, c, r, cols, rows, pieceW, pieceH, edges);
+                            const angle = (Math.random() - 0.5) * 0.4;
+                            pieces.push({
+                                id: r * cols + c, col: c, row: r,
+                                edges: edges, dataUrl: pi.dataUrl, pad: pi.pad, cw: pi.cw, ch: pi.ch,
+                                x: c * pieceW, y: rows * pieceH + 20 + Math.random() * 50,
+                                placed: false, angle: angle, zIndex: 0
+                            });
+                        }
                     }
-                    const key = db.ref('mem_games').push().key;
-                    const gameData = {
-                        cards, cols: MEM_DIFFS[memDiff].cols, rows: MEM_DIFFS[memDiff].rows,
-                        pairs, totalPairs: pairs,
-                        matchedPairs: 0, moves: 0, finished: false,
-                        host: currentUser, players: { [currentUser]: true }
-                    };
-                    await db.ref('mem_games/' + key).set(gameData);
-                    await db.ref('mem_lobbies/' + key).set({ host: currentUser, pairs, status: 'playing' });
-                    memPickerView.classList.remove('visible');
-                    startMemGameFromData(gameData, 'mem_games/' + key);
+                    const key = db.ref('pz_games').push().key;
+                    const totalPieces = cols * rows;
+                    pzState = { pieces: JSON.parse(JSON.stringify(pieces)), cols: cols, rows: rows, boardW: boardW, boardH: boardH, pieceW: pieceW, pieceH: pieceH, host: currentUser, players: {}, finished: false };
+                    pzState.players[currentUser] = true;
+                    await db.ref('pz_games/' + key).set(pzState);
+                    await db.ref('pz_lobbies/' + key).set({ host: currentUser, pieces: totalPieces, status: 'playing' });
+                    pzState.pieces = pieces;
+                    startPzGameFromData(pzState, 'pz_games/' + key);
                 } catch(err) {
-                    console.error('createMemGame FEHLER:', err);
+                    console.error('Puzzle Fehler:', err);
                 }
             }
 
-            function listenMemOpenGames() {
-                const list = document.getElementById('mem-open-games');
+            function listenPzOpenGames() {
+                const list = document.getElementById('pz-open-games');
                 if (!list) return;
-                if (memLobbyListener) db.ref('mem_lobbies').off('value', memLobbyListener);
-                memLobbyListener = db.ref('mem_lobbies').on('value', (snap) => {
+                if (pzLobbyListener) db.ref('pz_lobbies').off('value', pzLobbyListener);
+                pzLobbyListener = db.ref('pz_lobbies').on('value', (snap) => {
                     list.innerHTML = '';
-                    if (!snap.exists()) {
-                        list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine offenen Spiele</div>';
-                        return;
-                    }
+                    if (!snap.exists()) { list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine laufenden Spiele</div>'; return; }
                     let count = 0;
                     snap.forEach(child => {
                         const g = child.val();
                         if (g && g.status === 'playing' && g.host !== currentUser) {
                             count++;
                             const el = document.createElement('div');
-                            el.className = 'gl-open-mem';
-                            el.innerHTML = `<div class="gl-open-mem-info"><strong>${g.host}</strong> · ${g.pairs} Teile</div><button class="gl-open-mem-join" data-key="${child.key}">Beitreten</button>`;
+                            el.className = 'gl-open-pz';
+                            el.innerHTML = '<div class="gl-open-pz-info"><strong>' + g.host + '</strong> · ' + g.pieces + ' Teile</div><button class="gl-open-pz-join" data-key="' + child.key + '">Beitreten</button>';
                             list.appendChild(el);
                         }
                     });
-                    if (count === 0) {
-                        list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine offenen Spiele</div>';
-                    }
-                    list.querySelectorAll('.gl-open-mem-join').forEach(btn => {
-                        btn.addEventListener('click', () => joinMemGame(btn.dataset.key));
+                    if (count === 0) list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine laufenden Spiele</div>';
+                    list.querySelectorAll('.gl-open-pz-join').forEach(btn => {
+                        btn.addEventListener('click', () => joinPzGame(btn.dataset.key));
                     });
-                }, (err) => {
-                    console.error('Memory Lobby listen error:', err);
-                    list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Keine offenen Spiele</div>';
-                });
+                }, () => { list.innerHTML = '<div style="color:rgba(255,255,255,0.3);">Fehler</div>'; });
             }
 
-            function joinMemGame(key) {
-                const gameRefJoin = db.ref('mem_games/' + key);
-                gameRefJoin.once('value', (snap) => {
+            function joinPzGame(key) {
+                const ref = db.ref('pz_games/' + key);
+                ref.once('value', (snap) => {
                     const data = snap.val();
-                    if (!data) { alert('Spiel nicht mehr verfügbar!'); return; }
-                    gameRefJoin.child('players/' + currentUser).set(true);
-                    memLobbyView.classList.remove('visible');
-                    startMemGameFromData(data, 'mem_games/' + key);
+                    if (!data) { alert('Spiel nicht mehr verfuegbar!'); return; }
+                    ref.child('players/' + currentUser).set(true);
+                    pzLobbyView.classList.remove('visible');
+                    startPzGameFromData(data, 'pz_games/' + key);
                 });
             }
 
-            function startMemGameFromData(data, gamePath) {
-                memGameState = {
-                    cards: data.cards,
-                    cols: data.cols, rows: data.rows,
-                    pairs: data.pairs, totalPairs: data.totalPairs,
-                    matchedPairs: data.matchedPairs || 0,
-                    moves: data.moves || 0,
-                    finished: data.finished || false,
-                    flipped: [], lockInput: false
-                };
-                memStartTime = Date.now();
-                memPickerView.classList.remove('visible');
-                memLobbyView.classList.remove('visible');
-                memGameView.classList.add('visible');
-                history.pushState({ memGame: true }, '');
-                memGameRef = db.ref(gamePath);
-                memGameRef.set(memGameState);
-                if (memGameListener) memGameRef.off('value', memGameListener);
-                memGameListener = memGameRef.on('value', (snap) => {
+            function startPzGameFromData(data, gamePath) {
+                pzState = data;
+                pzStartTime = Date.now();
+                pzPickerView.classList.remove('visible');
+                pzLobbyView.classList.remove('visible');
+                pzGameView.classList.add('visible');
+                history.pushState({ pzGame: true }, '');
+                pzGameRef = db.ref(gamePath);
+                if (pzGameListener) pzGameRef.off('value', pzGameListener);
+                pzGameListener = pzGameRef.on('value', (snap) => {
                     if (snap.exists()) {
                         const remote = snap.val();
-                        if (remote.finished && !memGameState.finished) {
-                            memGameState.finished = true;
-                            memGameState.cards = remote.cards;
-                            memGameState.matchedPairs = remote.matchedPairs;
-                            memGameState.moves = remote.moves;
-                            renderMemGame();
-                            setTimeout(showMemWin, 400);
-                        } else if (remote.cards) {
-                            memGameState.cards = remote.cards;
-                            memGameState.matchedPairs = remote.matchedPairs;
-                            memGameState.moves = remote.moves;
-                            if (!memFlipping) renderMemGame();
+                        if (remote.finished && !pzState.finished) {
+                            pzState.finished = true;
+                            pzState.pieces = remote.pieces;
+                            renderPzBoard();
+                            setTimeout(showPzWin, 400);
+                        } else if (remote.pieces && !pzDragPiece) {
+                            remote.pieces.forEach(rp => {
+                                const lp = pzState.pieces.find(p => p.id === rp.id);
+                                if (lp && !lp.placed) { lp.x = rp.x; lp.y = rp.y; lp.zIndex = rp.zIndex || 0; }
+                            });
+                            renderPzBoard();
                         }
                     }
                 });
-                renderMemGame();
+                renderPzBoard();
+                setupPzDrag();
             }
 
-            function syncMemState() {
-                if (memGameRef && memGameState) {
-                    memGameRef.set({
-                        cards: memGameState.cards,
-                        cols: memGameState.cols, rows: memGameState.rows,
-                        pairs: memGameState.pairs, totalPairs: memGameState.totalPairs,
-                        matchedPairs: memGameState.matchedPairs,
-                        moves: memGameState.moves, finished: memGameState.finished
-                    }).catch(e => console.error('Memory sync error:', e));
-                }
-            }
-
-            function renderMemGame() {
-                if (!memGameState) return;
-                const { cards, cols, rows, finished } = memGameState;
-                memBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-                memBoard.innerHTML = '';
-                cards.forEach((card, idx) => {
+            function renderPzBoard() {
+                if (!pzState) return;
+                pzBoard.style.width = pzState.boardW + 'px';
+                pzBoard.style.height = (pzState.boardH + 50) + 'px';
+                const shadow = document.getElementById('pz-shadow');
+                shadow.style.width = pzState.boardW + 'px';
+                shadow.style.height = pzState.boardH + 'px';
+                shadow.style.left = '0px';
+                shadow.style.top = '0px';
+                pzBoard.querySelectorAll('.pz-piece').forEach(el => el.remove());
+                pzState.pieces.forEach(p => {
                     const el = document.createElement('div');
-                    el.className = 'mem-card' + (card.flipped ? ' flipped' : '') + (card.matched ? ' matched' : '');
-                    el.innerHTML = `<div class="mem-card-inner"><div class="mem-card-back">❤️</div><div class="mem-card-front"><img src="${card.img}"></div></div>`;
-                    if (!card.matched && !card.flipped && !memGameState.lockInput && !finished) {
-                        el.addEventListener('click', () => flipMemCard(idx));
-                    }
-                    memBoard.appendChild(el);
+                    el.className = 'pz-piece' + (p.placed ? ' placed' : '');
+                    el.dataset.id = p.id;
+                    el.style.width = p.cw + 'px';
+                    el.style.height = p.ch + 'px';
+                    el.style.left = (p.x - p.pad) + 'px';
+                    el.style.top = (p.y - p.pad) + 'px';
+                    el.style.zIndex = p.placed ? 1 : (p.zIndex || 10);
+                    if (!p.placed) el.style.transform = 'rotate(' + p.angle + 'rad)';
+                    el.innerHTML = '<img src="' + p.dataUrl + '">';
+                    pzBoard.appendChild(el);
                 });
-                const elapsed = Math.floor((Date.now() - memStartTime) / 1000);
-                const min = Math.floor(elapsed / 60);
-                const sec = elapsed % 60;
-                memInfo.innerHTML = `Züge: <span>${memGameState.moves}</span> · Paare: <span>${memGameState.matchedPairs}/${memGameState.totalPairs}</span> · Zeit: <span>${min}:${sec.toString().padStart(2,'0')}</span>`;
-                const msgEl = document.getElementById('mem-game-msg');
-                if (finished) {
-                    msgEl.textContent = 'Geschafft! 🎉';
-                } else if (memGameState.lockInput) {
-                    msgEl.textContent = 'Zweite Karte...';
-                } else {
-                    msgEl.textContent = 'Zuerst 2 Karten aufdecken!';
-                }
+                const placed = pzState.pieces.filter(p => p.placed).length;
+                const total = pzState.pieces.length;
+                const elapsed = Math.floor((Date.now() - pzStartTime) / 1000);
+                const min = Math.floor(elapsed / 60), sec = elapsed % 60;
+                pzInfo.innerHTML = 'Teile: <span>' + placed + '/' + total + '</span> · Zeit: <span>' + min + ':' + sec.toString().padStart(2, '0') + '</span>';
+                document.getElementById('pz-game-msg').textContent = pzState.finished ? 'Fertig! 🎉' : 'Puzzle zusammenbauen!';
             }
 
-            function flipMemCard(idx) {
-                if (!memGameState || memGameState.lockInput || memGameState.finished) return;
-                const card = memGameState.cards[idx];
-                if (card.flipped || card.matched) return;
-                memFlipping = true;
-                card.flipped = true;
-                memGameState.flipped.push(idx);
-                renderMemGame();
-                memFlipping = false;
-                if (memGameState.flipped.length === 2) {
-                    memGameState.lockInput = true;
-                    memGameState.moves++;
-                    const [i1, i2] = memGameState.flipped;
-                    const c1 = memGameState.cards[i1];
-                    const c2 = memGameState.cards[i2];
-                    if (c1.pairId === c2.pairId) {
-                        c1.matched = true;
-                        c2.matched = true;
-                        memGameState.matchedPairs++;
-                        memGameState.flipped = [];
-                        memGameState.lockInput = false;
-                        playSound('move');
-                        syncMemState();
-                        renderMemGame();
-                        if (memGameState.matchedPairs >= memGameState.totalPairs) {
-                            memGameState.finished = true;
-                            syncMemState();
-                            setTimeout(showMemWin, 600);
-                        }
-                    } else {
-                        syncMemState();
-                        renderMemGame();
-                        setTimeout(() => {
-                            c1.flipped = false;
-                            c2.flipped = false;
-                            memGameState.flipped = [];
-                            memGameState.lockInput = false;
-                            syncMemState();
-                            renderMemGame();
-                        }, 800);
+            let pzDragAttached = false;
+            function setupPzDrag() {
+                if (pzDragAttached) return;
+                pzDragAttached = true;
+                pzBoard.addEventListener('pointerdown', (e) => {
+                    if (pzState && pzState.finished) return;
+                    const el = e.target.closest('.pz-piece');
+                    if (!el) return;
+                    const piece = pzState.pieces.find(p => p.id === parseInt(el.dataset.id));
+                    if (!piece || piece.placed) return;
+                    e.preventDefault();
+                    pzDragPiece = piece;
+                    piece.zIndex = ++pzMaxZ;
+                    el.style.zIndex = pzMaxZ;
+                    const rect = pzBoard.getBoundingClientRect();
+                    pzDragOff.x = e.clientX - rect.left - piece.x;
+                    pzDragOff.y = e.clientY - rect.top - piece.y;
+                    el.classList.add('dragging');
+                    pzBoard.setPointerCapture(e.pointerId);
+                });
+                pzBoard.addEventListener('pointermove', (e) => {
+                    if (!pzDragPiece) return;
+                    e.preventDefault();
+                    const rect = pzBoard.getBoundingClientRect();
+                    pzDragPiece.x = e.clientX - rect.left - pzDragOff.x;
+                    pzDragPiece.y = e.clientY - rect.top - pzDragOff.y;
+                    const el = pzBoard.querySelector('.pz-piece[data-id="' + pzDragPiece.id + '"]');
+                    if (el) {
+                        el.style.left = (pzDragPiece.x - pzDragPiece.pad) + 'px';
+                        el.style.top = (pzDragPiece.y - pzDragPiece.pad) + 'px';
                     }
+                });
+                pzBoard.addEventListener('pointerup', (e) => {
+                    if (!pzDragPiece) return;
+                    e.preventDefault();
+                    const el = pzBoard.querySelector('.pz-piece[data-id="' + pzDragPiece.id + '"]');
+                    if (el) el.classList.remove('dragging');
+                    const piece = pzDragPiece;
+                    pzDragPiece = null;
+                    const correctX = piece.col * pzState.pieceW;
+                    const correctY = piece.row * pzState.pieceH;
+                    const snapDist = Math.min(pzState.pieceW, pzState.pieceH) * 0.35;
+                    if (Math.abs(piece.x - correctX) < snapDist && Math.abs(piece.y - correctY) < snapDist) {
+                        piece.x = correctX; piece.y = correctY;
+                        piece.placed = true; piece.angle = 0;
+                        playSound('move');
+                        checkPzWin();
+                    }
+                    syncPzPieces();
+                    renderPzBoard();
+                });
+            }
+
+            function checkPzWin() {
+                if (pzState.pieces.every(p => p.placed)) {
+                    pzState.finished = true;
+                    syncPzPieces();
+                    setTimeout(showPzWin, 400);
                 }
             }
 
-            function showMemWin() {
-                const elapsed = Math.floor((Date.now() - memStartTime) / 1000);
-                const min = Math.floor(elapsed / 60);
-                const sec = elapsed % 60;
-                document.getElementById('mem-win-text').textContent = '🎉 Geschafft!';
-                document.getElementById('mem-win-stats').textContent = memGameState.moves + ' Züge · ' + min + ':' + sec.toString().padStart(2, '0') + ' Minuten';
-                memWinOverlay.classList.add('visible');
+            function showPzWin() {
+                const elapsed = Math.floor((Date.now() - pzStartTime) / 1000);
+                const min = Math.floor(elapsed / 60), sec = elapsed % 60;
+                document.getElementById('pz-win-text').textContent = '🧩 Geschafft!';
+                document.getElementById('pz-win-stats').textContent = pzState.pieces.length + ' Teile · ' + min + ':' + sec.toString().padStart(2, '0') + ' Minuten';
+                pzWinOverlay.classList.add('visible');
             }
 
-            function cleanupMemLobby() {
-                if (memGameRef) {
-                    const key = memGameRef.key;
-                    db.ref('mem_lobbies/' + key).remove();
-                    db.ref('mem_games/' + key).remove();
-                }
+            function syncPzPieces() {
+                if (!pzGameRef || !pzState) return;
+                pzGameRef.set({
+                    pieces: pzState.pieces.map(p => ({ id: p.id, col: p.col, row: p.row, edges: p.edges, dataUrl: p.dataUrl, pad: p.pad, cw: p.cw, ch: p.ch, x: p.x, y: p.y, placed: p.placed, angle: p.angle })),
+                    cols: pzState.cols, rows: pzState.rows, boardW: pzState.boardW, boardH: pzState.boardH, pieceW: pzState.pieceW, pieceH: pzState.pieceH,
+                    host: pzState.host, players: pzState.players, finished: pzState.finished
+                }).catch(e => console.error('Puzzle sync error:', e));
             }
-            document.getElementById('mem-game-back').addEventListener('click', () => {
-                memGameView.classList.remove('visible');
-                cleanupMemLobby();
-                if (memGameRef) { memGameRef.off(); memGameRef = null; }
-                memGameState = null;
-                memLobbyView.classList.add('visible');
-                listenMemOpenGames();
+
+            function pzCleanup() {
+                if (pzGameRef) { const key = pzGameRef.key; pzGameRef.off(); pzGameRef = null; db.ref('pz_lobbies/' + key).remove(); db.ref('pz_games/' + key).remove(); }
+                pzState = null; pzDragPiece = null;
+            }
+
+            document.getElementById('pz-game-back').addEventListener('click', () => {
+                pzGameView.classList.remove('visible'); pzCleanup();
+                pzLobbyView.classList.add('visible'); listenPzOpenGames();
             });
-            document.getElementById('mem-game-leave').addEventListener('click', () => {
+            document.getElementById('pz-game-leave').addEventListener('click', () => {
                 if (confirm('Puzzle wirklich verlassen?')) {
-                    memGameView.classList.remove('visible');
-                    cleanupMemLobby();
-                    if (memGameRef) { memGameRef.off(); memGameRef = null; }
-                    memGameState = null;
-                    memLobbyView.classList.add('visible');
-                    listenMemOpenGames();
+                    pzGameView.classList.remove('visible'); pzCleanup();
+                    pzLobbyView.classList.add('visible'); listenPzOpenGames();
                 }
             });
-            document.getElementById('mem-win-btn').addEventListener('click', () => {
-                memWinOverlay.classList.remove('visible');
-                memGameView.classList.remove('visible');
-                cleanupMemLobby();
-                if (memGameRef) { memGameRef.off(); memGameRef = null; }
-                memGameState = null;
+            document.getElementById('pz-win-btn').addEventListener('click', () => {
+                pzWinOverlay.classList.remove('visible'); pzGameView.classList.remove('visible'); pzCleanup();
                 document.getElementById('game-menu-view').classList.add('visible');
             });
         }
     });
+
 
     /* ===== DEBUG PANEL (O+P) ===== */
     const debugLog = [];
